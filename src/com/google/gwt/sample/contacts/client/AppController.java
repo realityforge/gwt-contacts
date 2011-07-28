@@ -1,6 +1,6 @@
 package com.google.gwt.sample.contacts.client;
 
-import com.google.gwt.sample.contacts.client.common.ContactsColumnDefinitionsFactory;
+import com.google.gwt.sample.contacts.client.common.ContactsColumnDefinitionsImpl;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.AddContactEventHandler;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
@@ -104,21 +104,20 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
     if (token != null) {
       if (token.equals("list")) {
         GWT.runAsync(new RunAsyncCallback() {
-          public void onFailure(Throwable caught) {
-          }
-      
-          public void onSuccess() {
-            // lazily initialize our views, and keep them around to be reused
-            //
-            if (contactsView == null) {
-              contactsView = new ContactsViewImpl<ContactDetails>();
-              
+            public void onFailure(Throwable caught) {
             }
-            new ContactsPresenter(rpcService, eventBus, contactsView, 
-                ContactsColumnDefinitionsFactory
-                .getContactsColumnDefinitions())
-            .go(container);
-          }
+
+            public void onSuccess() {
+                // lazily initialize our views, and keep them around to be reused
+                //
+                if (contactsView == null) {
+                    contactsView = new ContactsViewImpl<ContactDetails>();
+
+                }
+                new ContactsPresenter(rpcService, eventBus, contactsView,
+                        ContactsColumnDefinitionsImpl.getInstance())
+                        .go(container);
+            }
         });
       }
       else if (token.equals("add") || token.equals("edit")) {
