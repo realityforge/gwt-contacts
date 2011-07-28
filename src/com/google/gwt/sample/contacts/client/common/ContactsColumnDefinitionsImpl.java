@@ -32,7 +32,7 @@ public class ContactsColumnDefinitionsImpl extends
 
     this.add(new ColumnDefinition<ContactDetails>() {
       public void render(ContactDetails c, StringBuilder sb) {        
-        sb.append("<div id='" + c.getDisplayName() + "'>" + c.getDisplayName() + "</div>");
+        sb.append("<span id='" + c.getDisplayName() + "'>" + c.getDisplayName() + "</span><br />");
       }
 
       public boolean isClickable() {
