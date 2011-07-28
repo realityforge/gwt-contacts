@@ -1,28 +1,20 @@
 package com.google.gwt.sample.contacts.client.view;
 
-import com.google.gwt.sample.contacts.client.presenter.EditContactPresenter;
-
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DecoratorPanel;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HasValue;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.sample.contacts.client.presenter.EditContactPresenter;
+import com.google.gwt.user.client.ui.*;
 
-public class EditContactView extends Composite implements EditContactPresenter.Display {
+public class EditContactView extends Composite implements EditContactPresenter.Display
+{
   private final TextBox firstName;
   private final TextBox lastName;
   private final TextBox emailAddress;
   private final FlexTable detailsTable;
   private final Button saveButton;
   private final Button cancelButton;
-  
-  public EditContactView() {
+
+  public EditContactView()
+  {
     DecoratorPanel contentDetailsDecorator = new DecoratorPanel();
     contentDetailsDecorator.setWidth("18em");
     initWidget(contentDetailsDecorator);
@@ -42,7 +34,7 @@ public class EditContactView extends Composite implements EditContactPresenter.D
     emailAddress = new TextBox();
     initDetailsTable();
     contentDetailsPanel.add(detailsTable);
-    
+
     HorizontalPanel menuPanel = new HorizontalPanel();
     saveButton = new Button("Save");
     cancelButton = new Button("Cancel");
@@ -51,8 +43,9 @@ public class EditContactView extends Composite implements EditContactPresenter.D
     contentDetailsPanel.add(menuPanel);
     contentDetailsDecorator.add(contentDetailsPanel);
   }
-  
-  private void initDetailsTable() {
+
+  private void initDetailsTable()
+  {
     detailsTable.setWidget(0, 0, new Label("Firstname"));
     detailsTable.setWidget(0, 1, firstName);
     detailsTable.setWidget(1, 0, new Label("Lastname"));
@@ -61,28 +54,34 @@ public class EditContactView extends Composite implements EditContactPresenter.D
     detailsTable.setWidget(2, 1, emailAddress);
     firstName.setFocus(true);
   }
-  
-  public HasValue<String> getFirstName() {
+
+  public HasValue<String> getFirstName()
+  {
     return firstName;
   }
 
-  public HasValue<String> getLastName() {
+  public HasValue<String> getLastName()
+  {
     return lastName;
   }
 
-  public HasValue<String> getEmailAddress() {
+  public HasValue<String> getEmailAddress()
+  {
     return emailAddress;
   }
 
-  public HasClickHandlers getSaveButton() {
+  public HasClickHandlers getSaveButton()
+  {
     return saveButton;
   }
-  
-  public HasClickHandlers getCancelButton() {
+
+  public HasClickHandlers getCancelButton()
+  {
     return cancelButton;
   }
-  
-  public Widget asWidget() {
+
+  public Widget asWidget()
+  {
     return this;
   }
 }

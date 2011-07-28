@@ -3,22 +3,27 @@ package com.google.gwt.sample.contacts.client.common;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectionModel<T> {
+public class SelectionModel<T>
+{
   List<T> selectedItems = new ArrayList<T>();
-  
-  public List<T> getSelectedItems() {
+
+  public List<T> getSelectedItems()
+  {
     return selectedItems;
   }
-  
-  public void addSelection(T item) {
+
+  public void addSelection(T item)
+  {
     selectedItems.add(item);
   }
-  
-  public void removeSelection(T item) {
+
+  public void removeSelection(T item)
+  {
     selectedItems.remove(item);
   }
-  
-  public boolean isSelected(T item) {
+
+  public boolean isSelected(T item)
+  {
     return selectedItems.contains(item);
   }
 }
