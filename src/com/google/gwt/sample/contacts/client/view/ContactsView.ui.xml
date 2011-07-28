@@ -5,7 +5,7 @@
 
   <ui:style>
     .contactsViewButtonHPanel {
-      margin: 5px 0px 0 x 5px;
+      margin: 5px 0px 0px 5px;
     }
 
     .contactsViewContactsFlexTable {
@@ -19,8 +19,7 @@
         <g:Button ui:field="addButton">Add</g:Button>
         <g:Button ui:field="deleteButton">Delete</g:Button>
       </g:HorizontalPanel>
-      <g:HTML ui:field="contactsTable"></g:HTML>
-      <!--<g:FlexTable ui:field="contactsTable" addStyleNames="{style.contactsViewContactsFlexTable}"/>  -->
+      <g:HTML ui:field="contactsTable"/>
     </g:VerticalPanel>
   </g:DecoratorPanel>
 </ui:UiBinder> 
