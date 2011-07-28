@@ -10,7 +10,8 @@ public class Contact implements Serializable {
   public String firstName;
   public String lastName;
   public String emailAddress;
-	
+  public Address address;
+
 	public Contact() {}
 	
 	public Contact(String id, String firstName, String lastName, String emailAddress) {

@@ -1,75 +1,65 @@
 package com.google.gwt.sample.contacts.client.presenter;
 
 import com.google.gwt.sample.contacts.client.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.client.common.ColumnDefinition;
+import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactEvent;
+import com.google.gwt.sample.contacts.client.view.ContactsView;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
-import com.google.gwt.user.client.ui.Widget;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContactsPresenter implements Presenter {  
+public class ContactsPresenter implements Presenter, 
+  ContactsView.Presenter<ContactDetails> {  
 
   private List<ContactDetails> contactDetails;
-
-  public interface Display {
-    HasClickHandlers getAddButton();
-    HasClickHandlers getDeleteButton();
-    HasClickHandlers getList();
-    void setData(List<String> data);
-    int getClickedRow(ClickEvent event);
-    List<Integer> getSelectedRows();
-    Widget asWidget();
-  }
-  
   private final ContactsServiceAsync rpcService;
   private final HandlerManager eventBus;
-  private final Display display;
+  private final ContactsView<ContactDetails> view;
+  private final SelectionModel<ContactDetails> selectionModel;
   
-  public ContactsPresenter(ContactsServiceAsync rpcService, HandlerManager eventBus, Display view) {
+  public ContactsPresenter(ContactsServiceAsync rpcService, 
+      HandlerManager eventBus, ContactsView<ContactDetails> view,
+      List<ColumnDefinition<ContactDetails>> columnDefinitions) {
     this.rpcService = rpcService;
     this.eventBus = eventBus;
-    this.display = view;
+    this.view = view;
+    this.selectionModel = new SelectionModel<ContactDetails>();
+    this.view.setPresenter(this);
+    this.view.setColumnDefinitions(columnDefinitions);
   }
   
-  public void bind() {
-    display.getAddButton().addClickHandler(new ClickHandler() {   
-      public void onClick(ClickEvent event) {
-        eventBus.fireEvent(new AddContactEvent());
-      }
-    });
+  public void onAddButtonClicked() {
+    eventBus.fireEvent(new AddContactEvent());
+  }
+  
+  public void onDeleteButtonClicked() {
+    deleteSelectedContacts();
+  }
+  
+  public void onItemClicked(ContactDetails contactDetails) {
+    eventBus.fireEvent(new EditContactEvent(contactDetails.getId()));
+  }
 
-    display.getDeleteButton().addClickHandler(new ClickHandler() {   
-      public void onClick(ClickEvent event) {
-        deleteSelectedContacts();
-      }
-    });
-    
-    display.getList().addClickHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        int selectedRow = display.getClickedRow(event);
-        
-        if (selectedRow >= 0) {
-          String id = contactDetails.get(selectedRow).getId();
-          eventBus.fireEvent(new EditContactEvent(id));
-        }
-      }
-    });
+  public void onItemSelected(ContactDetails contactDetails) {
+    if (selectionModel.isSelected(contactDetails)) {
+      selectionModel.removeSelection(contactDetails);
+    }
+    else {
+      selectionModel.addSelection(contactDetails);
+    }
   }
   
   public void go(final HasWidgets container) {
-    bind();
     container.clear();
-    container.add(display.asWidget());
+    container.add(view.asWidget());
     fetchContactDetails();
   }
 
@@ -94,6 +84,10 @@ public class ContactsPresenter implements Presenter {
     this.contactDetails = contactDetails;
   }
   
+  public List<ContactDetails> getContactDetails() {
+    return contactDetails;
+  }
+  
   public ContactDetails getContactDetail(int index) {
     return contactDetails.get(index);
   }
@@ -103,13 +97,7 @@ public class ContactsPresenter implements Presenter {
       public void onSuccess(ArrayList<ContactDetails> result) {
           contactDetails = result;
           sortContactDetails();
-          List<String> data = new ArrayList<String>();
-
-          for (int i = 0; i < result.size(); ++i) {
-            data.add(contactDetails.get(i).getDisplayName());
-          }
-          
-          display.setData(data);
+          view.setRowData(contactDetails);
       }
       
       public void onFailure(Throwable caught) {
@@ -119,29 +107,22 @@ public class ContactsPresenter implements Presenter {
   }
 
   private void deleteSelectedContacts() {
-    List<Integer> selectedRows = display.getSelectedRows();
+    List<ContactDetails> selectedContacts = selectionModel.getSelectedItems();
     ArrayList<String> ids = new ArrayList<String>();
     
-    for (int i = 0; i < selectedRows.size(); ++i) {
-      ids.add(contactDetails.get(selectedRows.get(i)).getId());
+    for (int i = 0; i < selectedContacts.size(); ++i) {
+      ids.add(selectedContacts.get(i).getId());
     }
     
     rpcService.deleteContacts(ids, new AsyncCallback<ArrayList<ContactDetails>>() {
       public void onSuccess(ArrayList<ContactDetails> result) {
         contactDetails = result;
         sortContactDetails();
-        List<String> data = new ArrayList<String>();
-
-        for (int i = 0; i < result.size(); ++i) {
-          data.add(contactDetails.get(i).getDisplayName());
-        }
-        
-        display.setData(data);
-        
+        view.setRowData(contactDetails);
       }
       
       public void onFailure(Throwable caught) {
-        Window.alert("Error deleting selected contacts");
+        System.out.println("Error deleting selected contacts");
       }
     });
   }

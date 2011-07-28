@@ -1,0 +1,25 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder 
+  xmlns:ui="urn:ui:com.google.gwt.uibinder"
+  xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	
+	<ui:style>
+		.contactsViewButtonHPanel {
+		 margin: 5px 0px 0x 5px;	
+		}
+	  .contactsViewContactsFlexTable {
+	   margin: 5px 0px 5px 0px; 
+	  }
+	</ui:style>
+
+  <g:DecoratorPanel>
+	  <g:VerticalPanel>
+	    <g:HorizontalPanel addStyleNames="{style.contactsViewButtonHPanel}">
+	      <g:Button ui:field="addButton">Add</g:Button>
+	      <g:Button ui:field="deleteButton">Delete</g:Button>
+	    </g:HorizontalPanel>
+	    <g:HTML ui:field="contactsTable"></g:HTML>
+	    <!--<g:FlexTable ui:field="contactsTable" addStyleNames="{style.contactsViewContactsFlexTable}"/>  -->
+	  </g:VerticalPanel>
+  </g:DecoratorPanel>
+</ui:UiBinder> 

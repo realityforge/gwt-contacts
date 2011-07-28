@@ -1,5 +1,6 @@
 package com.google.gwt.sample.contacts.client;
 
+import com.google.gwt.sample.contacts.client.common.ContactsColumnDefinitionsFactory;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.AddContactEventHandler;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
@@ -11,9 +12,12 @@ import com.google.gwt.sample.contacts.client.event.EditContactCancelledEventHand
 import com.google.gwt.sample.contacts.client.presenter.ContactsPresenter;
 import com.google.gwt.sample.contacts.client.presenter.EditContactPresenter;
 import com.google.gwt.sample.contacts.client.presenter.Presenter;
-import com.google.gwt.sample.contacts.client.view.ContactsView;
+import com.google.gwt.sample.contacts.client.view.ContactsViewImpl;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
+import com.google.gwt.sample.contacts.shared.ContactDetails;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerManager;
@@ -24,6 +28,8 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
   private final HandlerManager eventBus;
   private final ContactsServiceAsync rpcService; 
   private HasWidgets container;
+  private ContactsViewImpl<ContactDetails> contactsView = null;
+  private EditContactView editContactView = null;
   
   public AppController(ContactsServiceAsync rpcService, HandlerManager eventBus) {
     this.eventBus = eventBus;
@@ -96,20 +102,41 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
     String token = event.getValue();
     
     if (token != null) {
-      Presenter presenter = null;
-
       if (token.equals("list")) {
-        presenter = new ContactsPresenter(rpcService, eventBus, new ContactsView());
-      }
-      else if (token.equals("add")) {
-        presenter = new EditContactPresenter(rpcService, eventBus, new EditContactView());
-      }
-      else if (token.equals("edit")) {
-        presenter = new EditContactPresenter(rpcService, eventBus, new EditContactView());
-      }
+        GWT.runAsync(new RunAsyncCallback() {
+          public void onFailure(Throwable caught) {
+          }
       
-      if (presenter != null) {
-        presenter.go(container);
+          public void onSuccess() {
+            // lazily initialize our views, and keep them around to be reused
+            //
+            if (contactsView == null) {
+              contactsView = new ContactsViewImpl<ContactDetails>();
+              
+            }
+            new ContactsPresenter(rpcService, eventBus, contactsView, 
+                ContactsColumnDefinitionsFactory
+                .getContactsColumnDefinitions())
+            .go(container);
+          }
+        });
+      }
+      else if (token.equals("add") || token.equals("edit")) {
+        GWT.runAsync(new RunAsyncCallback() {
+          public void onFailure(Throwable caught) {
+          }
+      
+          public void onSuccess() {
+            // lazily initialize our views, and keep them around to be reused
+            //
+            if (editContactView == null) {
+              editContactView = new EditContactView();
+              
+            }
+            new EditContactPresenter(rpcService, eventBus, editContactView).
+            go(container);
+          }
+        });
       }
     }
   } 

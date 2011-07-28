@@ -1,1 +1,1 @@
-This is the gwt "contacts" tutorial application from google. It has been slightly modified to work under IDEA. It has also been subject to the occasional tinkering int the pursuit of knowledge. See       http://code.google.com/webtoolkit/articles/mvp-architecture.html
+This is the gwt "contacts" tutorial application from google. It has been slightly modified to work under IDEA. It has also been subject to the occasional tinkering in the pursuit of knowledge. See       http://code.google.com/webtoolkit/articles/mvp-architecture-2.html
