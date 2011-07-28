@@ -7,7 +7,6 @@ import com.google.gwt.sample.contacts.client.common.ColumnDefinition;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.uibinder.client.UiTemplate;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
@@ -18,8 +17,6 @@ import java.util.List;
 
 public class ContactsViewImpl<T> extends Composite implements ContactsView<T>
 {
-
-  @UiTemplate("ContactsView.ui.xml")
   interface ContactsViewUiBinder extends UiBinder<Widget, ContactsViewImpl>
   {
   }
@@ -48,8 +45,7 @@ public class ContactsViewImpl<T> extends Composite implements ContactsView<T>
     this.presenter = presenter;
   }
 
-  public void setColumnDefinitions(
-      List<ColumnDefinition<T>> columnDefinitions)
+  public void setColumnDefinitions(List<ColumnDefinition<T>> columnDefinitions)
   {
     this.columnDefinitions = columnDefinitions;
   }
@@ -62,16 +58,14 @@ public class ContactsViewImpl<T> extends Composite implements ContactsView<T>
     TableSectionElement tbody;
     table.appendChild(tbody = Document.get().createTBodyElement());
 
-    for (int i = 0; i < rowData.size(); ++i)
+    for (T rowDatum : rowData)
     {
-      TableRowElement row = tbody.insertRow(-1);
-      T t = rowData.get(i);
-
-      for (int j = 0; j < columnDefinitions.size(); ++j)
+      final TableRowElement row = tbody.insertRow(-1);
+      for (ColumnDefinition<T> columnDefinition : columnDefinitions)
       {
         TableCellElement cell = row.insertCell(-1);
         StringBuilder sb = new StringBuilder();
-        columnDefinitions.get(j).render(t, sb);
+        columnDefinition.render(rowDatum, sb);
         cell.setInnerHTML(sb.toString());
 
         // TODO: Really total hack! There's gotta be a better way...
@@ -86,7 +80,8 @@ public class ContactsViewImpl<T> extends Composite implements ContactsView<T>
     contactsTable.setHTML(table.getInnerHTML());
   }
 
-  @UiHandler("addButton") void onAddButtonClicked(ClickEvent event)
+  @UiHandler("addButton")
+  void onAddButtonClicked(final ClickEvent event)
   {
     if (presenter != null)
     {
@@ -94,7 +89,8 @@ public class ContactsViewImpl<T> extends Composite implements ContactsView<T>
     }
   }
 
-  @UiHandler("deleteButton") void onDeleteButtonClicked(ClickEvent event)
+  @UiHandler("deleteButton")
+  void onDeleteButtonClicked(final ClickEvent event)
   {
     if (presenter != null)
     {
@@ -122,14 +118,15 @@ public class ContactsViewImpl<T> extends Composite implements ContactsView<T>
   }
 
 
-  @UiHandler("contactsTable") void onTableClicked(ClickEvent event)
+  @UiHandler("contactsTable")
+  void onTableClicked(ClickEvent event)
   {
     if (presenter != null)
     {
       EventTarget target = event.getNativeEvent().getEventTarget();
       Node node = Node.as(target);
       TableCellElement cell = findNearestParentCell(node);
-      if (cell == null)
+      if (null == cell)
       {
         return;
       }
@@ -137,16 +134,13 @@ public class ContactsViewImpl<T> extends Composite implements ContactsView<T>
       TableRowElement tr = TableRowElement.as(cell.getParentElement());
       int row = tr.getSectionRowIndex();
 
-      if (cell != null)
+      if (shouldFireClickEvent(cell))
       {
-        if (shouldFireClickEvent(cell))
-        {
-          presenter.onItemClicked(rowData.get(row));
-        }
-        if (shouldFireSelectEvent(cell))
-        {
-          presenter.onItemSelected(rowData.get(row));
-        }
+        presenter.onItemClicked(rowData.get(row));
+      }
+      if (shouldFireSelectEvent(cell))
+      {
+        presenter.onItemSelected(rowData.get(row));
       }
     }
   }

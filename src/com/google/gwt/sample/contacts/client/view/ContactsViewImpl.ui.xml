@@ -7,10 +7,6 @@
     .contactsViewButtonHPanel {
       margin: 5px 0px 0px 5px;
     }
-
-    .contactsViewContactsFlexTable {
-      margin: 5px 0px 5px 0px;
-    }
   </ui:style>
 
   <g:DecoratorPanel>
