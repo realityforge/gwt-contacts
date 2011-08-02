@@ -19,9 +19,8 @@ define 'gwt-contacts' do
   doc.using :javadoc,
             {:tree => false, :since => false, :deprecated => false, :index => false, :help => false}
 
-  project.no_ipr
+  ipr.add_gwt_configuration("Contacts.html", project.iml.id)
   iml.add_web_facet
   iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
   iml.add_jruby_facet
-
 end

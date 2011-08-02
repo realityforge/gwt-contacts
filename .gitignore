@@ -1,4 +1,6 @@
 *.iws
+*.iml
+*.ipr
 target/
 reports/
 .DS_Store
