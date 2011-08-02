@@ -101,6 +101,6 @@ public class ContactsServiceImpl extends RemoteServiceServlet implements
 
   public Contact getContact(String id)
   {
-    return contacts.get(id);
+    return contacts.get( id );
   }
 }
