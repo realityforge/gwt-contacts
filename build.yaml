@@ -1,0 +1,14 @@
+junit: 4.8.2
+
+gems:
+  #- ci_reporter
+  - buildr >= 1.4.6
+
+repositories:
+  remote:
+   - http://repo.fire.dse.vic.gov.au/content/groups/fisg
+   - http://www.ibiblio.org/maven2
+
+artifacts:
+  easymock: org.easymock:easymock:jar:2.5.2
+  gwt_user: com.google.gwt:gwt-user:jar:2.3.0
