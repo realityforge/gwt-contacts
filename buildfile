@@ -7,7 +7,7 @@ define 'gwt-contacts' do
   compile.options.target = '1.6'
   compile.options.lint = 'all'
 
-  compile.with :gwt_user, :javax_ejb
+  compile.with :gwt_user, :javax_ejb, :javax_persistence
 
   test.with :easymock
 
@@ -23,6 +23,7 @@ define 'gwt-contacts' do
 
   ipr.add_gwt_configuration("Contacts.html", project.iml.id)
   iml.add_web_facet
+  iml.add_jpa_facet
   iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
   iml.add_jruby_facet
 end

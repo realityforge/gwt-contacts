@@ -3,12 +3,10 @@ package com.google.gwt.sample.contacts.server;
 import com.google.gwt.sample.contacts.shared.Contact;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javax.annotation.PostConstruct;
-import javax.ejb.Singleton;
 import javax.ejb.Stateless;
 
-@Singleton
+@Stateless
 public class ContactsEJB
   implements LocalContacts
 {
@@ -34,36 +32,34 @@ public class ContactsEJB
     "post_master@example.com", "rchilders@example.com", "buster@example.com",
     "user31065@example.com", "ftsgeolbx@example.com" };
 
-  private final HashMap<String, Contact> contacts = new HashMap<String, Contact>();
+  @javax.persistence.PersistenceContext(unitName = "contacts")
+  private javax.persistence.EntityManager em;
 
-  @PostConstruct
-  private void initContacts()
+  public Contact addContact( final Contact dto )
   {
-    for ( int i = 0; i < firstNameData.length && i < lastNameData.length && i < emailData.length; ++i )
+    final ContactBean contact = new ContactBean();
+    updatePersistentFromDTO( dto, contact );
+    em.persist( contact );
+    return dto;
+  }
+
+  public Contact updateContact( final Contact dto )
+  {
+    if ( null == dto.getId() )
     {
-      final Contact contact =
-        new Contact( String.valueOf( i ), firstNameData[ i ], lastNameData[ i ], emailData[ i ] );
-      contacts.put( contact.getId(), contact );
+      return addContact( dto );
     }
-  }
-
-  public Contact addContact( final Contact contact )
-  {
-    contact.setId( String.valueOf( contacts.size() ) );
-    contacts.put( contact.getId(), contact );
-    return contact;
-  }
-
-  public Contact updateContact( final Contact contact )
-  {
-    contacts.remove( contact.getId() );
-    contacts.put( contact.getId(), contact );
-    return contact;
+    else
+    {
+      final ContactBean contact = findByID( dto.getId() );
+      updatePersistentFromDTO( dto, contact );
+      return dto;
+    }
   }
 
   public Boolean deleteContact( final String id )
   {
-    contacts.remove( id );
+    em.remove( findByID( id ) );
     return true;
   }
 
@@ -79,12 +75,13 @@ public class ContactsEJB
 
   public ArrayList<ContactDetails> getContactDetails()
   {
-    ArrayList<ContactDetails> contactDetails = new ArrayList<ContactDetails>();
+    initContactsIfRequired();
+    final javax.persistence.TypedQuery<ContactBean> query = em.createNamedQuery( ContactBean.findAll, ContactBean.class );
 
-    for ( final String s : contacts.keySet() )
+    final ArrayList<ContactDetails> contactDetails = new ArrayList<ContactDetails>();
+    for ( final ContactBean contact : query.getResultList() )
     {
-      final Contact contact = contacts.get( s );
-      contactDetails.add( contact.getLightWeightContact() );
+      contactDetails.add( toLightWeightContactDTO( contact ) );
     }
 
     return contactDetails;
@@ -92,6 +89,49 @@ public class ContactsEJB
 
   public Contact getContact( final String id )
   {
-    return contacts.get( id );
+    final ContactBean result = findByID( id );
+    return toContactDTO( result );
+  }
+
+  private Contact toContactDTO( final ContactBean result )
+  {
+    return new Contact( String.valueOf( result.getID() ), result.getFirstName(), result.getLastName(), result.getEmailAddress() );
+  }
+
+  private ContactDetails toLightWeightContactDTO( final ContactBean contact )
+  {
+    return new ContactDetails( String.valueOf( contact.getID() ), contact.getFullName());
+  }
+
+  private ContactBean findByID( final String id )
+  {
+    return findByID( Integer.parseInt( id ) );
+  }
+
+  private ContactBean findByID( final Integer id )
+  {
+    final javax.persistence.TypedQuery<ContactBean> query = em.createNamedQuery( ContactBean.findByID,
+                                                                                 ContactBean.class );
+    query.setParameter( "ID", id );
+    return query.getSingleResult();
+  }
+
+  private void updatePersistentFromDTO( final Contact contact, final ContactBean persistent )
+  {
+    persistent.setFirstName( contact.getFirstName() );
+    persistent.setLastName( contact.getLastName() );
+    persistent.setEmailAddress( contact.getEmailAddress() );
+  }
+
+  private void initContactsIfRequired()
+  {
+    if ( 0 == em.createNamedQuery( ContactBean.findAll, ContactBean.class ).getResultList().size() )
+    {
+      for ( int i = 0; i < firstNameData.length && i < lastNameData.length && i < emailData.length; ++i )
+      {
+        final Contact dto = new Contact( null, firstNameData[ i ], lastNameData[ i ], emailData[ i ] );
+        addContact( dto );
+      }
+    }
   }
 }
