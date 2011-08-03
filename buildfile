@@ -29,4 +29,7 @@ define 'gwt-contacts' do
 
   iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
   iml.add_jruby_facet
+
+  # Remove the IDEA generated artifacts
+  project.clean { rm_rf project._(:artifacts) }
 end
