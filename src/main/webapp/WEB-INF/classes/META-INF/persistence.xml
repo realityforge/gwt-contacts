@@ -16,9 +16,10 @@
     <properties>
       <!-- Properties for Hibernate (default provider for JBoss AS) -->
       <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <!--
       <property name="hibernate.format_sql" value="true"/>
       <property name="hibernate.show_sql" value="true"/>
-      <property name="hibernate.transaction.flush_before_completion" value="true"/>
+      -->
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.HashtableCacheProvider"/>
       <property name="hibernate.dialect" value="org.hibernate.dialect.DerbyDialect"/>
 
