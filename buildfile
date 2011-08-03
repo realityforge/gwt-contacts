@@ -23,7 +23,7 @@ define 'gwt-contacts' do
 
   ipr.add_gwt_configuration("Contacts.html", project.iml.id)
   iml.add_web_facet
-  iml.add_jpa_facet
+  iml.add_jpa_facet(:persistence_xml => _(:source, :main, :webapp, "WEB-INF/classes/WEB-INF/web.xml"))
   iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
   iml.add_jruby_facet
 end
