@@ -1,6 +1,9 @@
 package com.google.gwt.sample.contacts.client.common;
 
 import com.google.gwt.sample.contacts.shared.ContactDetails;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 
 @SuppressWarnings( "serial" )
@@ -25,9 +28,9 @@ public class ContactsColumnDefinitionsImpl
   {
     this.add( new ColumnDefinition<ContactDetails>()
     {
-      public void render( final ContactDetails c, final StringBuilder sb )
+      public Widget render( final ContactDetails c )
       {
-        sb.append( "<input type='checkbox'/>" );
+        return new CheckBox();
       }
 
       public boolean isSelectable()
@@ -38,13 +41,9 @@ public class ContactsColumnDefinitionsImpl
 
     this.add( new ColumnDefinition<ContactDetails>()
     {
-      public void render( final ContactDetails c, final StringBuilder sb )
+      public Widget render( final ContactDetails c )
       {
-        sb.append( "<span id='" )
-          .append( c.getDisplayName() )
-          .append( "'>" )
-          .append( c.getDisplayName() )
-          .append( "</span><br />" );
+        return new Label(c.getDisplayName());
       }
 
       public boolean isClickable()
