@@ -43,7 +43,8 @@ public class ExampleJRETest
   public void testDeleteButton()
   {
     contactDetails = new ArrayList<ContactDetails>();
-    contactDetails.add( new ContactDetails( "0", "c_contact" ) );
+    contactDetails.add( new ContactDetails( "0", "1_contact" ) );
+    contactDetails.add( new ContactDetails( "1", "2_contact" ) );
     contactsPresenter.setContactDetails( contactDetails );
 
     mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ) );
@@ -53,21 +54,37 @@ public class ExampleJRETest
       public Object answer()
         throws Throwable
       {
-        final Object[] arguments = getCurrentArguments();
-        final AsyncCallback callback =
-          (AsyncCallback) arguments[ arguments.length - 1 ];
-        callback.onSuccess( new ArrayList<ContactDetails>() );
+        final AsyncCallback callback = getCallback();
+        callback.onSuccess( null );
         return null;
       }
     } );
+
+    mockRpcService.getContactDetails( isA( AsyncCallback.class ) );
+    expectLastCall().andAnswer( new IAnswer()
+    {
+      public Object answer()
+        throws Throwable
+      {
+        contactDetails = new ArrayList<ContactDetails>();
+        contactDetails.add( new ContactDetails( "0", "1_contact" ) );
+        final AsyncCallback callback = getCallback();
+        callback.onSuccess( contactDetails );
+        return null;
+      }
+    } );
+
 
     replay( mockRpcService );
     contactsPresenter.onDeleteButtonClicked();
     verify( mockRpcService );
 
-    final List<ContactDetails> updatedContactDetails =
-      contactsPresenter.getContactDetails();
+    assertEquals( 1, contactsPresenter.getContactDetails().size() );
+  }
 
-    assertEquals( 0, updatedContactDetails.size() );
+  private AsyncCallback getCallback()
+  {
+    final Object[] arguments = getCurrentArguments();
+    return (AsyncCallback) arguments[ arguments.length - 1 ];
   }
 }
