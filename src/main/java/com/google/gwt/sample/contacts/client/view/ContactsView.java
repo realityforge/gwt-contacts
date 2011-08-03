@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface ContactsView<T>
 {
-
   public interface Presenter<T>
   {
     void onAddButtonClicked();
