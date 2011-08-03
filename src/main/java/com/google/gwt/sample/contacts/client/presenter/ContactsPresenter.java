@@ -130,9 +130,9 @@ public class ContactsPresenter
       ids.add( selected.getId() );
     }
 
-    rpcService.deleteContacts( ids, new AsyncCallback<ArrayList<Void>>()
+    rpcService.deleteContacts( ids, new AsyncCallback<Void>()
     {
-      public void onSuccess( final ArrayList<Void> result )
+      public void onSuccess( final Void result )
       {
         fetchContactDetails();
       }
