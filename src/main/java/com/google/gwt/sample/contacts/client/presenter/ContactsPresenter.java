@@ -75,9 +75,10 @@ public class ContactsPresenter
     //  point is to create a test case that helps illustrate the higher
     //  level concepts used when creating MVP-based applications.
     //
-    for ( int i = 0; i < contactDetails.size(); ++i )
+    final int size = contactDetails.size();
+    for ( int i = 0; i < size; ++i )
     {
-      for ( int j = 0; j < contactDetails.size() - 1; ++j )
+      for ( int j = 0; j < size - 1; ++j )
       {
         if ( contactDetails.get( j )
                .getDisplayName()
@@ -94,6 +95,7 @@ public class ContactsPresenter
   public void setContactDetails( final List<ContactDetails> contactDetails )
   {
     this.contactDetails = contactDetails;
+    sortContactDetails();
   }
 
   public List<ContactDetails> getContactDetails()
@@ -107,8 +109,7 @@ public class ContactsPresenter
     {
       public void onSuccess( final ArrayList<ContactDetails> result )
       {
-        contactDetails = result;
-        sortContactDetails();
+        setContactDetails( result );
         view.setRowData( contactDetails );
       }
 
@@ -129,13 +130,11 @@ public class ContactsPresenter
       ids.add( selected.getId() );
     }
 
-    rpcService.deleteContacts( ids, new AsyncCallback<ArrayList<ContactDetails>>()
+    rpcService.deleteContacts( ids, new AsyncCallback<ArrayList<Void>>()
     {
-      public void onSuccess( final ArrayList<ContactDetails> result )
+      public void onSuccess( final ArrayList<Void> result )
       {
-        contactDetails = result;
-        sortContactDetails();
-        view.setRowData( contactDetails );
+        fetchContactDetails();
       }
 
       public void onFailure( final Throwable caught )

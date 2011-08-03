@@ -26,4 +26,9 @@ public class SelectionModel<T>
   {
     return selectedItems.contains( item );
   }
+
+   public void clear()
+   {
+     selectedItems.clear();
+   }
 }
