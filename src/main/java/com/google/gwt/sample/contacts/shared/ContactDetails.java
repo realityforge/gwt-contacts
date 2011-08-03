@@ -6,8 +6,8 @@ import java.io.Serializable;
 public class ContactDetails
   implements Serializable
 {
-  private String id;
-  private String displayName;
+  private String _id;
+  private String _displayName;
 
   public ContactDetails()
   {
@@ -16,27 +16,17 @@ public class ContactDetails
 
   public ContactDetails( final String id, final String displayName )
   {
-    this.id = id;
-    this.displayName = displayName;
+    _id = id;
+    _displayName = displayName;
   }
 
   public String getId()
   {
-    return id;
-  }
-
-  public void setId( final String id )
-  {
-    this.id = id;
+    return _id;
   }
 
   public String getDisplayName()
   {
-    return displayName;
-  }
-
-  public void setDisplayName( final String displayName )
-  {
-    this.displayName = displayName;
+    return _displayName;
   }
 }

@@ -1,7 +1,5 @@
-package com.google.gwt.sample.contacts.client;
+package com.google.gwt.sample.contacts.shared;
 
-import com.google.gwt.sample.contacts.shared.Contact;
-import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import java.util.ArrayList;

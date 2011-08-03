@@ -17,12 +17,12 @@ public class EditContactView
   extends Composite
   implements EditContactPresenter.Display
 {
-  private final TextBox firstName;
-  private final TextBox lastName;
-  private final TextBox emailAddress;
-  private final FlexTable detailsTable;
-  private final Button saveButton;
-  private final Button cancelButton;
+  private final TextBox _firstName;
+  private final TextBox _lastName;
+  private final TextBox _emailAddress;
+  private final FlexTable _detailsTable;
+  private final Button _saveButton;
+  private final Button _cancelButton;
 
   public EditContactView()
   {
@@ -35,60 +35,60 @@ public class EditContactView
 
     // Create the contacts list
     //
-    detailsTable = new FlexTable();
-    detailsTable.setCellSpacing( 0 );
-    detailsTable.setWidth( "100%" );
-    detailsTable.addStyleName( "contacts-ListContainer" );
-    detailsTable.getColumnFormatter().addStyleName( 1, "add-contact-input" );
-    firstName = new TextBox();
-    lastName = new TextBox();
-    emailAddress = new TextBox();
+    _detailsTable = new FlexTable();
+    _detailsTable.setCellSpacing( 0 );
+    _detailsTable.setWidth( "100%" );
+    _detailsTable.addStyleName( "contacts-ListContainer" );
+    _detailsTable.getColumnFormatter().addStyleName( 1, "add-contact-input" );
+    _firstName = new TextBox();
+    _lastName = new TextBox();
+    _emailAddress = new TextBox();
     initDetailsTable();
-    contentDetailsPanel.add( detailsTable );
+    contentDetailsPanel.add( _detailsTable );
 
     final HorizontalPanel menuPanel = new HorizontalPanel();
-    saveButton = new Button( "Save" );
-    cancelButton = new Button( "Cancel" );
-    menuPanel.add( saveButton );
-    menuPanel.add( cancelButton );
+    _saveButton = new Button( "Save" );
+    _cancelButton = new Button( "Cancel" );
+    menuPanel.add( _saveButton );
+    menuPanel.add( _cancelButton );
     contentDetailsPanel.add( menuPanel );
     contentDetailsDecorator.add( contentDetailsPanel );
   }
 
   private void initDetailsTable()
   {
-    detailsTable.setWidget( 0, 0, new Label( "Firstname" ) );
-    detailsTable.setWidget( 0, 1, firstName );
-    detailsTable.setWidget( 1, 0, new Label( "Lastname" ) );
-    detailsTable.setWidget( 1, 1, lastName );
-    detailsTable.setWidget( 2, 0, new Label( "Email Address" ) );
-    detailsTable.setWidget( 2, 1, emailAddress );
-    firstName.setFocus( true );
+    _detailsTable.setWidget( 0, 0, new Label( "Firstname" ) );
+    _detailsTable.setWidget( 0, 1, _firstName);
+    _detailsTable.setWidget( 1, 0, new Label( "Lastname" ) );
+    _detailsTable.setWidget( 1, 1, _lastName);
+    _detailsTable.setWidget( 2, 0, new Label( "Email Address" ) );
+    _detailsTable.setWidget( 2, 1, _emailAddress);
+    _firstName.setFocus( true );
   }
 
   public HasValue<String> getFirstName()
   {
-    return firstName;
+    return _firstName;
   }
 
   public HasValue<String> getLastName()
   {
-    return lastName;
+    return _lastName;
   }
 
   public HasValue<String> getEmailAddress()
   {
-    return emailAddress;
+    return _emailAddress;
   }
 
   public HasClickHandlers getSaveButton()
   {
-    return saveButton;
+    return _saveButton;
   }
 
   public HasClickHandlers getCancelButton()
   {
-    return cancelButton;
+    return _cancelButton;
   }
 
   public Widget asWidget()

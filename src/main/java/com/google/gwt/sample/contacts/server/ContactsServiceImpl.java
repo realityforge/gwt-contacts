@@ -1,6 +1,6 @@
 package com.google.gwt.sample.contacts.server;
 
-import com.google.gwt.sample.contacts.client.ContactsService;
+import com.google.gwt.sample.contacts.shared.ContactsService;
 import com.google.gwt.sample.contacts.shared.Contact;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -13,25 +13,25 @@ public class ContactsServiceImpl
   implements ContactsService
 {
   @EJB
-  private LocalContacts contacts;
+  private LocalContacts _contacts;
 
   public Contact createOrUpdateContact( final Contact contact )
   {
-    return contacts.createOrUpdateContact( contact );
+    return _contacts.createOrUpdateContact( contact );
   }
 
   public void deleteContacts( final ArrayList<String> ids )
   {
-    contacts.deleteContacts( ids );
+    _contacts.deleteContacts( ids );
   }
 
   public ArrayList<ContactDetails> getContactDetails()
   {
-    return contacts.getContactDetails();
+    return _contacts.getContactDetails();
   }
 
   public Contact getContact( final String id )
   {
-    return contacts.getContact( id );
+    return _contacts.getContact( id );
   }
 }

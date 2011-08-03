@@ -7,16 +7,16 @@ public class ContactUpdatedEvent
   extends GwtEvent<ContactUpdatedEventHandler>
 {
   public static final Type<ContactUpdatedEventHandler> TYPE = new Type<ContactUpdatedEventHandler>();
-  private final Contact updatedContact;
+  private final Contact _updatedContact;
 
   public ContactUpdatedEvent( final Contact updatedContact )
   {
-    this.updatedContact = updatedContact;
+    _updatedContact = updatedContact;
   }
 
   public Contact getUpdatedContact()
   {
-    return updatedContact;
+    return _updatedContact;
   }
 
 

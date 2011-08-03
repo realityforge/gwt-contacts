@@ -6,10 +6,10 @@ import java.io.Serializable;
 public class Contact
   implements Serializable
 {
-  private String id;
-  private String firstName;
-  private String lastName;
-  private String emailAddress;
+  private String _id;
+  private String _firstName;
+  private String _lastName;
+  private String _emailAddress;
 
   public Contact()
   {
@@ -17,44 +17,44 @@ public class Contact
 
   public Contact( final String id, final String firstName, final String lastName, final String emailAddress )
   {
-    this.id = id;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.emailAddress = emailAddress;
+    _id = id;
+    _firstName = firstName;
+    _lastName = lastName;
+    _emailAddress = emailAddress;
   }
 
   public String getId()
   {
-    return id;
+    return _id;
   }
 
   public String getFirstName()
   {
-    return firstName;
+    return _firstName;
   }
 
   public void setFirstName( final String firstName )
   {
-    this.firstName = firstName;
+    _firstName = firstName;
   }
 
   public String getLastName()
   {
-    return lastName;
+    return _lastName;
   }
 
   public void setLastName( final String lastName )
   {
-    this.lastName = lastName;
+    _lastName = lastName;
   }
 
   public String getEmailAddress()
   {
-    return emailAddress;
+    return _emailAddress;
   }
 
   public void setEmailAddress( final String emailAddress )
   {
-    this.emailAddress = emailAddress;
+    _emailAddress = emailAddress;
   }
 }

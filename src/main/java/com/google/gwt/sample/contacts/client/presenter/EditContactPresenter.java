@@ -4,7 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.sample.contacts.client.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactCancelledEvent;
 import com.google.gwt.sample.contacts.shared.Contact;
@@ -32,19 +32,19 @@ public class EditContactPresenter
     Widget asWidget();
   }
 
-  private Contact contact;
-  private final ContactsServiceAsync rpcService;
-  private final HandlerManager eventBus;
-  private final Display display;
+  private Contact _contact;
+  private final ContactsServiceAsync _rpcService;
+  private final HandlerManager _eventBus;
+  private final Display _display;
 
   public EditContactPresenter( final ContactsServiceAsync rpcService,
                                final HandlerManager eventBus,
                                final Display display )
   {
-    this.rpcService = rpcService;
-    this.eventBus = eventBus;
-    this.contact = new Contact();
-    this.display = display;
+    _rpcService = rpcService;
+    _eventBus = eventBus;
+    _contact = new Contact();
+    _display = display;
     bind();
   }
 
@@ -53,19 +53,19 @@ public class EditContactPresenter
                                final Display display,
                                final String id )
   {
-    this.rpcService = rpcService;
-    this.eventBus = eventBus;
-    this.display = display;
+    this._rpcService = rpcService;
+    this._eventBus = eventBus;
+    this._display = display;
     bind();
 
     rpcService.getContact( id, new AsyncCallback<Contact>()
     {
       public void onSuccess( final Contact result )
       {
-        contact = result;
-        EditContactPresenter.this.display.getFirstName().setValue( contact.getFirstName() );
-        EditContactPresenter.this.display.getLastName().setValue( contact.getLastName() );
-        EditContactPresenter.this.display.getEmailAddress().setValue( contact.getEmailAddress() );
+        _contact = result;
+        EditContactPresenter.this._display.getFirstName().setValue( _contact.getFirstName() );
+        EditContactPresenter.this._display.getLastName().setValue( _contact.getLastName() );
+        EditContactPresenter.this._display.getEmailAddress().setValue( _contact.getEmailAddress() );
       }
 
       public void onFailure( final Throwable caught )
@@ -78,7 +78,7 @@ public class EditContactPresenter
 
   public void bind()
   {
-    this.display.getSaveButton().addClickHandler( new ClickHandler()
+    this._display.getSaveButton().addClickHandler( new ClickHandler()
     {
       public void onClick( final ClickEvent event )
       {
@@ -86,11 +86,11 @@ public class EditContactPresenter
       }
     } );
 
-    this.display.getCancelButton().addClickHandler( new ClickHandler()
+    this._display.getCancelButton().addClickHandler( new ClickHandler()
     {
       public void onClick( final ClickEvent event )
       {
-        eventBus.fireEvent( new EditContactCancelledEvent() );
+        _eventBus.fireEvent( new EditContactCancelledEvent() );
       }
     } );
   }
@@ -98,20 +98,20 @@ public class EditContactPresenter
   public void go( final HasWidgets container )
   {
     container.clear();
-    container.add( display.asWidget() );
+    container.add( _display.asWidget() );
   }
 
   private void doSave()
   {
-    contact.setFirstName( display.getFirstName().getValue() );
-    contact.setLastName( display.getLastName().getValue() );
-    contact.setEmailAddress( display.getEmailAddress().getValue() );
+    _contact.setFirstName( _display.getFirstName().getValue() );
+    _contact.setLastName( _display.getLastName().getValue() );
+    _contact.setEmailAddress( _display.getEmailAddress().getValue() );
 
-    rpcService.createOrUpdateContact( contact, new AsyncCallback<Contact>()
+    _rpcService.createOrUpdateContact( _contact, new AsyncCallback<Contact>()
     {
       public void onSuccess( final Contact result )
       {
-        eventBus.fireEvent( new ContactUpdatedEvent( result ) );
+        _eventBus.fireEvent( new ContactUpdatedEvent( result ) );
       }
 
       public void onFailure( final Throwable caught )

@@ -17,25 +17,26 @@ import com.google.gwt.sample.contacts.client.event.EditContactEventHandler;
 import com.google.gwt.sample.contacts.client.presenter.ContactsPresenter;
 import com.google.gwt.sample.contacts.client.presenter.EditContactPresenter;
 import com.google.gwt.sample.contacts.client.presenter.Presenter;
-import com.google.gwt.sample.contacts.client.view.ContactsViewImpl;
+import com.google.gwt.sample.contacts.client.view.ContactsViewUI;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
+import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.HasWidgets;
 
 public class AppController
   implements Presenter, ValueChangeHandler<String>
 {
-  private final HandlerManager eventBus;
-  private final ContactsServiceAsync rpcService;
-  private HasWidgets container;
-  private ContactsViewImpl<ContactDetails> contactsView = null;
-  private EditContactView editContactView = null;
+  private final HandlerManager _eventBus;
+  private final ContactsServiceAsync _rpcService;
+  private HasWidgets _container;
+  private ContactsViewUI<ContactDetails> _contactsView;
+  private EditContactView _editContactView;
 
   public AppController( final ContactsServiceAsync rpcService, final HandlerManager eventBus )
   {
-    this.eventBus = eventBus;
-    this.rpcService = rpcService;
+    _eventBus = eventBus;
+    _rpcService = rpcService;
     bind();
   }
 
@@ -43,7 +44,7 @@ public class AppController
   {
     History.addValueChangeHandler( this );
 
-    eventBus.addHandler( AddContactEvent.TYPE,
+    _eventBus.addHandler( AddContactEvent.TYPE,
                          new AddContactEventHandler()
                          {
                            public void onAddContact( final AddContactEvent event )
@@ -52,7 +53,7 @@ public class AppController
                            }
                          } );
 
-    eventBus.addHandler( EditContactEvent.TYPE,
+    _eventBus.addHandler( EditContactEvent.TYPE,
                          new EditContactEventHandler()
                          {
                            public void onEditContact( final EditContactEvent event )
@@ -61,7 +62,7 @@ public class AppController
                            }
                          } );
 
-    eventBus.addHandler( EditContactCancelledEvent.TYPE,
+    _eventBus.addHandler( EditContactCancelledEvent.TYPE,
                          new EditContactCancelledEventHandler()
                          {
                            public void onEditContactCancelled( final EditContactCancelledEvent event )
@@ -70,7 +71,7 @@ public class AppController
                            }
                          } );
 
-    eventBus.addHandler( ContactUpdatedEvent.TYPE,
+    _eventBus.addHandler( ContactUpdatedEvent.TYPE,
                          new ContactUpdatedEventHandler()
                          {
                            public void onContactUpdated( final ContactUpdatedEvent event )
@@ -88,8 +89,8 @@ public class AppController
   private void doEditContact( final String id )
   {
     History.newItem( "edit", false );
-    final Presenter presenter = new EditContactPresenter( rpcService, eventBus, new EditContactView(), id );
-    presenter.go( container );
+    final Presenter presenter = new EditContactPresenter( _rpcService, _eventBus, new EditContactView(), id );
+    presenter.go( _container );
   }
 
   private void doEditContactCancelled()
@@ -104,7 +105,7 @@ public class AppController
 
   public void go( final HasWidgets container )
   {
-    this.container = container;
+    this._container = container;
 
     if ( "".equals( History.getToken() ) )
     {
@@ -134,13 +135,13 @@ public class AppController
           {
             // lazily initialize our views, and keep them around to be reused
             //
-            if ( contactsView == null )
+            if ( _contactsView == null )
             {
-              contactsView = new ContactsViewImpl<ContactDetails>();
+              _contactsView = new ContactsViewUI<ContactDetails>();
 
             }
-            new ContactsPresenter( rpcService, eventBus, contactsView, ContactsColumnDefinitionsImpl.getInstance() )
-              .go( container );
+            new ContactsPresenter( _rpcService, _eventBus, _contactsView, ContactsColumnDefinitionsImpl.getInstance() )
+              .go( _container );
           }
         } );
       }
@@ -156,13 +157,12 @@ public class AppController
           {
             // lazily initialize our views, and keep them around to be reused
             //
-            if ( editContactView == null )
+            if ( _editContactView == null )
             {
-              editContactView = new EditContactView();
+              _editContactView = new EditContactView();
 
             }
-            new EditContactPresenter( rpcService, eventBus, editContactView ).
-              go( container );
+            new EditContactPresenter( _rpcService, _eventBus, _editContactView).go( _container );
           }
         } );
       }

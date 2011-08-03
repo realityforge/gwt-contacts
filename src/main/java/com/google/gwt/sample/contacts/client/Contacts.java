@@ -3,9 +3,11 @@ package com.google.gwt.sample.contacts.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.sample.contacts.shared.ContactsService;
+import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.ui.RootPanel;
 
-public class Contacts
+public final class Contacts
   implements EntryPoint
 {
   public void onModuleLoad()

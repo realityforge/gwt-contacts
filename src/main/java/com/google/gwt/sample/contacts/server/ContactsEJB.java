@@ -10,19 +10,19 @@ import javax.persistence.TypedQuery;
 public class ContactsEJB
   implements LocalContacts
 {
-  private static final String[] firstNameData = new String[]{
+  private static final String[] FIRST_NAMES = new String[]{
     "Hollie", "Emerson", "Healy", "Brigitte", "Elba", "Claudio",
     "Dena", "Christina", "Gail", "Orville", "Rae", "Mildred",
     "Candice", "Louise", "Emilio", "Geneva", "Heriberto", "Bulrush",
     "Abigail", "Chad", "Terry", "Bell" };
 
-  private final String[] lastNameData = new String[]{
+  private static final String[] LAST_NAMES = new String[]{
     "Voss", "Milton", "Colette", "Cobb", "Lockhart", "Engle",
     "Pacheco", "Blake", "Horton", "Daniel", "Childers", "Starnes",
     "Carson", "Kelchner", "Hutchinson", "Underwood", "Rush", "Bouchard",
     "Louis", "Andrews", "English", "Snedden" };
 
-  private final String[] emailData = new String[]{
+  private static final String[] EMAILS = new String[]{
     "mark@example.com", "hollie@example.com", "boticario@example.com",
     "emerson@example.com", "healy@example.com", "brigitte@example.com",
     "elba@example.com", "claudio@example.com", "dena@example.com",
@@ -33,7 +33,7 @@ public class ContactsEJB
     "user31065@example.com", "ftsgeolbx@example.com" };
 
   @javax.persistence.PersistenceContext( unitName = "contacts" )
-  private javax.persistence.EntityManager em;
+  private javax.persistence.EntityManager _em;
 
   public Contact createOrUpdateContact( final Contact dto )
   {
@@ -41,7 +41,7 @@ public class ContactsEJB
     {
       final ContactBean contact = new ContactBean();
       updatePersistentFromDTO( dto, contact );
-      em.persist( contact );
+      _em.persist( contact );
     }
     else
     {
@@ -55,14 +55,14 @@ public class ContactsEJB
   {
     for ( final String id : ids )
     {
-      em.remove( findByID( id ) );
+      _em.remove( findByID( id ) );
     }
   }
 
   public ArrayList<ContactDetails> getContactDetails()
   {
     initContactsIfRequired();
-    final TypedQuery<ContactBean> query = em.createNamedQuery( ContactBean.findAll, ContactBean.class );
+    final TypedQuery<ContactBean> query = _em.createNamedQuery( ContactBean.findAll, ContactBean.class );
 
     final ArrayList<ContactDetails> contactDetails = new ArrayList<ContactDetails>();
     for ( final ContactBean contact : query.getResultList() )
@@ -96,7 +96,7 @@ public class ContactsEJB
 
   private ContactBean findByID( final Integer id )
   {
-    final javax.persistence.TypedQuery<ContactBean> query = em.createNamedQuery( ContactBean.findByID,
+    final javax.persistence.TypedQuery<ContactBean> query = _em.createNamedQuery( ContactBean.findByID,
                                                                                  ContactBean.class );
     query.setParameter( "ID", id );
     return query.getSingleResult();
@@ -111,11 +111,11 @@ public class ContactsEJB
 
   private void initContactsIfRequired()
   {
-    if ( 0 == em.createNamedQuery( ContactBean.findAll, ContactBean.class ).getResultList().size() )
+    if ( 0 == _em.createNamedQuery( ContactBean.findAll, ContactBean.class ).getResultList().size() )
     {
-      for ( int i = 0; i < firstNameData.length && i < lastNameData.length && i < emailData.length; ++i )
+      for ( int i = 0; i < FIRST_NAMES.length && i < LAST_NAMES.length && i < EMAILS.length; ++i )
       {
-        final Contact dto = new Contact( null, firstNameData[ i ], lastNameData[ i ], emailData[ i ] );
+        final Contact dto = new Contact( null, FIRST_NAMES[ i ], LAST_NAMES[ i ], EMAILS[ i ] );
         createOrUpdateContact( dto );
       }
     }

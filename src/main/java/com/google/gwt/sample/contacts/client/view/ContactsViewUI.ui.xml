@@ -16,10 +16,10 @@
   <g:DecoratorPanel>
     <g:VerticalPanel>
       <g:HorizontalPanel addStyleNames="{style.contactsViewButtonHPanel}">
-        <g:Button ui:field="addButton">Add</g:Button>
-        <g:Button ui:field="deleteButton">Delete</g:Button>
+        <g:Button ui:field="_addButton">Add</g:Button>
+        <g:Button ui:field="_deleteButton">Delete</g:Button>
       </g:HorizontalPanel>
-      <g:FlexTable ui:field="contactsTable" addStyleNames="{style.contactsViewContactsFlexTable}"/>
+      <g:FlexTable ui:field="_contactsTable" addStyleNames="{style.contactsViewContactsFlexTable}"/>
     </g:VerticalPanel>
   </g:DecoratorPanel>
 </ui:UiBinder>

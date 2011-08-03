@@ -6,16 +6,16 @@ public class EditContactEvent
   extends GwtEvent<EditContactEventHandler>
 {
   public static final Type<EditContactEventHandler> TYPE = new Type<EditContactEventHandler>();
-  private final String id;
+  private final String _id;
 
   public EditContactEvent( final String id )
   {
-    this.id = id;
+    _id = id;
   }
 
   public String getId()
   {
-    return id;
+    return _id;
   }
 
   @Override

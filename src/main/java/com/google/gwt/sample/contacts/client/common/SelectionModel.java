@@ -5,30 +5,30 @@ import java.util.List;
 
 public class SelectionModel<T>
 {
-  final List<T> selectedItems = new ArrayList<T>();
+  private final List<T> _selectedItems = new ArrayList<T>();
 
   public List<T> getSelectedItems()
   {
-    return selectedItems;
+    return _selectedItems;
   }
 
   public void addSelection( final T item )
   {
-    selectedItems.add( item );
+    _selectedItems.add( item );
   }
 
   public void removeSelection( final T item )
   {
-    selectedItems.remove( item );
+    _selectedItems.remove( item );
   }
 
   public boolean isSelected( final T item )
   {
-    return selectedItems.contains( item );
+    return _selectedItems.contains( item );
   }
 
-   public void clear()
-   {
-     selectedItems.clear();
-   }
+  public void clear()
+  {
+    _selectedItems.clear();
+  }
 }

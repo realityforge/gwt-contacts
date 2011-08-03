@@ -8,11 +8,10 @@ import java.util.ArrayList;
 
 @SuppressWarnings( "serial" )
 public class ContactsColumnDefinitionsImpl
-  extends
-  ArrayList<ColumnDefinition<ContactDetails>>
+  extends ArrayList<ColumnDefinition<ContactDetails>>
 {
 
-  private static ContactsColumnDefinitionsImpl instance = null;
+  private static ContactsColumnDefinitionsImpl instance;
 
   public static ContactsColumnDefinitionsImpl getInstance()
   {
@@ -26,7 +25,7 @@ public class ContactsColumnDefinitionsImpl
 
   protected ContactsColumnDefinitionsImpl()
   {
-    this.add( new ColumnDefinition<ContactDetails>()
+    add( new ColumnDefinition<ContactDetails>()
     {
       public Widget render( final ContactDetails c )
       {
@@ -39,7 +38,7 @@ public class ContactsColumnDefinitionsImpl
       }
     } );
 
-    this.add( new ColumnDefinition<ContactDetails>()
+    add( new ColumnDefinition<ContactDetails>()
     {
       public Widget render( final ContactDetails c )
       {

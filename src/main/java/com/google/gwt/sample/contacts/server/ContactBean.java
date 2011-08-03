@@ -1,6 +1,5 @@
 package com.google.gwt.sample.contacts.server;
 
-import java.io.Serializable;
 import javax.persistence.GenerationType;
 
 @SuppressWarnings( "serial" )
@@ -15,7 +14,6 @@ import javax.persistence.GenerationType;
                           schema = "AddressBook",
                           uniqueConstraints = { } )
 public class ContactBean
-  implements Serializable
 {
   public static final String findAll = "com.google.gwt.sample.contacts.shared.ContactBean.findAll";
   public static final String findByID = "com.google.gwt.sample.contacts.shared.ContactBean.findByID";
