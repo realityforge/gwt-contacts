@@ -48,6 +48,7 @@ module Buildr
           Buildr::GWT.gwtc_main([module_name], dependencies + artifacts, output_dir, options)
         end
         task.enhance [project.compile]
+        project.package.enhance [task]
         task
       end
     end

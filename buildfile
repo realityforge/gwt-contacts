@@ -7,13 +7,15 @@ define 'gwt-contacts' do
   compile.options.target = '1.6'
   compile.options.lint = 'all'
 
-  compile.with :easymock, :gwt_user
+  compile.with :gwt_user, :javax_ejb
+
+  test.with :easymock
 
   contact_module = gwt("com.google.gwt.sample.contacts.Contacts", :dependencies => [:gwt_user, :javax_validation, :javax_validation_sources])
 
   package(:war).tap do |war|
-    war.enhance [contact_module]
     war.include "#{contact_module}/*"
+    war.with :libs => :gwt_user
   end
 
   doc.using :javadoc,

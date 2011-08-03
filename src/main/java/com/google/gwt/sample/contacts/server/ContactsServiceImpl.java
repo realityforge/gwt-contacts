@@ -4,103 +4,44 @@ import com.google.gwt.sample.contacts.client.ContactsService;
 import com.google.gwt.sample.contacts.shared.Contact;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import javax.ejb.EJB;
 
-@SuppressWarnings("serial")
-public class ContactsServiceImpl extends RemoteServiceServlet implements
-    ContactsService
+@SuppressWarnings( "serial" )
+public class ContactsServiceImpl
+  extends RemoteServiceServlet
+  implements ContactsService
 {
+  @EJB
+  private LocalContacts contacts;
 
-  private static final String[] contactsFirstNameData = new String[]{
-      "Hollie", "Emerson", "Healy", "Brigitte", "Elba", "Claudio",
-      "Dena", "Christina", "Gail", "Orville", "Rae", "Mildred",
-      "Candice", "Louise", "Emilio", "Geneva", "Heriberto", "Bulrush",
-      "Abigail", "Chad", "Terry", "Bell"};
-
-  private final String[] contactsLastNameData = new String[]{
-      "Voss", "Milton", "Colette", "Cobb", "Lockhart", "Engle",
-      "Pacheco", "Blake", "Horton", "Daniel", "Childers", "Starnes",
-      "Carson", "Kelchner", "Hutchinson", "Underwood", "Rush", "Bouchard",
-      "Louis", "Andrews", "English", "Snedden"};
-
-  private final String[] contactsEmailData = new String[]{
-      "mark@example.com", "hollie@example.com", "boticario@example.com",
-      "emerson@example.com", "healy@example.com", "brigitte@example.com",
-      "elba@example.com", "claudio@example.com", "dena@example.com",
-      "brasilsp@example.com", "parker@example.com", "derbvktqsr@example.com",
-      "qetlyxxogg@example.com", "antenas_sul@example.com",
-      "cblake@example.com", "gailh@example.com", "orville@example.com",
-      "post_master@example.com", "rchilders@example.com", "buster@example.com",
-      "user31065@example.com", "ftsgeolbx@example.com"};
-
-  private final HashMap<String, Contact> contacts = new HashMap<String, Contact>();
-
-  public ContactsServiceImpl()
+  public Contact addContact( Contact contact )
   {
-    initContacts();
+    return contacts.addContact( contact );
   }
 
-  private void initContacts()
+  public Contact updateContact( Contact contact )
   {
-    // TODO: Create a real UID for each contact
-    //
-    for (int i = 0; i < contactsFirstNameData.length && i < contactsLastNameData.length && i < contactsEmailData.length; ++i)
-    {
-      Contact contact = new Contact(String.valueOf(i), contactsFirstNameData[i], contactsLastNameData[i], contactsEmailData[i]);
-      contacts.put(contact.getId(), contact);
-    }
+    return contacts.updateContact( contact );
   }
 
-  public Contact addContact(Contact contact)
+  public Boolean deleteContact( String id )
   {
-    contact.setId(String.valueOf(contacts.size()));
-    contacts.put(contact.getId(), contact);
-    return contact;
+    return contacts.deleteContact( id );
   }
 
-  public Contact updateContact(Contact contact)
+  public ArrayList<ContactDetails> deleteContacts( ArrayList<String> ids )
   {
-    contacts.remove(contact.getId());
-    contacts.put(contact.getId(), contact);
-    return contact;
-  }
-
-  public Boolean deleteContact(String id)
-  {
-    contacts.remove(id);
-    return true;
-  }
-
-  public ArrayList<ContactDetails> deleteContacts(ArrayList<String> ids)
-  {
-
-    for (int i = 0; i < ids.size(); ++i)
-    {
-      deleteContact(ids.get(i));
-    }
-
-    return getContactDetails();
+    return contacts.deleteContacts( ids );
   }
 
   public ArrayList<ContactDetails> getContactDetails()
   {
-    ArrayList<ContactDetails> contactDetails = new ArrayList<ContactDetails>();
-
-    Iterator<String> it = contacts.keySet().iterator();
-    while (it.hasNext())
-    {
-      Contact contact = contacts.get(it.next());
-      contactDetails.add(contact.getLightWeightContact());
-    }
-
-    return contactDetails;
+    return contacts.getContactDetails();
   }
 
-  public Contact getContact(String id)
+  public Contact getContact( String id )
   {
-    return contacts.get( id );
+    return contacts.getContact( id );
   }
 }
