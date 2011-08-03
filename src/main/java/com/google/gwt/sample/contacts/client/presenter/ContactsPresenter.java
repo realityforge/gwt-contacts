@@ -135,6 +135,7 @@ public class ContactsPresenter
       public void onSuccess( final Void result )
       {
         fetchContactDetails();
+        selectionModel.clear();
       }
 
       public void onFailure( final Throwable caught )
