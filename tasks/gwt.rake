@@ -11,6 +11,7 @@ module Buildr
         cp = Buildr.artifacts(self.dependencies).each(&:invoke).map(&:to_s) + Buildr.artifacts(source_artifacts).each(&:invoke).map(&:to_s)
         style = options[:style] || "OBFUSCATED," # "PRETTY", "DETAILED"
         log_level = options[:log_level] #  ERROR, WARN, INFO, TRACE, DEBUG, SPAM, or ALL
+        workers = options[:workers] || 2
 
         args = []
         if log_level
@@ -19,12 +20,18 @@ module Buildr
         end
         args << "-style"
         args << style
+        args << "-localWorkers"
+        args << workers
         args << "-war"
         args << output_dir
         if options[:compile_report_dir]
           args << "-compileReport"
           args << "-extra"
           args << options[:compile_report_dir]
+        end
+
+        if options[:draft_compile]
+          args << "-draftCompile"
         end
 
         args += modules

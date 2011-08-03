@@ -11,7 +11,16 @@ define 'gwt-contacts' do
 
   test.with :easymock
 
-  contact_module = gwt("com.google.gwt.sample.contacts.Contacts", :dependencies => [:gwt_user, :javax_validation, :javax_validation_sources])
+  gwt_options = {}
+  if ENV["FAST_GWT"] == 'true'
+    gwt_options[:draft_compile] = true
+  end
+
+
+  contact_module = gwt("com.google.gwt.sample.contacts.Contacts",
+                       {:dependencies => [:gwt_user, :javax_validation, :javax_validation_sources],
+                       :java_args => ["-Xms512M","-Xmx512M","-XX:PermSize=128M","-XX:MaxPermSize=256M"]}.
+                         merge(gwt_options))
 
   package(:war).tap do |war|
     war.include "#{contact_module}/*"
