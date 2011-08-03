@@ -21,9 +21,12 @@ define 'gwt-contacts' do
   doc.using :javadoc,
             {:tree => false, :since => false, :deprecated => false, :index => false, :help => false}
 
-  ipr.add_gwt_configuration("Contacts.html", project.iml.id)
+  ipr.add_exploded_war_configuration(project, :enable_gwt => true, :enable_jpa => true, :dependencies => [:gwt_user])
+  ipr.add_gwt_configuration("#{project.name}/Contacts.html", project)
   iml.add_web_facet
-  iml.add_jpa_facet(:persistence_xml => _(:source, :main, :webapp, "WEB-INF/classes/WEB-INF/web.xml"))
+  iml.add_jpa_facet(:persistence_xml => _(:source, :main, :webapp, "WEB-INF/classes/META-INF/persistence.xml"),
+                    :orm_xml => _(:source, :main, :webapp, "WEB-INF/classes/META-INF/orm.xml"))
+
   iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
   iml.add_jruby_facet
 end
