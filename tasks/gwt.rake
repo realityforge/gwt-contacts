@@ -21,6 +21,12 @@ module Buildr
         args << style
         args << "-war"
         args << output_dir
+        if options[:compile_report_dir]
+          args << "-compileReport"
+          args << "-extra"
+          args << options[:compile_report_dir]
+        end
+
         args += modules
 
         Java::Commands.java 'com.google.gwt.dev.Compiler', *(args + [{:classpath => cp, :properties => options[:properties], :java_args => options[:java_args]}])
@@ -36,7 +42,10 @@ module Buildr
           artifacts = (project.compile.sources + project.resources.sources).collect do |a|
             a.is_a?(String) ? file(a) : a
           end
-          Buildr::GWT.gwtc_main([module_name], project.compile.dependencies + artifacts, output_dir, options)
+          dependencies = options[:dependencies] || project.compile.dependencies
+          options = options.dup
+          options[:compile_report_dir] ||= project._(:target, :main, :gwt, module_name)
+          Buildr::GWT.gwtc_main([module_name], dependencies + artifacts, output_dir, options)
         end
         task.enhance [project.compile]
         task

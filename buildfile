@@ -9,7 +9,7 @@ define 'gwt-contacts' do
 
   compile.with :easymock, :gwt_user
 
-  contact_module = gwt("com.google.gwt.sample.contacts.Contacts")
+  contact_module = gwt("com.google.gwt.sample.contacts.Contacts", :dependencies => [:gwt_user, :javax_validation, :javax_validation_sources])
 
   package(:war).tap do |war|
     war.enhance [contact_module]
