@@ -33,7 +33,7 @@ public class Contact
     return firstName;
   }
 
-  public void setFirstName( String firstName )
+  public void setFirstName( final String firstName )
   {
     this.firstName = firstName;
   }
@@ -43,7 +43,7 @@ public class Contact
     return lastName;
   }
 
-  public void setLastName( String lastName )
+  public void setLastName( final String lastName )
   {
     this.lastName = lastName;
   }
@@ -53,7 +53,7 @@ public class Contact
     return emailAddress;
   }
 
-  public void setEmailAddress( String emailAddress )
+  public void setEmailAddress( final String emailAddress )
   {
     this.emailAddress = emailAddress;
   }

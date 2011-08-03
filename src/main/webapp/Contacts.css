@@ -4,22 +4,22 @@
 
 table {
   border-collapse: collapse;
-  margin: 0px;
-  padding: 0px;
-  spacing: 0px;
+  margin: 0;
+  padding: 0;
+  border-spacing: 0;
 }
 
 td {
   border-collapse: collapse;
-  margin: 0px;
-  padding: 0px;
-  spacing: 0px;
+  margin: 0;
+  padding: 0;
+  border-spacing: 0;
 }
 
 th, td {
-  padding: 0px;
+  padding: 0;
 }
-  
+
 td.add-contact-label {
   text-align: left;
 }
@@ -27,10 +27,10 @@ td.add-contact-label {
 add-contact-input {
   border: 1px solid red;
   border-collapse: collapse;
-  margin-right: 0px;
+  margin-right: 0;
   margin-left: auto;
 }
-  
+
 td.contacts-NavContainer {
   padding-left: 10px;
   padding-right: 10px;
@@ -64,4 +64,3 @@ td.contacts-ListName {
    height: 100%;
    width: 100%;
  }
- 

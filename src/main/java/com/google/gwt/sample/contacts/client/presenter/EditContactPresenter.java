@@ -14,7 +14,8 @@ import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Widget;
 
-public class EditContactPresenter implements Presenter
+public class EditContactPresenter
+  implements Presenter
 {
   public interface Display
   {
@@ -36,7 +37,9 @@ public class EditContactPresenter implements Presenter
   private final HandlerManager eventBus;
   private final Display display;
 
-  public EditContactPresenter(ContactsServiceAsync rpcService, HandlerManager eventBus, Display display)
+  public EditContactPresenter( final ContactsServiceAsync rpcService,
+                               final HandlerManager eventBus,
+                               final Display display )
   {
     this.rpcService = rpcService;
     this.eventBus = eventBus;
@@ -45,74 +48,76 @@ public class EditContactPresenter implements Presenter
     bind();
   }
 
-  public EditContactPresenter(ContactsServiceAsync rpcService, HandlerManager eventBus, Display display, String id)
+  public EditContactPresenter( final ContactsServiceAsync rpcService,
+                               final HandlerManager eventBus,
+                               final Display display,
+                               final String id )
   {
     this.rpcService = rpcService;
     this.eventBus = eventBus;
     this.display = display;
     bind();
 
-    rpcService.getContact(id, new AsyncCallback<Contact>()
+    rpcService.getContact( id, new AsyncCallback<Contact>()
     {
-      public void onSuccess(Contact result)
+      public void onSuccess( final Contact result )
       {
         contact = result;
-        EditContactPresenter.this.display.getFirstName().setValue(contact.getFirstName());
-        EditContactPresenter.this.display.getLastName().setValue(contact.getLastName());
-        EditContactPresenter.this.display.getEmailAddress().setValue(contact.getEmailAddress());
+        EditContactPresenter.this.display.getFirstName().setValue( contact.getFirstName() );
+        EditContactPresenter.this.display.getLastName().setValue( contact.getLastName() );
+        EditContactPresenter.this.display.getEmailAddress().setValue( contact.getEmailAddress() );
       }
 
-      public void onFailure(Throwable caught)
+      public void onFailure( final Throwable caught )
       {
-        Window.alert("Error retrieving contact");
+        Window.alert( "Error retrieving contact" );
       }
-    });
+    } );
 
   }
 
   public void bind()
   {
-    this.display.getSaveButton().addClickHandler(new ClickHandler()
+    this.display.getSaveButton().addClickHandler( new ClickHandler()
     {
-      public void onClick(ClickEvent event)
+      public void onClick( final ClickEvent event )
       {
         doSave();
       }
-    });
+    } );
 
-    this.display.getCancelButton().addClickHandler(new ClickHandler()
+    this.display.getCancelButton().addClickHandler( new ClickHandler()
     {
-      public void onClick(ClickEvent event)
+      public void onClick( final ClickEvent event )
       {
-        eventBus.fireEvent(new EditContactCancelledEvent());
+        eventBus.fireEvent( new EditContactCancelledEvent() );
       }
-    });
+    } );
   }
 
-  public void go(final HasWidgets container)
+  public void go( final HasWidgets container )
   {
     container.clear();
-    container.add(display.asWidget());
+    container.add( display.asWidget() );
   }
 
   private void doSave()
   {
-    contact.setFirstName(display.getFirstName().getValue());
-    contact.setLastName(display.getLastName().getValue());
-    contact.setEmailAddress(display.getEmailAddress().getValue());
+    contact.setFirstName( display.getFirstName().getValue() );
+    contact.setLastName( display.getLastName().getValue() );
+    contact.setEmailAddress( display.getEmailAddress().getValue() );
 
-    rpcService.updateContact(contact, new AsyncCallback<Contact>()
+    rpcService.createOrUpdateContact( contact, new AsyncCallback<Contact>()
     {
-      public void onSuccess(Contact result)
+      public void onSuccess( final Contact result )
       {
-        eventBus.fireEvent(new ContactUpdatedEvent(result));
+        eventBus.fireEvent( new ContactUpdatedEvent( result ) );
       }
 
-      public void onFailure(Throwable caught)
+      public void onFailure( final Throwable caught )
       {
-        Window.alert("Error updating contact");
+        Window.alert( "Error updating contact" );
       }
-    });
+    } );
   }
-
 }

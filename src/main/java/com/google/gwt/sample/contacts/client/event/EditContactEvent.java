@@ -2,12 +2,13 @@ package com.google.gwt.sample.contacts.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class EditContactEvent extends GwtEvent<EditContactEventHandler>
+public class EditContactEvent
+  extends GwtEvent<EditContactEventHandler>
 {
-  public static Type<EditContactEventHandler> TYPE = new Type<EditContactEventHandler>();
+  public static final Type<EditContactEventHandler> TYPE = new Type<EditContactEventHandler>();
   private final String id;
 
-  public EditContactEvent(String id)
+  public EditContactEvent( final String id )
   {
     this.id = id;
   }
@@ -24,8 +25,8 @@ public class EditContactEvent extends GwtEvent<EditContactEventHandler>
   }
 
   @Override
-  protected void dispatch(EditContactEventHandler handler)
+  protected void dispatch( final EditContactEventHandler handler )
   {
-    handler.onEditContact(this);
+    handler.onEditContact( this );
   }
 }

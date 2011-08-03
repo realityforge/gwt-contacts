@@ -2,9 +2,10 @@ package com.google.gwt.sample.contacts.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class ContactDeletedEvent extends GwtEvent<ContactDeletedEventHandler>
+public class ContactDeletedEvent
+  extends GwtEvent<ContactDeletedEventHandler>
 {
-  public static Type<ContactDeletedEventHandler> TYPE = new Type<ContactDeletedEventHandler>();
+  public static final Type<ContactDeletedEventHandler> TYPE = new Type<ContactDeletedEventHandler>();
 
   @Override
   public Type<ContactDeletedEventHandler> getAssociatedType()
@@ -13,8 +14,8 @@ public class ContactDeletedEvent extends GwtEvent<ContactDeletedEventHandler>
   }
 
   @Override
-  protected void dispatch(ContactDeletedEventHandler handler)
+  protected void dispatch( final ContactDeletedEventHandler handler )
   {
-    handler.onContactDeleted(this);
+    handler.onContactDeleted( this );
   }
 }

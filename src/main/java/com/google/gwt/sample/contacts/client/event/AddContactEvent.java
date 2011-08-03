@@ -2,9 +2,10 @@ package com.google.gwt.sample.contacts.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class AddContactEvent extends GwtEvent<AddContactEventHandler>
+public class AddContactEvent
+  extends GwtEvent<AddContactEventHandler>
 {
-  public static Type<AddContactEventHandler> TYPE = new Type<AddContactEventHandler>();
+  public static final Type<AddContactEventHandler> TYPE = new Type<AddContactEventHandler>();
 
   @Override
   public Type<AddContactEventHandler> getAssociatedType()
@@ -13,8 +14,8 @@ public class AddContactEvent extends GwtEvent<AddContactEventHandler>
   }
 
   @Override
-  protected void dispatch(AddContactEventHandler handler)
+  protected void dispatch( final AddContactEventHandler handler )
   {
-    handler.onAddContact(this);
+    handler.onAddContact( this );
   }
 }

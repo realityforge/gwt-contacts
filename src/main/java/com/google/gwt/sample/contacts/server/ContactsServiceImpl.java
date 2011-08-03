@@ -15,24 +15,14 @@ public class ContactsServiceImpl
   @EJB
   private LocalContacts contacts;
 
-  public Contact addContact( Contact contact )
+  public Contact createOrUpdateContact( final Contact contact )
   {
-    return contacts.addContact( contact );
+    return contacts.createOrUpdateContact( contact );
   }
 
-  public Contact updateContact( Contact contact )
+  public void deleteContacts( final ArrayList<String> ids )
   {
-    return contacts.updateContact( contact );
-  }
-
-  public Boolean deleteContact( String id )
-  {
-    return contacts.deleteContact( id );
-  }
-
-  public ArrayList<ContactDetails> deleteContacts( ArrayList<String> ids )
-  {
-    return contacts.deleteContacts( ids );
+    contacts.deleteContacts( ids );
   }
 
   public ArrayList<ContactDetails> getContactDetails()
@@ -40,7 +30,7 @@ public class ContactsServiceImpl
     return contacts.getContactDetails();
   }
 
-  public Contact getContact( String id )
+  public Contact getContact( final String id )
   {
     return contacts.getContact( id );
   }

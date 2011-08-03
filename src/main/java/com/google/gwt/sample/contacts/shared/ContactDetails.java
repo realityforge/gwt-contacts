@@ -2,18 +2,19 @@ package com.google.gwt.sample.contacts.shared;
 
 import java.io.Serializable;
 
-@SuppressWarnings("serial")
-public class ContactDetails implements Serializable
+@SuppressWarnings( "serial" )
+public class ContactDetails
+  implements Serializable
 {
   private String id;
   private String displayName;
 
   public ContactDetails()
   {
-    new ContactDetails("0", "");
+    new ContactDetails( "0", "" );
   }
 
-  public ContactDetails(String id, String displayName)
+  public ContactDetails( final String id, final String displayName )
   {
     this.id = id;
     this.displayName = displayName;
@@ -24,7 +25,7 @@ public class ContactDetails implements Serializable
     return id;
   }
 
-  public void setId(String id)
+  public void setId( final String id )
   {
     this.id = id;
   }
@@ -34,7 +35,7 @@ public class ContactDetails implements Serializable
     return displayName;
   }
 
-  public void setDisplayName(String displayName)
+  public void setDisplayName( final String displayName )
   {
     this.displayName = displayName;
   }

@@ -3,16 +3,17 @@ package com.google.gwt.sample.contacts.server;
 import java.io.Serializable;
 import javax.persistence.GenerationType;
 
-@SuppressWarnings("serial")
+@SuppressWarnings( "serial" )
 @javax.persistence.NamedQueries( value = {
   @javax.persistence.NamedQuery( name = ContactBean.findAll, query = "SELECT O FROM AddressBook.Contact O " ),
-  @javax.persistence.NamedQuery( name = ContactBean.findByID, query = "SELECT O FROM AddressBook.Contact O WHERE O.ID = :ID" )
+  @javax.persistence.NamedQuery( name = ContactBean.findByID,
+                                 query = "SELECT O FROM AddressBook.Contact O WHERE O.ID = :ID" )
 } )
 @javax.persistence.Access( javax.persistence.AccessType.FIELD )
 @javax.persistence.Entity( name = "AddressBook.Contact" )
 @javax.persistence.Table( name = "tblContact",
-        schema = "AddressBook",
-        uniqueConstraints = {})
+                          schema = "AddressBook",
+                          uniqueConstraints = { } )
 public class ContactBean
   implements Serializable
 {
@@ -30,7 +31,8 @@ public class ContactBean
   @javax.persistence.Column( name = "LastName", nullable = true, updatable = true, unique = false, insertable = true )
   private String LastName;
 
-  @javax.persistence.Column( name = "EmailAddress", nullable = true, updatable = true, unique = false, insertable = true )
+  @javax.persistence.Column( name = "EmailAddress", nullable = true, updatable = true, unique = false,
+                             insertable = true )
   private String EmailAddress;
 
   public Integer getID()
@@ -43,7 +45,7 @@ public class ContactBean
     return FirstName;
   }
 
-  public void setFirstName(String firstName)
+  public void setFirstName( final String firstName )
   {
     this.FirstName = firstName;
   }
@@ -53,7 +55,7 @@ public class ContactBean
     return LastName;
   }
 
-  public void setLastName(String lastName)
+  public void setLastName( final String lastName )
   {
     this.LastName = lastName;
   }
@@ -63,7 +65,7 @@ public class ContactBean
     return EmailAddress;
   }
 
-  public void setEmailAddress(String emailAddress)
+  public void setEmailAddress( final String emailAddress )
   {
     this.EmailAddress = emailAddress;
   }

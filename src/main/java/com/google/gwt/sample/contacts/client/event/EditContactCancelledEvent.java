@@ -2,9 +2,10 @@ package com.google.gwt.sample.contacts.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 
-public class EditContactCancelledEvent extends GwtEvent<EditContactCancelledEventHandler>
+public class EditContactCancelledEvent
+  extends GwtEvent<EditContactCancelledEventHandler>
 {
-  public static Type<EditContactCancelledEventHandler> TYPE = new Type<EditContactCancelledEventHandler>();
+  public static final Type<EditContactCancelledEventHandler> TYPE = new Type<EditContactCancelledEventHandler>();
 
   @Override
   public Type<EditContactCancelledEventHandler> getAssociatedType()
@@ -13,8 +14,8 @@ public class EditContactCancelledEvent extends GwtEvent<EditContactCancelledEven
   }
 
   @Override
-  protected void dispatch(EditContactCancelledEventHandler handler)
+  protected void dispatch( final EditContactCancelledEventHandler handler )
   {
-    handler.onEditContactCancelled(this);
+    handler.onEditContactCancelled( this );
   }
 }

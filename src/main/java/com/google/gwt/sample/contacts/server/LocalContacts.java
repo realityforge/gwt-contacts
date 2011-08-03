@@ -8,15 +8,11 @@ import javax.ejb.Local;
 @Local
 public interface LocalContacts
 {
-  Contact addContact(Contact contact);
-
-  Boolean deleteContact(String id);
-
-  ArrayList<ContactDetails> deleteContacts(ArrayList<String> ids);
+  void deleteContacts( ArrayList<String> ids );
 
   ArrayList<ContactDetails> getContactDetails();
 
-  Contact getContact(String id);
+  Contact getContact( String id );
 
-  Contact updateContact(Contact contact);
+  Contact createOrUpdateContact( Contact contact );
 }

@@ -1,11 +1,11 @@
 <!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
 <ui:UiBinder
-    xmlns:ui="urn:ui:com.google.gwt.uibinder"
-    xmlns:g="urn:import:com.google.gwt.user.client.ui">
+  xmlns:ui="urn:ui:com.google.gwt.uibinder"
+  xmlns:g="urn:import:com.google.gwt.user.client.ui">
 
   <ui:style>
     .contactsViewButtonHPanel {
-      margin: 5px 0px 0px 5px;
+      margin: 5px 0 0 5px;
     }
   </ui:style>
 
@@ -18,4 +18,4 @@
       <g:HTML ui:field="contactsTable"/>
     </g:VerticalPanel>
   </g:DecoratorPanel>
-</ui:UiBinder> 
+</ui:UiBinder>
