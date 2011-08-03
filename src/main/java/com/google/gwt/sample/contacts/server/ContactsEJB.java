@@ -4,6 +4,7 @@ import com.google.gwt.sample.contacts.shared.Contact;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 import java.util.ArrayList;
 import javax.ejb.Stateless;
+import javax.persistence.TypedQuery;
 
 @Stateless
 public class ContactsEJB
@@ -61,10 +62,7 @@ public class ContactsEJB
   public ArrayList<ContactDetails> getContactDetails()
   {
     initContactsIfRequired();
-    final
-    javax.persistence.TypedQuery<ContactBean>
-      query =
-      em.createNamedQuery( ContactBean.findAll, ContactBean.class );
+    final TypedQuery<ContactBean> query = em.createNamedQuery( ContactBean.findAll, ContactBean.class );
 
     final ArrayList<ContactDetails> contactDetails = new ArrayList<ContactDetails>();
     for ( final ContactBean contact : query.getResultList() )
@@ -77,8 +75,7 @@ public class ContactsEJB
 
   public Contact getContact( final String id )
   {
-    final ContactBean result = findByID( id );
-    return toContactDTO( result );
+    return toContactDTO( findByID( id ) );
   }
 
   private Contact toContactDTO( final ContactBean result )
