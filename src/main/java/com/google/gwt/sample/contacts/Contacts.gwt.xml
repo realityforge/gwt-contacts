@@ -21,4 +21,5 @@
   <source path='shared'/>
   <source path='test/gwt'/>
 
+  <set-configuration-property name="UiBinder.useSafeHtmlTemplates" value="true" />
 </module>
