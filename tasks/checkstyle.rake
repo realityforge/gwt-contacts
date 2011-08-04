@@ -155,8 +155,9 @@ module Buildr
           end
 
           if project.checkstyle.html_enabled?
+            xml_task = project.task("checkstyle:xml")
             desc "Generate checkstyle html report."
-            project.task("checkstyle:html" => project.task("checkstyle:xml")) do
+            project.task("checkstyle:html" => xml_task) do
               puts "Checkstyle: Generating report"
               mkdir_p File.dirname(project.checkstyle.html_output_file)
               Buildr.ant "checkstyle" do |ant|
