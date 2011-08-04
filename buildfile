@@ -7,38 +7,77 @@ define 'gwt-contacts' do
   compile.options.target = '1.6'
   compile.options.lint = 'all'
 
-  compile.with :gwt_user, :javax_ejb, :javax_persistence
+  desc "GWT Contacts: Shared component"
+  define 'shared' do
+    compile.with :gwt_user
 
-  test.with :easymock
-
-  gwt_options = {}
-  if ENV["FAST_GWT"] == 'true'
-    gwt_options[:draft_compile] = true
+    package(:jar)
+    package(:sources)
   end
 
+  desc "GWT Contacts: Client-side component"
+  define 'client' do
+    iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
 
-  contact_module = gwt("com.google.gwt.sample.contacts.Contacts",
-                       {:dependencies => [:gwt_user, :javax_validation, :javax_validation_sources],
-                       :java_args => ["-Xms512M","-Xmx512M","-XX:PermSize=128M","-XX:MaxPermSize=256M"]}.
-                         merge(gwt_options))
+    compile.with :gwt_user, project('shared').package(:jar)
 
-  package(:war).tap do |war|
-    war.include "#{contact_module}/*"
-    war.with :libs => :gwt_user
+    test.with :easymock
+
+    package(:sources)
   end
 
-  doc.using :javadoc,
-            {:tree => false, :since => false, :deprecated => false, :index => false, :help => false}
+  desc "GWT Contacts: Server-side component"
+  define 'server' do
+    compile.with :gwt_user, :javax_ejb, :javax_persistence, project('shared')
+    iml.add_jpa_facet
 
-  ipr.add_exploded_war_configuration(project, :enable_gwt => true, :enable_jpa => true, :dependencies => [:gwt_user])
-  ipr.add_gwt_configuration("#{project.name}/Contacts.html", project)
-  iml.add_web_facet
-  iml.add_jpa_facet(:persistence_xml => _(:source, :main, :webapp, "WEB-INF/classes/META-INF/persistence.xml"),
-                    :orm_xml => _(:source, :main, :webapp, "WEB-INF/classes/META-INF/orm.xml"))
+    package(:jar)
+  end
 
-  iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
-  iml.add_jruby_facet
+  desc "GWT Contacts: Web component"
+  define 'web' do
+    iml.add_web_facet
+
+    contact_module = gwt("com.google.gwt.sample.contacts.Contacts",
+                         :dependencies => [:gwt_user,
+                                           project('client').package(:sources),
+                                           project('shared').package(:sources),
+                                           # Validation needed to quieten warnings from gwt compiler
+                                           :javax_validation,
+                                           :javax_validation_sources],
+                         :java_args => ["-Xms512M", "-Xmx512M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
+                         :draft_compile => (ENV["FAST_GWT"] == 'true'))
+
+    package(:war).tap do |war|
+      war.include "#{contact_module}/WEB-INF"
+      war.include "#{contact_module}/contacts"
+      war.with :libs => [:gwt_user, project('shared').package(:jar), project('server')]
+      war.enhance [contact_module]
+    end
+  end
+
 
   # Remove the IDEA generated artifacts
   project.clean { rm_rf project._(:artifacts) }
+
+  doc.using :javadoc, {:tree => false, :since => false, :deprecated => false, :index => false, :help => false}
+  doc.from projects('shared', 'client', 'server')
+
+  ipr.add_exploded_war_configuration(project,
+                                     :name => 'gwt-contacts',
+                                     :enable_gwt => true,
+                                     :war_module_name => project('web').iml.id,
+                                     :gwt_module_name => project('client').iml.id,
+                                     :dependencies => [:gwt_user, projects('shared', 'server')])
+  ipr.add_gwt_configuration("#{project.name}/Contacts.html", project)
+
+  iml.add_jruby_facet
+
+  checkstyle.config_directory = _('etc/checkstyle')
+  checkstyle.source_paths << project('shared').compile.sources
+  checkstyle.source_paths << project('shared').test.compile.sources
+  checkstyle.source_paths << project('client').compile.sources
+  checkstyle.source_paths << project('client').test.compile.sources
+  checkstyle.source_paths << project('server').compile.sources
+  checkstyle.source_paths << project('server').test.compile.sources
 end

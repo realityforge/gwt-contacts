@@ -52,16 +52,22 @@ module Buildr
         File.exist?(self.style_file)
       end
 
-      attr_writer :report_to
+      attr_writer :config_directory
 
-      def report_to
-        @report_to || project._(:reports, :checkstyle, 'checkstyle.xml')
+      def config_directory
+        @config_directory || project._(:source, :main, :etc, :checkstyle, 'checks.xml')
+      end
+
+      attr_writer :report_dir
+
+      def report_dir
+        @report_dir || project._(:reports, :checkstyle)
       end
 
       attr_writer :configuration_file
 
       def configuration_file
-        @configuration_file || project._(:source, :main, :etc, :checkstyle, 'checks.xml')
+        @configuration_file || "#{self.config_directory}/checks.xml"
       end
 
       attr_writer :fail_on_error
@@ -79,31 +85,31 @@ module Buildr
       attr_writer :xml_output_file
 
       def xml_output_file
-        @xml_output_file || project._(:reports, :checkstyle, 'checkstyle.xml')
+        @xml_output_file || "#{self.report_dir}/checkstyle.xml"
       end
 
       attr_writer :html_output_file
 
       def html_output_file
-        @html_output_file || project._(:reports, :checkstyle, 'checkstyle.html')
+        @html_output_file || "#{self.report_dir}/checkstyle.html"
       end
 
       attr_writer :style_file
 
       def style_file
-        @style_file || project._(:source, :main, :etc, :checkstyle, 'checkstyle-report.xsl')
+        @style_file || "#{self.config_directory}/checkstyle-report.xsl"
       end
 
       attr_writer :suppressions_file
 
       def suppressions_file
-        @suppressions_file || project._(:source, :main, :etc, :checkstyle, 'suppressions.xml')
+        @suppressions_file || "#{self.config_directory}/suppressions.xml"
       end
 
       attr_writer :import_control_file
 
       def import_control_file
-        @import_control_file || project._(:source, :main, :etc, :checkstyle, 'import-control.xml')
+        @import_control_file || "#{self.config_directory}/import-control.xml"
       end
 
       def properties

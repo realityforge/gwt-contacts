@@ -6,18 +6,20 @@ module Buildr::IntellijIdea
     end
 
     def add_artifact(name, type, build_on_make = true)
-      target = StringIO.new
-      Builder::XmlMarkup.new(:target => target, :indent => 2).
-        artifact(:name => name, :type => type, :"build-on-make" => build_on_make) do |xml|
-        yield xml if block_given?
+      self.artifacts << lambda do
+        target = StringIO.new
+        Builder::XmlMarkup.new(:target => target, :indent => 2).
+          artifact(:name => name, :type => type, :"build-on-make" => build_on_make) do |xml|
+          yield xml if block_given?
+        end
+        Buildr::IntellijIdea.new_document(target.string).root
       end
-      self.artifacts << Buildr::IntellijIdea.new_document(target.string).root
 
       self.components << lambda do
         cm = self.create_component("ArtifactManager")
 
         self.artifacts.each do |artifact|
-          cm.add_element artifact
+          cm.add_element artifact.call
         end
         cm
       end
@@ -28,22 +30,25 @@ module Buildr::IntellijIdea
       build_on_make = options[:build_on_make].nil? ? true : options[:build_on_make]
 
       add_artifact(artifact_name, "exploded-war", build_on_make) do |xml|
+        dependencies = (options[:dependencies] || ([project] + project.compile.dependencies)).flatten
+        libraries, projects = partition_dependencies(dependencies)
 
         xml.tag!('output-path', project._(:artifacts, artifact_name))
 
         xml.root :id => "root" do
           xml.element :id => "directory", :name => "WEB-INF" do
             xml.element :id => "directory", :name => "classes" do
-              xml.element :id => "module-output", :name => project.iml.id
-                if options[:enable_jpa]
-                  module_name = options[:jpa_module_name] || project.iml.id
-                  facet_name = options[:jpa_facet_name] || "JPA"
-                  xml.element :id => "jpa-descriptors", :facet => "#{module_name}/jpa/#{facet_name}"
-                end
+              projects.each do |p|
+                xml.element :id => "module-output", :name => p.iml.id
+              end
+              if options[:enable_jpa]
+                module_name = options[:jpa_module_name] || project.iml.id
+                facet_name = options[:jpa_facet_name] || "JPA"
+                xml.element :id => "jpa-descriptors", :facet => "#{module_name}/jpa/#{facet_name}"
+              end
             end
             xml.element :id => "directory", :name => "lib" do
-              dependencies = options[:dependencies] || project.compile.dependencies
-              Buildr.artifacts(dependencies).each(&:invoke).map(&:to_s).each do |dependency_path|
+              libraries.each(&:invoke).map(&:to_s).each do |dependency_path|
                 xml.element :id => "file-copy", :path => resolve_path(dependency_path)
               end
             end
@@ -132,6 +137,28 @@ module Buildr::IntellijIdea
     # TODO: Migrate this down to IdeaFile and remove from here and IdeaModule
     def base_directory
       buildr_project.path_to
+    end
+
+    private
+
+    def partition_dependencies(dependencies)
+      libraries = []
+      projects = []
+
+      dependencies.each do |dependency|
+        artifacts = Buildr.artifacts(dependency)
+        artifacts_as_strings = artifacts.map(&:to_s)
+        project = Buildr.projects.detect do |project|
+          [project.packages, project.compile.target, project.resources.target, project.test.compile.target, project.test.resources.target].flatten.
+            detect { |component| artifacts_as_strings.include?(component.to_s) }
+        end
+        if project
+          projects << project
+        else
+          libraries += artifacts
+        end
+      end
+      return libraries.uniq, projects.uniq
     end
   end
 

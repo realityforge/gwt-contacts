@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE import-control PUBLIC
+    "-//Puppy Crawl//DTD Import Control 1.1//EN"
+    "http://www.puppycrawl.com/dtds/import_control_1_1.dtd">
+
+<import-control pkg="com.google.gwt.sample.contacts">
+
+  <allow pkg="java.util"/>
+
+  <!-- For testing -->
+  <allow pkg="org.easymock"/>
+  <allow class="junit.framework.TestCase"/>
+
+  <subpackage name="shared">
+    <allow class="java.io.Serializable"/>
+    <allow class="com.google.gwt.user.client.rpc.RemoteService"/>
+    <allow class="com.google.gwt.user.client.rpc.AsyncCallback"/>
+    <allow class="com.google.gwt.user.client.rpc.RemoteServiceRelativePath"/>
+  </subpackage>
+
+  <subpackage name="server">
+    <allow pkg="com.google.gwt.sample.contacts.shared"/>
+    <allow class="com.google.gwt.user.server.rpc.RemoteServiceServlet"/>
+    <allow pkg="javax.servlet"/>
+    <allow pkg="javax.ejb"/>
+    <allow pkg="javax.persistence"/>
+  </subpackage>
+
+  <subpackage name="client">
+
+    <allow class="com.google.gwt.core.client.EntryPoint" local-only="true"/>
+    <allow class="com.google.gwt.core.client.RunAsyncCallback" local-only="true"/>
+
+    <allow class="com.google.gwt.core.client.GWT"/>
+
+    <allow pkg="com.google.gwt.event.logical.shared"/>
+    <allow pkg="com.google.gwt.sample.contacts.shared.*" regex="true"/>
+    <allow pkg="com.google.gwt.sample.contacts.client.*" regex="true"/>
+    <allow pkg="com.google.gwt.event.shared.*" regex="true"/>
+    <allow pkg="com.google.gwt.user.client.*" regex="true"/>
+
+
+    <subpackage name="view">
+      <allow pkg="com.google.gwt.uibinder.client"/>
+      <allow pkg="com.google.gwt.event.dom.client"/>
+    </subpackage>
+
+    <subpackage name="presenter">
+      <allow pkg="com.google.gwt.uibinder.client"/>
+      <allow pkg="com.google.gwt.event.dom.client"/>
+    </subpackage>
+
+  </subpackage>
+</import-control>
