@@ -33,7 +33,6 @@ module Buildr
           args << "-r"
           args << source_path
         end
-        p args
 
         begin
           Java::Commands.java 'com.puppycrawl.tools.checkstyle.Main', *(args + [{:classpath => cp, :properties => options[:properties], :java_args => options[:java_args]}])
