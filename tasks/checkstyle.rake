@@ -119,7 +119,7 @@ module Buildr
       end
 
       def source_paths
-        @source_paths ||= [self.project.compile.sources, self.project.test.compile.sources].flatten.compact
+        @source_paths ||= [self.project.compile.sources, self.project.test.compile.sources]
       end
 
       protected
@@ -148,9 +148,9 @@ module Buildr
             Buildr::Checkstyle.checkstyle(project.checkstyle.configuration_file,
                                           project.checkstyle.format,
                                           project.checkstyle.xml_output_file,
-            project.checkstyle.source_paths,
+                                          project.checkstyle.source_paths.flatten.compact,
                                           :properties => project.checkstyle.properties,
-                                          :fail_on_error => project.checkstyle.fail_on_error? )
+                                          :fail_on_error => project.checkstyle.fail_on_error?)
           end
 
           if project.checkstyle.html_enabled?
