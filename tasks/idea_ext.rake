@@ -42,9 +42,11 @@ module Buildr::IntellijIdea
                 xml.element :id => "module-output", :name => p.iml.id
               end
               if options[:enable_jpa]
-                module_name = options[:jpa_module_name] || project.iml.id
-                facet_name = options[:jpa_facet_name] || "JPA"
-                xml.element :id => "jpa-descriptors", :facet => "#{module_name}/jpa/#{facet_name}"
+                module_names = options[:jpa_module_names] || [project.iml.id]
+                module_names.each do |module_name|
+                  facet_name = options[:jpa_facet_name] || "JPA"
+                  xml.element :id => "jpa-descriptors", :facet => "#{module_name}/jpa/#{facet_name}"
+                end
               end
             end
             xml.element :id => "directory", :name => "lib" do
@@ -55,15 +57,19 @@ module Buildr::IntellijIdea
           end
 
           if options[:enable_war].nil? || options[:enable_war]
-            module_name = options[:war_module_name] || project.iml.id
-            facet_name = options[:war_facet_name] || "Web"
-            xml.element :id => "javaee-facet-resources", :facet => "#{module_name}/web/#{facet_name}"
+            module_names = options[:war_module_names] || [project.iml.id]
+            module_names.each do |module_name|
+              facet_name = options[:war_facet_name] || "Web"
+              xml.element :id => "javaee-facet-resources", :facet => "#{module_name}/web/#{facet_name}"
+            end
           end
 
           if options[:enable_gwt]
-            module_name = options[:gwt_module_name] || project.iml.id
-            facet_name = options[:gwt_facet_name] || "GWT"
-            xml.element :id => "gwt-compiler-output", :facet => "#{module_name}/gwt/#{facet_name}"
+            module_names = options[:gwt_module_names] || [project.iml.id]
+            module_names.each do |module_name|
+              facet_name = options[:gwt_facet_name] || "GWT"
+              xml.element :id => "gwt-compiler-output", :facet => "#{module_name}/gwt/#{facet_name}"
+            end
           end
         end
       end

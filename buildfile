@@ -67,8 +67,8 @@ define 'gwt-contacts' do
   ipr.add_exploded_war_configuration(project,
                                      :name => 'gwt-contacts',
                                      :enable_gwt => true,
-                                     :war_module_name => project('web').iml.id,
-                                     :gwt_module_name => project('client').iml.id,
+                                     :war_module_names => [project('web').iml.id],
+                                     :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
                                      :dependencies => [:gwt_user, projects('shared', 'server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project)
 
