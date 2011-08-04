@@ -19,7 +19,6 @@
   <!-- Specify the paths for translatable code                    -->
   <source path='client'/>
   <source path='shared'/>
-  <source path='test/gwt'/>
 
   <set-configuration-property name="UiBinder.useSafeHtmlTemplates" value="true"/>
 
