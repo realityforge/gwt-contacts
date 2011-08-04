@@ -43,16 +43,17 @@ module Buildr
     module ProjectExtension
       include Extension
 
-      def gwt(module_name, options = {})
-        output_dir = project._(:target, :generated, :gwt, module_name)
+      def gwt(module_names, options = {})
+        output_key = options[:output_key] || project.id
+        output_dir = project._(:target, :generated, :gwt, output_key)
         task = file(output_dir) do
           artifacts = (project.compile.sources + project.resources.sources).collect do |a|
             a.is_a?(String) ? file(a) : a
           end
           dependencies = options[:dependencies] || project.compile.dependencies
           options = options.dup
-          options[:compile_report_dir] ||= project._(:target, :main, :gwt, module_name)
-          Buildr::GWT.gwtc_main([module_name], dependencies + artifacts, output_dir, options)
+          options[:compile_report_dir] ||= project._(:target, :main, :gwt, output_key)
+          Buildr::GWT.gwtc_main(module_names, dependencies + artifacts, output_dir, options)
         end
         task.enhance [project.compile]
         task

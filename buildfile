@@ -10,6 +10,7 @@ define 'gwt-contacts' do
   desc "GWT Contacts: Shared component"
   define 'shared' do
     compile.with :gwt_user
+    iml.add_gwt_facet
 
     package(:jar)
     package(:sources)

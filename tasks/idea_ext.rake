@@ -164,14 +164,15 @@ module Buildr::IntellijIdea
 
   class IdeaModule
 
-    def add_gwt_facet(modules, options = {})
+    def add_gwt_facet(modules = {}, options = {})
       name = options[:name] || "GWT"
       settings =
         {
           :webFacet => "Web",
-          :compilerMaxHeapSize => "128",
+          :compilerMaxHeapSize => "512",
+          :compilerParameters => "-draftCompile",
           :gwtSdkUrl => "file://$GWT_TOOLS$",
-          :gwtScriptOutputStyle => "DETAILED"
+          :gwtScriptOutputStyle => "PRETTY"
         }.merge(options[:settings] || {})
 
       add_facet(name, "gwt") do |f|
