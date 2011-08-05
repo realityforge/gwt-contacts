@@ -29,7 +29,7 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Server-side component"
   define 'server' do
-    compile.with :gwt_user, :javax_ejb, :javax_persistence, project('shared')
+    compile.with :gwt_user, :javax_servlet, :javax_ejb, :javax_persistence, project('shared')
     iml.add_jpa_facet
 
     package(:jar)
