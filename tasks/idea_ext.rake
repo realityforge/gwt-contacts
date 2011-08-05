@@ -1,4 +1,11 @@
 module Buildr::IntellijIdea
+  class IdeaFile
+    # IDEA can not handle text content with indents so need to override this method and removing indenting
+    # Can not pass true as third argument as ruby library seems broken
+    def write(f)
+      document.write(f, -1, false, true)
+    end
+  end
 
   class IdeaProject
     def artifacts
@@ -33,6 +40,7 @@ module Buildr::IntellijIdea
         dependencies = (options[:dependencies] || ([project] + project.compile.dependencies)).flatten
         libraries, projects = partition_dependencies(dependencies)
 
+        ## The content here can not be indented
         xml.tag!('output-path', project._(:artifacts, artifact_name))
 
         xml.root :id => "root" do
