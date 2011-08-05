@@ -41,12 +41,11 @@
 
 
     <subpackage name="view">
-      <allow pkg="com.google.gwt.uibinder.client"/>
+      <allow pkg="com.smartgwt.client.*" regex="true"/>
       <allow pkg="com.google.gwt.event.dom.client"/>
     </subpackage>
 
     <subpackage name="presenter">
-      <allow pkg="com.google.gwt.uibinder.client"/>
       <allow pkg="com.google.gwt.event.dom.client"/>
     </subpackage>
 

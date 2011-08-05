@@ -5,9 +5,14 @@
     "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-  <!-- Turn off visibility checks for UI bound views -->
+  <!--
+  Turn off checks for UI Binder elements
   <suppress checks="VisibilityModifier" files=".*[\\/]client[\\/]view[\\/].*UI\.java"/>
   <suppress checks="ConstantName" files=".*[\\/]client[\\/]view[\\/].*UI\.java"/>
+  -->
+
+  <!-- Lots of magic numbers abound in layout code -->
+  <suppress checks="MagicNumber" files=".*[\\/]client[\\/]view[\\/].*UI\.java"/>
 
   <!-- Turn off naming checks for persistent objects -->
   <suppress checks="MemberName" files=".*[\\/]server[\\/].*Bean\.java"/>
