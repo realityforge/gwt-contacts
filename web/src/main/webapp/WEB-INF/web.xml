@@ -4,16 +4,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation=" http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
-    <servlet>
-        <servlet-name>com.google.gwt.sample.contacts.Contacts ContactsService</servlet-name>
-        <servlet-class>com.google.gwt.sample.contacts.server.ContactsServiceImpl</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>com.google.gwt.sample.contacts.Contacts ContactsService</servlet-name>
-        <url-pattern>/contacts/contactsService</url-pattern>
-    </servlet-mapping>
-
     <!-- Default page to serve -->
     <welcome-file-list>
         <welcome-file>Contacts.html</welcome-file>

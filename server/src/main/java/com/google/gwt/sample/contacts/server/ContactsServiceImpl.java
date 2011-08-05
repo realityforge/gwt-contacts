@@ -6,8 +6,10 @@ import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.util.ArrayList;
 import javax.ejb.EJB;
+import javax.servlet.annotation.WebServlet;
 
 @SuppressWarnings( "serial" )
+@WebServlet( urlPatterns = { "/contacts/contactsService" } )
 public class ContactsServiceImpl
   extends RemoteServiceServlet
   implements ContactsService
