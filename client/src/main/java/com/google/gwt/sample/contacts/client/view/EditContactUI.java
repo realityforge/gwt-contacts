@@ -1,6 +1,7 @@
 package com.google.gwt.sample.contacts.client.view;
 
-import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratorPanel;
@@ -13,15 +14,14 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class EditContactUI
-  extends Composite
-  implements EditContactView
+    extends Composite
+    implements EditContactView
 {
   private final TextBox _firstName;
   private final TextBox _lastName;
   private final TextBox _emailAddress;
   private final FlexTable _detailsTable;
-  private final Button _saveButton;
-  private final Button _cancelButton;
+  private Presenter _presenter;
 
   public EditContactUI()
   {
@@ -46,23 +46,50 @@ public class EditContactUI
     contentDetailsPanel.add( _detailsTable );
 
     final HorizontalPanel menuPanel = new HorizontalPanel();
-    _saveButton = new Button( "Save" );
-    _cancelButton = new Button( "Cancel" );
-    menuPanel.add( _saveButton );
-    menuPanel.add( _cancelButton );
+    final Button saveButton = new Button( "Save" );
+    final Button cancelButton = new Button( "Cancel" );
+    menuPanel.add( saveButton );
+    menuPanel.add( cancelButton );
     contentDetailsPanel.add( menuPanel );
     contentDetailsDecorator.add( contentDetailsPanel );
+
+    saveButton.addClickHandler( new ClickHandler()
+    {
+      public void onClick( final ClickEvent clickEvent )
+      {
+        if( _presenter != null )
+        {
+          _presenter.onSaveButtonClicked();
+        }
+      }
+    } );
+
+    cancelButton.addClickHandler( new ClickHandler()
+    {
+      public void onClick( final ClickEvent clickEvent )
+      {
+        if( _presenter != null )
+        {
+          _presenter.onCancelButtonClicked();
+        }
+      }
+    } );
   }
 
   private void initDetailsTable()
   {
     _detailsTable.setWidget( 0, 0, new Label( "Firstname" ) );
-    _detailsTable.setWidget( 0, 1, _firstName);
+    _detailsTable.setWidget( 0, 1, _firstName );
     _detailsTable.setWidget( 1, 0, new Label( "Lastname" ) );
-    _detailsTable.setWidget( 1, 1, _lastName);
+    _detailsTable.setWidget( 1, 1, _lastName );
     _detailsTable.setWidget( 2, 0, new Label( "Email Address" ) );
-    _detailsTable.setWidget( 2, 1, _emailAddress);
+    _detailsTable.setWidget( 2, 1, _emailAddress );
     _firstName.setFocus( true );
+  }
+
+  public void setPresenter( final Presenter presenter )
+  {
+    _presenter = presenter;
   }
 
   public HasValue<String> getFirstName()
@@ -78,16 +105,6 @@ public class EditContactUI
   public HasValue<String> getEmailAddress()
   {
     return _emailAddress;
-  }
-
-  public HasClickHandlers getSaveButton()
-  {
-    return _saveButton;
-  }
-
-  public HasClickHandlers getCancelButton()
-  {
-    return _cancelButton;
   }
 
   public Widget asWidget()

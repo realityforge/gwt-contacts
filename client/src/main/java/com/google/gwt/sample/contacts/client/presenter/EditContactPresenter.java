@@ -1,7 +1,5 @@
 package com.google.gwt.sample.contacts.client.presenter;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactCancelledEvent;
@@ -28,7 +26,7 @@ public class EditContactPresenter
     _eventBus = eventBus;
     _contact = new Contact();
     _display = display;
-    bind();
+    _display.setPresenter( this );
   }
 
   public EditContactPresenter( final ContactsServiceAsync rpcService,
@@ -36,10 +34,7 @@ public class EditContactPresenter
                                final EditContactView display,
                                final String id )
   {
-    this._rpcService = rpcService;
-    this._eventBus = eventBus;
-    this._display = display;
-    bind();
+    this( rpcService, eventBus, display );
 
     rpcService.getContact( id, new AsyncCallback<Contact>()
     {
@@ -59,29 +54,20 @@ public class EditContactPresenter
 
   }
 
-  public void bind()
-  {
-    this._display.getSaveButton().addClickHandler( new ClickHandler()
-    {
-      public void onClick( final ClickEvent event )
-      {
-        doSave();
-      }
-    } );
-
-    this._display.getCancelButton().addClickHandler( new ClickHandler()
-    {
-      public void onClick( final ClickEvent event )
-      {
-        _eventBus.fireEvent( new EditContactCancelledEvent() );
-      }
-    } );
-  }
-
   public void go( final HasWidgets container )
   {
     container.clear();
     container.add( _display.asWidget() );
+  }
+
+  public void onSaveButtonClicked()
+  {
+    doSave();
+  }
+
+  public void onCancelButtonClicked()
+  {
+    _eventBus.fireEvent( new EditContactCancelledEvent() );
   }
 
   private void doSave()

@@ -1,6 +1,5 @@
 package com.google.gwt.sample.contacts.client.view;
 
-import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -9,11 +8,12 @@ public interface EditContactView
   public interface Presenter
     extends com.google.gwt.sample.contacts.client.Presenter
   {
+    void onSaveButtonClicked();
+
+    void onCancelButtonClicked();
   }
 
-  HasClickHandlers getSaveButton();
-
-  HasClickHandlers getCancelButton();
+  void setPresenter( Presenter presenter );
 
   HasValue<String> getFirstName();
 
