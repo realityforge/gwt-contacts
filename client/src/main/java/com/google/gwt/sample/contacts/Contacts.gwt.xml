@@ -2,6 +2,8 @@
 <module rename-to='contacts'>
   <inherits name='com.google.gwt.user.User'/>
   <inherits name='com.google.gwt.user.theme.clean.Clean'/>
+  <inherits name="com.google.gwt.activity.Activity"/>
+  <inherits name="com.google.gwt.place.Place"/>
 
   <entry-point class='com.google.gwt.sample.contacts.client.Contacts'/>
 

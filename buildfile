@@ -24,6 +24,7 @@ define 'gwt-contacts' do
 
     test.with :easymock
 
+    package(:jar)
     package(:sources)
   end
 
@@ -41,8 +42,11 @@ define 'gwt-contacts' do
 
     contact_module = gwt(["com.google.gwt.sample.contacts.Contacts"],
                          :dependencies => [:gwt_user,
-                                           project('client').package(:sources),
-                                           project('shared').package(:sources),
+                                           # The following picks up both the jar and sources
+                                           # packages delliberately. It is needed for the
+                                           # generators to access classes in annotations.
+                                           project('client'),
+                                           project('shared'),
                                            # Validation needed to quieten warnings from gwt compiler
                                            :javax_validation,
                                            :javax_validation_sources],
