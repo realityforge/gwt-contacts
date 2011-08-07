@@ -62,16 +62,6 @@ public class EditContactPresenter
 
   public void onSaveButtonClicked()
   {
-    doSave();
-  }
-
-  public void onCancelButtonClicked()
-  {
-    _eventBus.fireEvent( new EditContactCancelledEvent() );
-  }
-
-  private void doSave()
-  {
     _contact.setFirstName( _display.getFirstName().getValue() );
     _contact.setLastName( _display.getLastName().getValue() );
     _contact.setEmailAddress( _display.getEmailAddress().getValue() );
@@ -88,5 +78,10 @@ public class EditContactPresenter
         Window.alert( "Error updating contact" );
       }
     } );
+  }
+
+  public void onCancelButtonClicked()
+  {
+    _eventBus.fireEvent( new EditContactCancelledEvent() );
   }
 }
