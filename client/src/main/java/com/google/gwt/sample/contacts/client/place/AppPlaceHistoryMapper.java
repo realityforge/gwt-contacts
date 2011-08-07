@@ -2,8 +2,6 @@ package com.google.gwt.sample.contacts.client.place;
 
 import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.place.shared.WithTokenizers;
-import com.hellomvp.client.place.GoodbyePlace;
-import com.hellomvp.client.place.HelloPlace;
 
 /**
  * PlaceHistoryMapper interface is used to attach all places which the
@@ -11,6 +9,8 @@ import com.hellomvp.client.place.HelloPlace;
  * annotation or by extending PlaceHistoryMapperWithFactory and creating a
  * separate TokenizerFactory.
  */
-@WithTokenizers( { HelloPlace.Tokenizer.class, GoodbyePlace.Tokenizer.class })
-public interface AppPlaceHistoryMapper extends PlaceHistoryMapper {
+@WithTokenizers( { ListContactsPlace.Tokenizer.class, EditContactPlace.Tokenizer.class } )
+public interface AppPlaceHistoryMapper
+  extends PlaceHistoryMapper
+{
 }
