@@ -1,11 +1,13 @@
 package com.google.gwt.sample.contacts.client.view;
 
 import com.google.gwt.sample.contacts.shared.ContactDetails;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 
 import java.util.List;
 
 public interface ContactsView
+  extends IsWidget
 {
   public interface Presenter
       extends com.google.gwt.sample.contacts.client.Presenter
@@ -22,6 +24,4 @@ public interface ContactsView
   void setPresenter( Presenter presenter );
 
   void setRowData( List<ContactDetails> rowData );
-
-  Widget asWidget();
 }

@@ -1,9 +1,11 @@
 package com.google.gwt.sample.contacts.client.view;
 
 import com.google.gwt.user.client.ui.HasValue;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 
 public interface EditContactView
+  extends IsWidget
 {
   public interface Presenter
     extends com.google.gwt.sample.contacts.client.Presenter
@@ -20,6 +22,4 @@ public interface EditContactView
   HasValue<String> getLastName();
 
   HasValue<String> getEmailAddress();
-
-  Widget asWidget();
 }
