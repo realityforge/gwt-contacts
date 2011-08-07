@@ -1,27 +1,26 @@
 package com.google.gwt.sample.contacts.client.view;
 
-import com.google.gwt.sample.contacts.client.common.ColumnDefinition;
+import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.user.client.ui.Widget;
+
 import java.util.List;
 
-public interface ContactsView<T>
+public interface ContactsView
 {
-  public interface Presenter<T>
+  public interface Presenter
   {
     void onAddButtonClicked();
 
     void onDeleteButtonClicked();
 
-    void onItemClicked( T clickedItem );
+    void onItemClicked( ContactDetails clickedItem );
 
-    void onItemSelected( T selectedItem );
+    void onItemSelected( ContactDetails selectedItem );
   }
 
-  void setPresenter( Presenter<T> presenter );
+  void setPresenter( Presenter presenter );
 
-  void setColumnDefinitions( List<ColumnDefinition<T>> columnDefinitions );
-
-  void setRowData( List<T> rowData );
+  void setRowData( List<ContactDetails> rowData );
 
   Widget asWidget();
 }

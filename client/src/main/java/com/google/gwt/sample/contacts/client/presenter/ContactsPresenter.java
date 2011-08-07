@@ -1,38 +1,37 @@
 package com.google.gwt.sample.contacts.client.presenter;
 
 import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
-import com.google.gwt.sample.contacts.client.common.ColumnDefinition;
 import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactEvent;
 import com.google.gwt.sample.contacts.client.view.ContactsView;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
+import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasWidgets;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ContactsPresenter
-  implements Presenter, ContactsView.Presenter<ContactDetails>
+  implements Presenter, ContactsView.Presenter
 {
   private List<ContactDetails> _contactDetails;
   private final ContactsServiceAsync _rpcService;
   private final HandlerManager _eventBus;
-  private final ContactsView<ContactDetails> _view;
+  private final ContactsView _view;
   private final SelectionModel<ContactDetails> _selectionModel;
 
   public ContactsPresenter( final ContactsServiceAsync rpcService,
-                            final HandlerManager eventBus, final ContactsView<ContactDetails> view,
-                            final List<ColumnDefinition<ContactDetails>> columnDefinitions )
+                            final HandlerManager eventBus,
+                            final ContactsView view  )
   {
     _rpcService = rpcService;
     _eventBus = eventBus;
     _view = view;
     _selectionModel = new SelectionModel<ContactDetails>();
     _view.setPresenter( this );
-    _view.setColumnDefinitions( columnDefinitions );
   }
 
   public void onAddButtonClicked()

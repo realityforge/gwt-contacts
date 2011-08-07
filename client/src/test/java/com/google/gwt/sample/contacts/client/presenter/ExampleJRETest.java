@@ -1,10 +1,9 @@
 package com.google.gwt.sample.contacts.client.presenter;
 
 import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
-import com.google.gwt.sample.contacts.client.common.ColumnDefinition;
 import com.google.gwt.sample.contacts.client.view.ContactsView;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
+import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ public class ExampleJRETest
   private ContactsPresenter _contactsPresenter;
   private ContactsServiceAsync _mockRpcService;
   private HandlerManager _mockEventBus;
-  private ContactsView<ContactDetails> _mockView;
+  private ContactsView _mockView;
   private List<ContactDetails> _contactDetails;
 
   protected void setUp()
@@ -33,10 +32,7 @@ public class ExampleJRETest
     _mockEventBus = new HandlerManager( null );
     _mockView = createStrictMock( ContactsView.class );
     _contactsPresenter =
-      new ContactsPresenter( _mockRpcService,
-                             _mockEventBus,
-                             _mockView,
-                             new ArrayList<ColumnDefinition<ContactDetails>>() );
+      new ContactsPresenter( _mockRpcService, _mockEventBus, _mockView );
   }
 
   public void testDeleteButton()

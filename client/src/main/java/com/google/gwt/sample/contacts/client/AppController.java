@@ -5,7 +5,6 @@ import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.sample.contacts.client.common.ContactsColumnDefinitionsImpl;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.AddContactEventHandler;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
@@ -19,7 +18,6 @@ import com.google.gwt.sample.contacts.client.presenter.EditContactPresenter;
 import com.google.gwt.sample.contacts.client.presenter.Presenter;
 import com.google.gwt.sample.contacts.client.view.ContactsViewUI;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
-import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.HasWidgets;
@@ -30,7 +28,7 @@ public class AppController
   private final HandlerManager _eventBus;
   private final ContactsServiceAsync _rpcService;
   private HasWidgets _container;
-  private ContactsViewUI<ContactDetails> _contactsView;
+  private ContactsViewUI _contactsView;
   private EditContactView _editContactView;
 
   public AppController( final ContactsServiceAsync rpcService, final HandlerManager eventBus )
@@ -137,11 +135,10 @@ public class AppController
             //
             if ( _contactsView == null )
             {
-              _contactsView = new ContactsViewUI<ContactDetails>();
+              _contactsView = new ContactsViewUI();
 
             }
-            new ContactsPresenter( _rpcService, _eventBus, _contactsView, ContactsColumnDefinitionsImpl.getInstance() )
-              .go( _container );
+            new ContactsPresenter( _rpcService, _eventBus, _contactsView ).go( _container );
           }
         } );
       }
