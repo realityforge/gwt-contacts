@@ -39,7 +39,7 @@ define 'gwt-contacts' do
   define 'web' do
     iml.add_web_facet
 
-    contact_module = gwt("com.google.gwt.sample.contacts.Contacts",
+    contact_module = gwt(["com.google.gwt.sample.contacts.Contacts"],
                          :dependencies => [:gwt_user,
                                            project('client').package(:sources),
                                            project('shared').package(:sources),
