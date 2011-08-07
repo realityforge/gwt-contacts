@@ -1,4 +1,4 @@
-package com.google.gwt.sample.contacts.client.presenter;
+package com.google.gwt.sample.contacts.client;
 
 import com.google.gwt.user.client.ui.HasWidgets;
 

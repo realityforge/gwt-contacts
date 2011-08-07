@@ -1,6 +1,7 @@
 package com.google.gwt.sample.contacts.client.presenter;
 
 import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.sample.contacts.client.Presenter;
 import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactEvent;

@@ -15,9 +15,8 @@ import com.google.gwt.sample.contacts.client.event.EditContactEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactEventHandler;
 import com.google.gwt.sample.contacts.client.presenter.ContactsPresenter;
 import com.google.gwt.sample.contacts.client.presenter.EditContactPresenter;
-import com.google.gwt.sample.contacts.client.presenter.Presenter;
 import com.google.gwt.sample.contacts.client.view.ContactsViewUI;
-import com.google.gwt.sample.contacts.client.view.EditContactView;
+import com.google.gwt.sample.contacts.client.view.EditContactUI;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.HasWidgets;
@@ -29,7 +28,7 @@ public class AppController
   private final ContactsServiceAsync _rpcService;
   private HasWidgets _container;
   private ContactsViewUI _contactsView;
-  private EditContactView _editContactView;
+  private EditContactUI _editContactView;
 
   public AppController( final ContactsServiceAsync rpcService, final HandlerManager eventBus )
   {
@@ -87,7 +86,7 @@ public class AppController
   private void doEditContact( final String id )
   {
     History.newItem( "edit", false );
-    final Presenter presenter = new EditContactPresenter( _rpcService, _eventBus, new EditContactView(), id );
+    final Presenter presenter = new EditContactPresenter( _rpcService, _eventBus, new EditContactUI(), id );
     presenter.go( _container );
   }
 
@@ -156,10 +155,10 @@ public class AppController
             //
             if ( _editContactView == null )
             {
-              _editContactView = new EditContactView();
+              _editContactView = new EditContactUI();
 
             }
-            new EditContactPresenter( _rpcService, _eventBus, _editContactView).go( _container );
+            new EditContactPresenter( _rpcService, _eventBus, _editContactView ).go( _container );
           }
         } );
       }

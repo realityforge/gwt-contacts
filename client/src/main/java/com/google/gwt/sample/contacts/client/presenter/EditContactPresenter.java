@@ -2,44 +2,27 @@ package com.google.gwt.sample.contacts.client.presenter;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.shared.HandlerManager;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactCancelledEvent;
+import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.sample.contacts.shared.Contact;
+import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.HasWidgets;
-import com.google.gwt.user.client.ui.Widget;
 
 public class EditContactPresenter
-  implements Presenter
+  implements EditContactView.Presenter
 {
-  public interface Display
-  {
-    HasClickHandlers getSaveButton();
-
-    HasClickHandlers getCancelButton();
-
-    HasValue<String> getFirstName();
-
-    HasValue<String> getLastName();
-
-    HasValue<String> getEmailAddress();
-
-    Widget asWidget();
-  }
-
   private Contact _contact;
   private final ContactsServiceAsync _rpcService;
   private final HandlerManager _eventBus;
-  private final Display _display;
+  private final EditContactView _display;
 
   public EditContactPresenter( final ContactsServiceAsync rpcService,
                                final HandlerManager eventBus,
-                               final Display display )
+                               final EditContactView display )
   {
     _rpcService = rpcService;
     _eventBus = eventBus;
@@ -50,7 +33,7 @@ public class EditContactPresenter
 
   public EditContactPresenter( final ContactsServiceAsync rpcService,
                                final HandlerManager eventBus,
-                               final Display display,
+                               final EditContactView display,
                                final String id )
   {
     this._rpcService = rpcService;

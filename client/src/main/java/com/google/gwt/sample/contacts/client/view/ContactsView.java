@@ -8,6 +8,7 @@ import java.util.List;
 public interface ContactsView
 {
   public interface Presenter
+      extends com.google.gwt.sample.contacts.client.Presenter
   {
     void onAddButtonClicked();
 
