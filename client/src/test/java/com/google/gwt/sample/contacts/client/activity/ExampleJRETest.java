@@ -1,4 +1,4 @@
-package com.google.gwt.sample.contacts.client.presenter;
+package com.google.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
