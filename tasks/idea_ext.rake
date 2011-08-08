@@ -189,7 +189,7 @@ module Buildr::IntellijIdea
         {
           :webFacet => "Web",
           :compilerMaxHeapSize => "512",
-          :compilerParameters => "-draftCompile",
+          :compilerParameters => "-draftCompile -localWorkers 2",
           :gwtSdkUrl => "file://$GWT_TOOLS$",
           :gwtScriptOutputStyle => "PRETTY"
         }.merge(options[:settings] || {})
