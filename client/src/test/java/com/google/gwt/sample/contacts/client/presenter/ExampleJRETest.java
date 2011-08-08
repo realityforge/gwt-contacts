@@ -32,8 +32,7 @@ public class ExampleJRETest
     _mockRpcService = createStrictMock( ContactsServiceAsync.class );
     _mockEventBus = new SimpleEventBus();
     _mockViewList = createStrictMock( ListContactsView.class );
-    _contactsPresenter =
-      new ContactsPresenter( _mockRpcService, _mockEventBus );
+    _contactsPresenter = new ContactsPresenter( _mockRpcService, _mockEventBus, _mockViewList );
   }
 
   public void testDeleteButton()
@@ -62,10 +61,9 @@ public class ExampleJRETest
       public Object answer()
         throws Throwable
       {
-        _contactDetails = new ArrayList<ContactDetails>();
-        _contactDetails.add( new ContactDetails( "0", "1_contact" ) );
-        final AsyncCallback callback = getCallback();
-        callback.onSuccess( _contactDetails );
+        final ArrayList<ContactDetails> results = new ArrayList<ContactDetails>();
+        results.add( new ContactDetails( "0", "1_contact" ) );
+        getCallback().onSuccess( results );
         return null;
       }
     } );
