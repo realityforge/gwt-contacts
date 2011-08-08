@@ -1,70 +1,68 @@
 package com.google.gwt.sample.contacts.client.presenter;
 
-import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.activity.shared.AbstractActivity;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactCancelledEvent;
+import com.google.gwt.sample.contacts.client.view.EditContactUI;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.sample.contacts.shared.Contact;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
 
 public class EditContactPresenter
+  extends AbstractActivity
   implements EditContactView.Presenter
 {
   private Contact _contact;
   private final ContactsServiceAsync _rpcService;
-  private final HandlerManager _eventBus;
-  private final EditContactView _display;
+  private final EventBus _eventBus;
+  private EditContactView _view;
 
-  public EditContactPresenter( final ContactsServiceAsync rpcService,
-                               final HandlerManager eventBus,
-                               final EditContactView display )
+  public EditContactPresenter( final ContactsServiceAsync rpcService, final EventBus eventBus, final String id )
   {
     _rpcService = rpcService;
     _eventBus = eventBus;
-    _contact = new Contact();
-    _display = display;
-    _display.setPresenter( this );
-  }
-
-  public EditContactPresenter( final ContactsServiceAsync rpcService,
-                               final HandlerManager eventBus,
-                               final EditContactView display,
-                               final String id )
-  {
-    this( rpcService, eventBus, display );
-
-    rpcService.getContact( id, new AsyncCallback<Contact>()
+    if ( null == id )
     {
-      public void onSuccess( final Contact result )
+      _contact = new Contact();
+    }
+    else
+    {
+      rpcService.getContact( id, new AsyncCallback<Contact>()
       {
-        _contact = result;
-        EditContactPresenter.this._display.getFirstName().setValue( _contact.getFirstName() );
-        EditContactPresenter.this._display.getLastName().setValue( _contact.getLastName() );
-        EditContactPresenter.this._display.getEmailAddress().setValue( _contact.getEmailAddress() );
-      }
+        public void onSuccess( final Contact contact )
+        {
+          _contact = contact;
+          EditContactPresenter.this._view.getFirstName().setValue( _contact.getFirstName() );
+          EditContactPresenter.this._view.getLastName().setValue( _contact.getLastName() );
+          EditContactPresenter.this._view.getEmailAddress().setValue( _contact.getEmailAddress() );
+        }
 
-      public void onFailure( final Throwable caught )
-      {
-        Window.alert( "Error retrieving contact" );
-      }
-    } );
-
+        public void onFailure( final Throwable caught )
+        {
+          Window.alert( "Error retrieving contact" );
+        }
+      } );
+    }
   }
 
-  public void go( final HasWidgets container )
+  @Override
+  public void start( final AcceptsOneWidget panel, final EventBus eventBus )
   {
-    container.clear();
-    container.add( _display.asWidget() );
+    final EditContactView view = new EditContactUI();
+    view.setPresenter( this );
+    _view = view;
+    panel.setWidget( view.asWidget() );
   }
 
   public void onSaveButtonClicked()
   {
-    _contact.setFirstName( _display.getFirstName().getValue() );
-    _contact.setLastName( _display.getLastName().getValue() );
-    _contact.setEmailAddress( _display.getEmailAddress().getValue() );
+    _contact.setFirstName( _view.getFirstName().getValue() );
+    _contact.setLastName( _view.getLastName().getValue() );
+    _contact.setEmailAddress( _view.getEmailAddress().getValue() );
 
     _rpcService.createOrUpdateContact( _contact, new AsyncCallback<Contact>()
     {

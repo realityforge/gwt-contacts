@@ -1,38 +1,47 @@
 package com.google.gwt.sample.contacts.client.presenter;
 
-import com.google.gwt.event.shared.HandlerManager;
+import com.google.gwt.activity.shared.AbstractActivity;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.sample.contacts.client.Presenter;
 import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactEvent;
 import com.google.gwt.sample.contacts.client.view.ContactsView;
+import com.google.gwt.sample.contacts.client.view.ContactsViewUI;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.HasWidgets;
-
+import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ContactsPresenter
+  extends AbstractActivity
   implements Presenter, ContactsView.Presenter
 {
-  private List<ContactDetails> _contactDetails;
   private final ContactsServiceAsync _rpcService;
-  private final HandlerManager _eventBus;
-  private final ContactsView _view;
+  private final EventBus _eventBus;
   private final SelectionModel<ContactDetails> _selectionModel;
 
-  public ContactsPresenter( final ContactsServiceAsync rpcService,
-                            final HandlerManager eventBus,
-                            final ContactsView view  )
+  private ContactsView _view;
+  private List<ContactDetails> _contactDetails;
+
+  public ContactsPresenter( final ContactsServiceAsync rpcService, final EventBus eventBus )
   {
     _rpcService = rpcService;
     _eventBus = eventBus;
-    _view = view;
     _selectionModel = new SelectionModel<ContactDetails>();
-    _view.setPresenter( this );
+  }
+
+  @Override
+  public void start( final AcceptsOneWidget panel, final EventBus eventBus )
+  {
+    final ContactsView view = new ContactsViewUI();
+    view.setPresenter( this );
+    panel.setWidget( view.asWidget() );
+    _view = view;
+    fetchContactDetails( view );
   }
 
   public void onAddButtonClicked()
@@ -60,13 +69,6 @@ public class ContactsPresenter
     {
       _selectionModel.addSelection( contactDetails );
     }
-  }
-
-  public void go( final HasWidgets container )
-  {
-    container.clear();
-    container.add( _view.asWidget() );
-    fetchContactDetails();
   }
 
   public void sortContactDetails()
@@ -103,14 +105,14 @@ public class ContactsPresenter
     return _contactDetails;
   }
 
-  private void fetchContactDetails()
+  private void fetchContactDetails( final ContactsView view )
   {
     _rpcService.getContactDetails( new AsyncCallback<ArrayList<ContactDetails>>()
     {
       public void onSuccess( final ArrayList<ContactDetails> result )
       {
         setContactDetails( result );
-        _view.setRowData( _contactDetails );
+        view.setRowData( _contactDetails );
       }
 
       public void onFailure( final Throwable caught )
@@ -134,7 +136,7 @@ public class ContactsPresenter
     {
       public void onSuccess( final Void result )
       {
-        fetchContactDetails();
+        fetchContactDetails( _view );
         _selectionModel.clear();
       }
 

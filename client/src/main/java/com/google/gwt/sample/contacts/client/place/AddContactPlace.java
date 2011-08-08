@@ -4,22 +4,23 @@ import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceTokenizer;
 import com.google.gwt.place.shared.Prefix;
 
-public class ListContactsPlace
+public class AddContactPlace
   extends Place
 {
-  @Prefix( value = "list" )
+  @Prefix( value = "add" )
   public static class Tokenizer
-    implements PlaceTokenizer<ListContactsPlace>
+    implements PlaceTokenizer<AddContactPlace>
   {
-    public String getToken( final ListContactsPlace place )
+    @Override
+    public String getToken( AddContactPlace place )
     {
       return "";
     }
 
-    public ListContactsPlace getPlace( final String token )
+    @Override
+    public AddContactPlace getPlace( final String token )
     {
-      return new ListContactsPlace();
+      return new AddContactPlace();
     }
-
   }
 }

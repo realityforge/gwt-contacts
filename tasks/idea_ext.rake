@@ -106,6 +106,11 @@ module Buildr::IntellijIdea
     end
 
     def add_gwt_configuration(launch_page, project, options = {})
+
+      # This is needed when generators require annotations to access compiled classes in annotations.
+      #  i.e. *PlaceHistoryMapper
+      project.iml.main_source_directories << project.compile.target
+
       name = options[:name] || "Run #{launch_page}"
       compile_parameters = options[:compile_parameters] || "-draftCompile -localWorkers 2"
       compile_max_heap_size = options[:compile_max_heap_size] || "512"
