@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
-public class ContactsPresenter
+public class ListContactsPresenter
   extends AbstractActivity
   implements ListContactsView.Presenter
 {
@@ -27,9 +27,9 @@ public class ContactsPresenter
   private List<ContactDetails> _contactDetails;
 
   @Inject
-  public ContactsPresenter( final ContactsServiceAsync rpcService,
-                            final EventBus eventBus,
-                            final ListContactsView view )
+  public ListContactsPresenter( final ContactsServiceAsync rpcService,
+                                final EventBus eventBus,
+                                final ListContactsView view )
   {
     _rpcService = rpcService;
     _eventBus = eventBus;
