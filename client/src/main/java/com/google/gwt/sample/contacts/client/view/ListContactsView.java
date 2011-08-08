@@ -8,7 +8,6 @@ public interface ListContactsView
   extends IsWidget
 {
   public interface Presenter
-      extends com.google.gwt.sample.contacts.client.Presenter
   {
     void onAddButtonClicked();
 

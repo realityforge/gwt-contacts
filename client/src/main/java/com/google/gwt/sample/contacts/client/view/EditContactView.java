@@ -8,7 +8,6 @@ public interface EditContactView
   extends IsWidget
 {
   public interface Presenter
-    extends com.google.gwt.sample.contacts.client.Presenter
   {
     void onSaveButtonClicked();
 

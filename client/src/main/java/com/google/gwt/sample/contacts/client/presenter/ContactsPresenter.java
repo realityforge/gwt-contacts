@@ -2,12 +2,11 @@ package com.google.gwt.sample.contacts.client.presenter;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.sample.contacts.client.Presenter;
 import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactEvent;
-import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.sample.contacts.client.view.ListContactsUI;
+import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
@@ -19,7 +18,7 @@ import javax.inject.Inject;
 
 public class ContactsPresenter
   extends AbstractActivity
-  implements Presenter, ListContactsView.Presenter
+  implements ListContactsView.Presenter
 {
   private final ContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
