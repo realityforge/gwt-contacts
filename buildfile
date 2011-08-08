@@ -43,7 +43,7 @@ define 'gwt-contacts' do
     contact_module = gwt(["com.google.gwt.sample.contacts.Contacts"],
                          :dependencies => [project('client').compile.dependencies,
                                            # The following picks up both the jar and sources
-                                           # packages delliberately. It is needed for the
+                                           # packages deliberately. It is needed for the
                                            # generators to access classes in annotations.
                                            project('client'),
                                            project('shared'),
