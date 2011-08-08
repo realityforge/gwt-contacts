@@ -25,14 +25,14 @@ public class AppActivityMapper
 {
   private final PlaceController _placeController;
   private final EventBus _eventBus;
-  private final Provider<ListContactsPresenter> _listContactsPresenter;
-  private final Provider<EditContactPresenter> _editContactPresenter;
+  private final Provider<ListContactsActivity> _listContactsPresenter;
+  private final Provider<EditContactActivity> _editContactPresenter;
 
   @Inject
   public AppActivityMapper( final PlaceController placeController,
                             final EventBus eventBus,
-                            final Provider<ListContactsPresenter> contactsPresenter,
-                            final Provider<EditContactPresenter> editContactPresenter )
+                            final Provider<ListContactsActivity> contactsPresenter,
+                            final Provider<EditContactActivity> editContactPresenter )
   {
     _placeController = placeController;
     _eventBus = eventBus;
