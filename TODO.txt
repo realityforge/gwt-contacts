@@ -1,5 +1,4 @@
 * Convert the application to use GIN for DI
-* Convert the application to Activities & Places
 * Investigate the integration of Editor framework
 * Add domgen generation of services
 * Add domgen generation of events
