@@ -20,7 +20,7 @@ define 'gwt-contacts' do
   define 'client' do
     iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
 
-    compile.with :gwt_user, project('shared').package(:jar)
+    compile.with :gwt_user, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_inject, :gwt_gin, project('shared').package(:jar)
 
     test.with :easymock
 
@@ -41,7 +41,7 @@ define 'gwt-contacts' do
     iml.add_web_facet
 
     contact_module = gwt(["com.google.gwt.sample.contacts.Contacts"],
-                         :dependencies => [:gwt_user,
+                         :dependencies => [project('client').compile.dependencies,
                                            # The following picks up both the jar and sources
                                            # packages delliberately. It is needed for the
                                            # generators to access classes in annotations.

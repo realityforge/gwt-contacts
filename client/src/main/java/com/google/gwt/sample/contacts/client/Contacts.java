@@ -13,31 +13,22 @@ import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
 import com.google.gwt.sample.contacts.client.presenter.AppActivityMapper;
 import com.google.gwt.sample.contacts.shared.ContactsService;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public final class Contacts
   implements EntryPoint
 {
   public void onModuleLoad()
   {
-    final EventBus eventBus = new SimpleEventBus();
-    final PlaceController placeController = new PlaceController( eventBus );
+    final ContactGinjector injector = GWT.create( ContactGinjector.class );
 
-    // Start PlaceHistoryHandler with our PlaceHistoryMapper
-    final AppPlaceHistoryMapper historyMapper = GWT.create( AppPlaceHistoryMapper.class );
-    final PlaceHistoryHandler historyHandler = new PlaceHistoryHandler( historyMapper );
-    historyHandler.register( placeController, eventBus, new ListContactsPlace() );
-
-    final ContactsServiceAsync rpcService = GWT.create( ContactsService.class );
-
-    final ActivityMapper activityMapper = new AppActivityMapper( placeController, rpcService, eventBus );
-    final ActivityManager activityManager = new ActivityManager( activityMapper, eventBus );
-    final SimplePanel panel = new SimplePanel();
-    activityManager.setDisplay( panel );
-
-    RootPanel.get().add( panel );
+    // This just here to force the instantiation of activity manager
+    injector.getActivityManager();
+    RootPanel.get().add( injector.getMainPanel() );
     // Goes to place represented on URL or default place
-    historyHandler.handleCurrentHistory();
+    injector.getPlaceHistoryHandler().handleCurrentHistory();
   }
 }

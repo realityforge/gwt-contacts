@@ -4,6 +4,8 @@ import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactCancelledEvent;
+import com.google.gwt.sample.contacts.client.place.AddContactPlace;
+import com.google.gwt.sample.contacts.client.place.EditContactPlace;
 import com.google.gwt.sample.contacts.client.view.EditContactUI;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.sample.contacts.shared.Contact;
@@ -11,6 +13,7 @@ import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import javax.inject.Inject;
 
 public class EditContactPresenter
   extends AbstractActivity
@@ -21,33 +24,39 @@ public class EditContactPresenter
   private final EventBus _eventBus;
   private EditContactView _view;
 
-  public EditContactPresenter( final ContactsServiceAsync rpcService, final EventBus eventBus, final String id )
+  @Inject
+  public EditContactPresenter( final ContactsServiceAsync rpcService, final EventBus eventBus )
   {
     _rpcService = rpcService;
     _eventBus = eventBus;
-    if ( null == id )
-    {
-      _contact = new Contact();
-    }
-    else
-    {
-      rpcService.getContact( id, new AsyncCallback<Contact>()
-      {
-        public void onSuccess( final Contact contact )
-        {
-          _contact = contact;
-          EditContactPresenter.this._view.getFirstName().setValue( _contact.getFirstName() );
-          EditContactPresenter.this._view.getLastName().setValue( _contact.getLastName() );
-          EditContactPresenter.this._view.getEmailAddress().setValue( _contact.getEmailAddress() );
-        }
-
-        public void onFailure( final Throwable caught )
-        {
-          Window.alert( "Error retrieving contact" );
-        }
-      } );
-    }
   }
+
+  public EditContactPresenter withPlace( final EditContactPlace place )
+  {
+    _rpcService.getContact( place.getId(), new AsyncCallback<Contact>()
+    {
+      public void onSuccess( final Contact contact )
+      {
+        _contact = contact;
+        EditContactPresenter.this._view.getFirstName().setValue( _contact.getFirstName() );
+        EditContactPresenter.this._view.getLastName().setValue( _contact.getLastName() );
+        EditContactPresenter.this._view.getEmailAddress().setValue( _contact.getEmailAddress() );
+      }
+
+      public void onFailure( final Throwable caught )
+      {
+        Window.alert( "Error retrieving contact" );
+      }
+    } );
+    return this;
+  }
+
+  public EditContactPresenter withPlace( final AddContactPlace place )
+  {
+    _contact = new Contact();
+    return this;
+  }
+
 
   @Override
   public void start( final AcceptsOneWidget panel, final EventBus eventBus )

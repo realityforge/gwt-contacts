@@ -15,6 +15,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 
 public class ContactsPresenter
   extends AbstractActivity
@@ -27,6 +28,7 @@ public class ContactsPresenter
   private ContactsView _view;
   private List<ContactDetails> _contactDetails;
 
+  @Inject
   public ContactsPresenter( final ContactsServiceAsync rpcService, final EventBus eventBus )
   {
     _rpcService = rpcService;

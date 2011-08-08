@@ -16,23 +16,28 @@ import com.google.gwt.sample.contacts.client.event.EditContactEventHandler;
 import com.google.gwt.sample.contacts.client.place.AddContactPlace;
 import com.google.gwt.sample.contacts.client.place.EditContactPlace;
 import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
+import javax.inject.Inject;
+import javax.inject.Provider;
 
 /** AppActivityMapper associates each Place with its corresponding {@link Activity}. */
 public class AppActivityMapper
   implements ActivityMapper
 {
   private final PlaceController _placeController;
-  private final ContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
+  private final Provider<ContactsPresenter> _listContactsPresenter;
+  private final Provider<EditContactPresenter> _editContactPresenter;
 
+  @Inject
   public AppActivityMapper( final PlaceController placeController,
-                            final ContactsServiceAsync rpcService,
-                            final EventBus eventBus )
+                            final EventBus eventBus,
+                            final Provider<ContactsPresenter> contactsPresenter,
+                            final Provider<EditContactPresenter> editContactPresenter )
   {
     _placeController = placeController;
-    _rpcService = rpcService;
     _eventBus = eventBus;
+    _listContactsPresenter = contactsPresenter;
+    _editContactPresenter = editContactPresenter;
     bind();
   }
 
@@ -41,15 +46,15 @@ public class AppActivityMapper
   {
     if ( place instanceof ListContactsPlace )
     {
-      return new ContactsPresenter( _rpcService, _eventBus );
+      return _listContactsPresenter.get();
     }
     else if ( place instanceof AddContactPlace )
     {
-      return new EditContactPresenter( _rpcService, _eventBus, null );
+      return _editContactPresenter.get().withPlace( (AddContactPlace) place );
     }
     else if ( place instanceof EditContactPlace )
     {
-      return new EditContactPresenter( _rpcService, _eventBus, ( (EditContactPlace) place ).getId() );
+      return _editContactPresenter.get().withPlace( (EditContactPlace) place );
     }
     return null;
   }

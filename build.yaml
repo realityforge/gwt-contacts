@@ -12,6 +12,11 @@ repositories:
 artifacts:
   easymock: org.easymock:easymock:jar:2.5.2
   gwt_user: com.google.gwt:gwt-user:jar:2.3.0
+  google_guice: com.google.inject:guice:jar:3.0
+  google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
+  aopalliance: aopalliance:aopalliance:jar:1.0 # Required for guice
+  gwt_gin: com.google.gwt.inject:gin:jar:1.5.0
+  javax_inject: javax.inject:javax.inject:jar:1
   javax_validation: javax.validation:validation-api:jar:1.0.0.GA
   javax_validation_sources: javax.validation:validation-api:jar:sources:1.0.0.GA
   javax_ejb: org.apache.geronimo.specs:geronimo-ejb_3.1_spec:jar:1.0.2
