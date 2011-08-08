@@ -1,9 +1,9 @@
 package com.google.gwt.sample.contacts.server;
 
-import com.google.gwt.sample.contacts.shared.ContactsService;
 import com.google.gwt.sample.contacts.shared.Contact;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.gwt.sample.contacts.shared.ContactsService;
+import com.google.gwt.user.server.rpc.XsrfProtectedServiceServlet;
 import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
@@ -11,7 +11,7 @@ import javax.servlet.annotation.WebServlet;
 @SuppressWarnings( "serial" )
 @WebServlet( urlPatterns = { "/contacts/contactsService" } )
 public class ContactsServiceImpl
-  extends RemoteServiceServlet
+  extends XsrfProtectedServiceServlet
   implements ContactsService
 {
   @EJB
