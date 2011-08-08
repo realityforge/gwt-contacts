@@ -1,4 +1,3 @@
-* Convert the application to use GIN for DI
 * Investigate the integration of Editor framework
 * Add domgen generation of services
 * Add domgen generation of events
