@@ -6,8 +6,8 @@ import com.google.gwt.sample.contacts.client.Presenter;
 import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactEvent;
-import com.google.gwt.sample.contacts.client.view.ContactsView;
-import com.google.gwt.sample.contacts.client.view.ContactsViewUI;
+import com.google.gwt.sample.contacts.client.view.ListContactsView;
+import com.google.gwt.sample.contacts.client.view.ListContactsUI;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
@@ -19,13 +19,13 @@ import javax.inject.Inject;
 
 public class ContactsPresenter
   extends AbstractActivity
-  implements Presenter, ContactsView.Presenter
+  implements Presenter, ListContactsView.Presenter
 {
   private final ContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
   private final SelectionModel<ContactDetails> _selectionModel;
 
-  private ContactsView _view;
+  private ListContactsView _viewList;
   private List<ContactDetails> _contactDetails;
 
   @Inject
@@ -39,11 +39,11 @@ public class ContactsPresenter
   @Override
   public void start( final AcceptsOneWidget panel, final EventBus eventBus )
   {
-    final ContactsView view = new ContactsViewUI();
-    view.setPresenter( this );
-    panel.setWidget( view.asWidget() );
-    _view = view;
-    fetchContactDetails( view );
+    final ListContactsView viewList = new ListContactsUI();
+    viewList.setPresenter( this );
+    panel.setWidget( viewList.asWidget() );
+    _viewList = viewList;
+    fetchContactDetails( viewList );
   }
 
   public void onAddButtonClicked()
@@ -107,14 +107,14 @@ public class ContactsPresenter
     return _contactDetails;
   }
 
-  private void fetchContactDetails( final ContactsView view )
+  private void fetchContactDetails( final ListContactsView viewList )
   {
     _rpcService.getContactDetails( new AsyncCallback<ArrayList<ContactDetails>>()
     {
       public void onSuccess( final ArrayList<ContactDetails> result )
       {
         setContactDetails( result );
-        view.setRowData( _contactDetails );
+        viewList.setRowData( _contactDetails );
       }
 
       public void onFailure( final Throwable caught )
@@ -138,7 +138,7 @@ public class ContactsPresenter
     {
       public void onSuccess( final Void result )
       {
-        fetchContactDetails( _view );
+        fetchContactDetails( _viewList );
         _selectionModel.clear();
       }
 

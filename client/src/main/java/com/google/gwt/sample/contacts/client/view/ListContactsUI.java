@@ -15,12 +15,12 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.List;
 
-public class ContactsViewUI
+public class ListContactsUI
     extends Composite
-    implements ContactsView
+    implements ListContactsView
 {
   interface ContactsViewUiBinder
-      extends UiBinder<Widget, ContactsViewUI>
+      extends UiBinder<Widget, ListContactsUI>
   {
   }
 
@@ -36,7 +36,7 @@ public class ContactsViewUI
   private Presenter _presenter;
   private List<ContactDetails> _rowData;
 
-  public ContactsViewUI()
+  public ListContactsUI()
   {
     initWidget( uiBinder.createAndBindUi( this ) );
   }

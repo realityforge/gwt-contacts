@@ -2,7 +2,7 @@ package com.google.gwt.sample.contacts.client.presenter;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.sample.contacts.client.view.ContactsView;
+import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.sample.contacts.shared.ContactDetails;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -24,14 +24,14 @@ public class ExampleJRETest
   private ContactsPresenter _contactsPresenter;
   private ContactsServiceAsync _mockRpcService;
   private EventBus _mockEventBus;
-  private ContactsView _mockView;
+  private ListContactsView _mockViewList;
   private List<ContactDetails> _contactDetails;
 
   protected void setUp()
   {
     _mockRpcService = createStrictMock( ContactsServiceAsync.class );
     _mockEventBus = new SimpleEventBus();
-    _mockView = createStrictMock( ContactsView.class );
+    _mockViewList = createStrictMock( ListContactsView.class );
     _contactsPresenter =
       new ContactsPresenter( _mockRpcService, _mockEventBus );
   }

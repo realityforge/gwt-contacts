@@ -13,8 +13,8 @@ import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
 import com.google.gwt.sample.contacts.client.presenter.AppActivityMapper;
 import com.google.gwt.sample.contacts.client.presenter.ContactsPresenter;
 import com.google.gwt.sample.contacts.client.presenter.EditContactPresenter;
-import com.google.gwt.sample.contacts.client.view.ContactsView;
-import com.google.gwt.sample.contacts.client.view.ContactsViewUI;
+import com.google.gwt.sample.contacts.client.view.ListContactsView;
+import com.google.gwt.sample.contacts.client.view.ListContactsUI;
 import com.google.gwt.sample.contacts.client.view.EditContactUI;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -31,7 +31,7 @@ public class ContactClientModule
     bind( PlaceHistoryMapper.class ).to( AppPlaceHistoryMapper.class ).in( Singleton.class );
     bind( ActivityMapper.class ).to( AppActivityMapper.class ).in( Singleton.class );
 
-    bind( ContactsView.class ).to( ContactsViewUI.class ).in( Singleton.class );
+    bind( ListContactsView.class ).to( ListContactsUI.class ).in( Singleton.class );
     bind( EditContactView.class ).to( EditContactUI.class ).in( Singleton.class );
     bind( ContactsPresenter.class );
     bind( EditContactPresenter.class );
