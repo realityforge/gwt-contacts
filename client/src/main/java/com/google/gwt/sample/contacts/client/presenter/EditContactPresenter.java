@@ -6,7 +6,6 @@ import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
 import com.google.gwt.sample.contacts.client.event.EditContactCancelledEvent;
 import com.google.gwt.sample.contacts.client.place.AddContactPlace;
 import com.google.gwt.sample.contacts.client.place.EditContactPlace;
-import com.google.gwt.sample.contacts.client.view.EditContactUI;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.sample.contacts.shared.Contact;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
@@ -22,13 +21,16 @@ public class EditContactPresenter
   private Contact _contact;
   private final ContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
-  private EditContactView _view;
+  private final EditContactView _view;
 
   @Inject
-  public EditContactPresenter( final ContactsServiceAsync rpcService, final EventBus eventBus )
+  public EditContactPresenter( final ContactsServiceAsync rpcService,
+                               final EventBus eventBus,
+                               final EditContactView view)
   {
     _rpcService = rpcService;
     _eventBus = eventBus;
+    _view = view;
   }
 
   public EditContactPresenter withPlace( final EditContactPlace place )
@@ -57,14 +59,11 @@ public class EditContactPresenter
     return this;
   }
 
-
   @Override
   public void start( final AcceptsOneWidget panel, final EventBus eventBus )
   {
-    final EditContactView view = new EditContactUI();
-    view.setPresenter( this );
-    _view = view;
-    panel.setWidget( view.asWidget() );
+    _view.setPresenter( this );
+    panel.setWidget( _view.asWidget() );
   }
 
   public void onSaveButtonClicked()
