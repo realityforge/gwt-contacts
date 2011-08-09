@@ -1,4 +1,4 @@
-package com.google.gwt.sample.contacts.client.presenter;
+package com.google.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 
-public class ListContactsPresenter
+public class ListContactsActivity
   extends AbstractActivity
   implements ListContactsView.Presenter
 {
@@ -27,9 +27,9 @@ public class ListContactsPresenter
   private List<ContactDetails> _contactDetails;
 
   @Inject
-  public ListContactsPresenter( final ContactsServiceAsync rpcService,
-                                final EventBus eventBus,
-                                final ListContactsView view )
+  public ListContactsActivity( final ContactsServiceAsync rpcService,
+                               final EventBus eventBus,
+                               final ListContactsView view )
   {
     _rpcService = rpcService;
     _eventBus = eventBus;

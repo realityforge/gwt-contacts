@@ -1,4 +1,4 @@
-package com.google.gwt.sample.contacts.client.presenter;
+package com.google.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -21,7 +21,7 @@ import static org.easymock.EasyMock.verify;
 public class ExampleJRETest
   extends TestCase
 {
-  private ListContactsPresenter _listContactsPresenter;
+  private ListContactsActivity _listContactsActivity;
   private ContactsServiceAsync _mockRpcService;
   private EventBus _mockEventBus;
   private ListContactsView _mockViewList;
@@ -32,7 +32,7 @@ public class ExampleJRETest
     _mockRpcService = createStrictMock( ContactsServiceAsync.class );
     _mockEventBus = new SimpleEventBus();
     _mockViewList = createStrictMock( ListContactsView.class );
-    _listContactsPresenter = new ListContactsPresenter( _mockRpcService, _mockEventBus, _mockViewList );
+    _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
   }
 
   public void testDeleteButton()
@@ -40,7 +40,7 @@ public class ExampleJRETest
     _contactDetails = new ArrayList<ContactDetails>();
     _contactDetails.add( new ContactDetails( "0", "1_contact" ) );
     _contactDetails.add( new ContactDetails( "1", "2_contact" ) );
-    _listContactsPresenter.setContactDetails( _contactDetails );
+    _listContactsActivity.setContactDetails( _contactDetails );
 
     _mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ) );
 
@@ -70,10 +70,10 @@ public class ExampleJRETest
 
 
     replay( _mockRpcService );
-    _listContactsPresenter.onDeleteButtonClicked();
+    _listContactsActivity.onDeleteButtonClicked();
     verify( _mockRpcService );
 
-    assertEquals( 1, _listContactsPresenter.getContactDetails().size() );
+    assertEquals( 1, _listContactsActivity.getContactDetails().size() );
   }
 
   private AsyncCallback getCallback()

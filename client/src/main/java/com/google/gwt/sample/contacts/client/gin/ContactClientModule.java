@@ -2,27 +2,33 @@ package com.google.gwt.sample.contacts.client.gin;
 
 import com.google.gwt.activity.shared.ActivityManager;
 import com.google.gwt.activity.shared.ActivityMapper;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
+import com.google.gwt.sample.contacts.client.Contacts;
 import com.google.gwt.sample.contacts.client.place.AppPlaceHistoryMapper;
 import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
-import com.google.gwt.sample.contacts.client.presenter.AppActivityMapper;
-import com.google.gwt.sample.contacts.client.presenter.ListContactsPresenter;
-import com.google.gwt.sample.contacts.client.presenter.EditContactPresenter;
-import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.gwt.sample.contacts.client.view.ListContactsUI;
+import com.google.gwt.sample.contacts.client.activity.AppActivityMapper;
+import com.google.gwt.sample.contacts.client.activity.EditContactActivity;
+import com.google.gwt.sample.contacts.client.activity.ListContactsActivity;
 import com.google.gwt.sample.contacts.client.view.EditContactUI;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
+import com.google.gwt.sample.contacts.client.view.ListContactsUI;
+import com.google.gwt.sample.contacts.client.view.ListContactsView;
+import com.google.gwt.sample.contacts.shared.ContactsService;
+import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
+import com.google.gwt.user.client.rpc.HasRpcToken;
+import com.google.gwt.user.client.rpc.XsrfTokenServiceAsync;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.inject.Provides;
 import javax.inject.Singleton;
 
 public class ContactClientModule
-  extends AbstractGinModule
+    extends AbstractGinModule
 {
   protected void configure()
   {
@@ -33,8 +39,17 @@ public class ContactClientModule
 
     bind( ListContactsView.class ).to( ListContactsUI.class ).in( Singleton.class );
     bind( EditContactView.class ).to( EditContactUI.class ).in( Singleton.class );
-    bind( ListContactsPresenter.class );
-    bind( EditContactPresenter.class );
+    bind( ListContactsActivity.class );
+    bind( EditContactActivity.class );
+  }
+
+  @Provides
+  @Singleton
+  public ContactsServiceAsync getContactsService( final XsrfTokenServiceAsync xsrf )
+  {
+    final ContactsServiceAsync service = GWT.create( ContactsService.class );
+    ( (HasRpcToken) service ).setRpcToken( Contacts.getXsrfToken() );
+    return service;
   }
 
   // None of the components below are Gin enabled so lets create factory methods for them
