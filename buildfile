@@ -30,7 +30,7 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Server-side component"
   define 'server' do
-    compile.with :gwt_user, :javax_servlet, :javax_ejb, :javax_persistence, project('shared')
+    compile.with :gwt_user, :gwt_dev, :javax_servlet, :javax_ejb, :javax_persistence, project('shared')
     iml.add_jpa_facet
 
     package(:jar)
@@ -56,7 +56,7 @@ define 'gwt-contacts' do
     package(:war).tap do |war|
       war.include "#{contact_module}/WEB-INF"
       war.include "#{contact_module}/contacts"
-      war.with :libs => [:gwt_user, project('shared').package(:jar), project('server')]
+      war.with :libs => [:gwt_user, :gwt_dev, project('shared').package(:jar), project('server')]
       war.enhance [contact_module]
     end
   end
@@ -73,7 +73,7 @@ define 'gwt-contacts' do
                                      :enable_gwt => true,
                                      :war_module_names => [project('web').iml.id],
                                      :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
-                                     :dependencies => [:gwt_user, projects('shared', 'server')])
+                                     :dependencies => [:gwt_user, :gwt_dev, projects('shared', 'server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project)
 
   iml.add_jruby_facet

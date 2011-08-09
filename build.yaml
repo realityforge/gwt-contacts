@@ -11,6 +11,7 @@ repositories:
 
 artifacts:
   easymock: org.easymock:easymock:jar:2.5.2
+  gwt_dev: com.google.gwt:gwt-dev:jar:2.3.0 # Due to a bug in 2.3 packaging this is required to be deployed
   gwt_user: com.google.gwt:gwt-user:jar:2.3.0
   google_guice: com.google.inject:guice:jar:3.0
   google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
