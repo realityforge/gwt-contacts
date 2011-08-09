@@ -9,7 +9,6 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
-import com.google.gwt.sample.contacts.client.Contacts;
 import com.google.gwt.sample.contacts.client.place.AppPlaceHistoryMapper;
 import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
 import com.google.gwt.sample.contacts.client.activity.AppActivityMapper;
@@ -48,7 +47,7 @@ public class ContactClientModule
   public ContactsServiceAsync getContactsService( final XsrfTokenServiceAsync xsrf )
   {
     final ContactsServiceAsync service = GWT.create( ContactsService.class );
-    ( (HasRpcToken) service ).setRpcToken( Contacts.getXsrfToken() );
+    ( (HasRpcToken) service ).setRpcToken( TokenManager.getXsrfToken() );
     return service;
   }
 
