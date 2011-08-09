@@ -12,12 +12,16 @@ import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Inject;
 
 public class EditContactActivity
   extends AbstractActivity
   implements EditContactView.Presenter
 {
+  private static final Logger LOG = Logger.getLogger( "EditContact" );
+
   private Contact _contact;
   private final ContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
@@ -35,6 +39,7 @@ public class EditContactActivity
 
   public EditContactActivity withPlace( final EditContactPlace place )
   {
+    LOG.log( Level.INFO, "Editing contact: " + place.getId() );
     _rpcService.getContact( place.getId(), new AsyncCallback<Contact>()
     {
       public void onSuccess( final Contact contact )
@@ -47,6 +52,7 @@ public class EditContactActivity
 
       public void onFailure( final Throwable caught )
       {
+        LOG.log( Level.SEVERE, "Error retrieving contact", caught );
         Window.alert( "Error retrieving contact" );
       }
     } );
@@ -55,6 +61,7 @@ public class EditContactActivity
 
   public EditContactActivity withPlace( final AddContactPlace place )
   {
+    LOG.log( Level.INFO, "Creating contact" );
     _contact = new Contact();
     return this;
   }

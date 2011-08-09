@@ -9,6 +9,17 @@
     <welcome-file>Contacts.html</welcome-file>
   </welcome-file-list>
 
+
+  <servlet>
+    <servlet-name>remoteLoggingServlet</servlet-name>
+    <servlet-class>com.google.gwt.logging.server.RemoteLoggingServiceImpl</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>remoteLoggingServlet</servlet-name>
+    <url-pattern>/contacts/remote_logging</url-pattern>
+  </servlet-mapping>
+
   <context-param>
     <param-name>gwt.xsrf.session_cookie_name</param-name>
     <param-value>JSESSIONID</param-value>
@@ -16,9 +27,7 @@
 
   <servlet>
     <servlet-name>xsrf</servlet-name>
-    <servlet-class>
-      com.google.gwt.user.server.rpc.XsrfTokenServiceServlet
-    </servlet-class>
+    <servlet-class>com.google.gwt.user.server.rpc.XsrfTokenServiceServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>xsrf</servlet-name>

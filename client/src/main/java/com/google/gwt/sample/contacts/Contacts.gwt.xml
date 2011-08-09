@@ -5,6 +5,7 @@
   <inherits name="com.google.gwt.activity.Activity"/>
   <inherits name="com.google.gwt.place.Place"/>
   <inherits name="com.google.gwt.inject.Inject"/>
+  <inherits name="com.google.gwt.logging.Logging"/>
 
   <entry-point class='com.google.gwt.sample.contacts.client.Contacts'/>
 
@@ -16,4 +17,22 @@
   <!-- Compile for Firefox and Chrome -->
   <!-- If you compile for only one browser, the browser detection javascript is optimised away and then Hosted Mode doesn't work -->
   <set-property name="user.agent" value="gecko1_8,safari"/>
+
+  <!-- To change the default logLevel -->
+  <set-property name="gwt.logging.logLevel" value="INFO"/>
+  <!-- TRUE or FALSE to enable logging at all -->
+  <set-property name="gwt.logging.enabled" value="TRUE"/>
+  <!-- ENABLED OR DISABLED for different Handlers -->
+
+  <set-property name="gwt.logging.consoleHandler" value="ENABLED"/>
+  <set-property name="gwt.logging.popupHandler" value="DISABLED" />
+
+  <!-- Enable remote logger -->
+  <set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED" />
+  <!--
+  <set-property name="gwt.logging.developmentModeHandler" value="DISABLED" />
+  <set-property name="gwt.logging.systemHandler" value="DISABLED" />
+  <set-property name="gwt.logging.firebugHandler" value="DISABLED" />
+  <set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED" />
+  -->
 </module>
