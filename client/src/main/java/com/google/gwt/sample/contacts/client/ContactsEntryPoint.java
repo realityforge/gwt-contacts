@@ -3,6 +3,7 @@ package com.google.gwt.sample.contacts.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.sample.contacts.client.gin.ContactGinjector;
+import com.google.gwt.sample.contacts.client.gin.TokenManager;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RpcTokenException;
@@ -12,16 +13,9 @@ import com.google.gwt.user.client.rpc.XsrfTokenService;
 import com.google.gwt.user.client.rpc.XsrfTokenServiceAsync;
 import com.google.gwt.user.client.ui.RootPanel;
 
-public final class Contacts
+public final class ContactsEntryPoint
   implements EntryPoint
 {
-  private static XsrfToken _xsrfToken;
-
-  public static XsrfToken getXsrfToken()
-  {
-    return _xsrfToken;
-  }
-
   public void onModuleLoad()
   {
     final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT.create( XsrfTokenService.class );
@@ -35,7 +29,7 @@ public final class Contacts
         {
           throw caught;
         }
-        catch( final RpcTokenException e )
+        catch ( final RpcTokenException e )
         {
           // Can be thrown for several reasons:
           //   - duplicate session cookie, which may be a sign of a cookie
@@ -43,7 +37,7 @@ public final class Contacts
           //   - XSRF token cannot be generated because session cookie isn't
           //     present
         }
-        catch( Throwable e )
+        catch ( Throwable e )
         {
           // unexpected
         }
@@ -52,7 +46,7 @@ public final class Contacts
 
       public void onSuccess( final XsrfToken xsrfToken )
       {
-        _xsrfToken = xsrfToken;
+        TokenManager.setXsrfToken( xsrfToken );
         startupApplication();
       }
     } );

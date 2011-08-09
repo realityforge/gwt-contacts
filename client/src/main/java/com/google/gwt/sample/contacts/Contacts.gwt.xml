@@ -7,7 +7,7 @@
   <inherits name="com.google.gwt.inject.Inject"/>
   <inherits name="com.google.gwt.logging.Logging"/>
 
-  <entry-point class='com.google.gwt.sample.contacts.client.Contacts'/>
+  <entry-point class='com.google.gwt.sample.contacts.client.ContactsEntryPoint'/>
 
   <source path='client'/>
   <source path='shared'/>
