@@ -5,7 +5,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.sample.contacts.client.gin.ContactGinjector;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.HasRpcToken;
 import com.google.gwt.user.client.rpc.RpcTokenException;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.rpc.XsrfToken;
@@ -27,7 +26,7 @@ public final class Contacts
   {
     final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT.create( XsrfTokenService.class );
     //noinspection GwtSetServiceEntryPointCalls
-    ( (ServiceDefTarget) xsrf ).setServiceEntryPoint( GWT.getModuleBaseURL() + "xsrf" );
+    ( (ServiceDefTarget) xsrf ).setServiceEntryPoint( GWT.getHostPageBaseURL() + "xsrf" );
     xsrf.getNewXsrfToken( new AsyncCallback<XsrfToken>()
     {
       public void onFailure( final Throwable caught )
