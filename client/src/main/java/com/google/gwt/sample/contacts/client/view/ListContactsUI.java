@@ -48,7 +48,8 @@ public class ListContactsUI
     _contactsTable.removeAllRows();
     _rowData = rowData;
 
-    for( int i = 0; i < rowData.size(); ++i )
+    final int size = rowData.size();
+    for( int i = 0; i < size; ++i )
     {
       final ContactDetails t = rowData.get( i );
       _contactsTable.setWidget( i, 0, new CheckBox() );
@@ -59,7 +60,7 @@ public class ListContactsUI
   @UiHandler( "_addButton" )
   void onAddButtonClicked( final ClickEvent event )
   {
-    if( _presenter != null )
+    if( null != _presenter )
     {
       _presenter.onAddButtonClicked();
     }
@@ -68,7 +69,7 @@ public class ListContactsUI
   @UiHandler( "_deleteButton" )
   void onDeleteButtonClicked( final ClickEvent event )
   {
-    if( _presenter != null )
+    if( null != _presenter )
     {
       _presenter.onDeleteButtonClicked();
     }
@@ -77,7 +78,7 @@ public class ListContactsUI
   @UiHandler( "_contactsTable" )
   void onTableClicked( final ClickEvent event )
   {
-    if( _presenter != null )
+    if( null != _presenter )
     {
       final HTMLTable.Cell cell = _contactsTable.getCellForEvent( event );
       if( null != cell )
