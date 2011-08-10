@@ -46,6 +46,10 @@
     </auth-constraint>
   </security-constraint>
 
+  <security-role>
+    <role-name>Autheticated</role-name>
+  </security-role>
+
   <!-- LOGIN CONFIGURATION -->
   <login-config>
     <auth-method>BASIC</auth-method>
