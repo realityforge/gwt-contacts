@@ -1,3 +1,4 @@
 * Investigate the integration of Editor framework
+* Investigate the integration of Cell framework
 * Add domgen generation of services
 * Add domgen generation of events
