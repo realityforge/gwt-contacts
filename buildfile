@@ -68,12 +68,12 @@ define 'gwt-contacts' do
   doc.using :javadoc, {:tree => false, :since => false, :deprecated => false, :index => false, :help => false}
   doc.from projects('shared', 'client', 'server')
 
-  ipr.add_exploded_war_configuration(project,
-                                     :name => 'gwt-contacts',
-                                     :enable_gwt => true,
-                                     :war_module_names => [project('web').iml.id],
-                                     :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
-                                     :dependencies => [:gwt_user, :gwt_dev, projects('shared', 'server')])
+  ipr.add_exploded_war_artifact(project,
+                                :name => 'gwt-contacts',
+                                :enable_gwt => true,
+                                :war_module_names => [project('web').iml.id],
+                                :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
+                                :dependencies => [:gwt_user, :gwt_dev, projects('shared', 'server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project)
 
   iml.add_jruby_facet

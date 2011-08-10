@@ -32,7 +32,7 @@ module Buildr::IntellijIdea
       end
     end
 
-    def add_exploded_war_configuration(project, options = {})
+    def add_exploded_war_artifact(project, options = {})
       artifact_name = options[:name] || project.iml.id
       build_on_make = options[:build_on_make].nil? ? true : options[:build_on_make]
 
