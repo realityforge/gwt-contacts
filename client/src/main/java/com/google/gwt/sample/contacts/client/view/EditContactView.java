@@ -2,7 +2,6 @@ package com.google.gwt.sample.contacts.client.view;
 
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Widget;
 
 public interface EditContactView
   extends IsWidget
