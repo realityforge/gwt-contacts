@@ -2,12 +2,12 @@ package com.google.gwt.sample.contacts.client.view;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.sample.contacts.shared.Contact;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -31,6 +31,7 @@ public class EditContactUI
   Button _cancelButton;
 
   private Presenter _presenter;
+  private Contact _contact;
 
   public EditContactUI()
   {
@@ -42,7 +43,10 @@ public class EditContactUI
   {
     if( _presenter != null )
     {
-      _presenter.onSaveButtonClicked();
+      _contact.setFirstName( _firstName.getValue() );
+      _contact.setLastName( _lastName.getValue() );
+      _contact.setEmailAddress( _emailAddress.getValue() );
+      _presenter.onSaveButtonClicked( _contact );
     }
   }
 
@@ -60,19 +64,12 @@ public class EditContactUI
     _presenter = presenter;
   }
 
-  public HasValue<String> getFirstName()
+  public void setContact( final Contact contact )
   {
-    return _firstName;
-  }
-
-  public HasValue<String> getLastName()
-  {
-    return _lastName;
-  }
-
-  public HasValue<String> getEmailAddress()
-  {
-    return _emailAddress;
+    _contact = contact;
+    _firstName.setValue( _contact.getFirstName() );
+    _lastName.setValue( _contact.getLastName() );
+    _emailAddress.setValue( _contact.getEmailAddress() );
   }
 
   public Widget asWidget()

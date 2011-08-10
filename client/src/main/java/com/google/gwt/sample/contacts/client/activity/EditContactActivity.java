@@ -22,7 +22,6 @@ public class EditContactActivity
 {
   private static final Logger LOG = Logger.getLogger( "EditContact" );
 
-  private Contact _contact;
   private final ContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
   private final EditContactView _view;
@@ -44,10 +43,7 @@ public class EditContactActivity
     {
       public void onSuccess( final Contact contact )
       {
-        _contact = contact;
-        EditContactActivity.this._view.getFirstName().setValue( _contact.getFirstName() );
-        EditContactActivity.this._view.getLastName().setValue( _contact.getLastName() );
-        EditContactActivity.this._view.getEmailAddress().setValue( _contact.getEmailAddress() );
+        _view.setContact( contact );
       }
 
       public void onFailure( final Throwable caught )
@@ -62,7 +58,7 @@ public class EditContactActivity
   public EditContactActivity withPlace( final AddContactPlace place )
   {
     LOG.log( Level.INFO, "Creating contact" );
-    _contact = new Contact();
+    _view.setContact( new Contact() );
     return this;
   }
 
@@ -73,13 +69,9 @@ public class EditContactActivity
     panel.setWidget( _view.asWidget() );
   }
 
-  public void onSaveButtonClicked()
+  public void onSaveButtonClicked(final Contact contact)
   {
-    _contact.setFirstName( _view.getFirstName().getValue() );
-    _contact.setLastName( _view.getLastName().getValue() );
-    _contact.setEmailAddress( _view.getEmailAddress().getValue() );
-
-    _rpcService.createOrUpdateContact( _contact, new AsyncCallback<Contact>()
+    _rpcService.createOrUpdateContact( contact, new AsyncCallback<Contact>()
     {
       public void onSuccess( final Contact result )
       {
