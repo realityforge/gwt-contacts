@@ -1,4 +1,7 @@
 * Investigate the integration of Editor framework
+  See GwtBase in GitHub account
+  See http://connexys.wordpress.com/2010/12/22/gwt-2-1-editor-with-simplebeaneditordriver/
+  See http://stackoverflow.com/questions/4098579/how-to-use-the-gwt-editor-framework-for-validation
 * Investigate the integration of Cell framework
   See http://stackoverflow.com/questions/4604489/gwt-simple-pager-help
 * Add domgen generation of services
