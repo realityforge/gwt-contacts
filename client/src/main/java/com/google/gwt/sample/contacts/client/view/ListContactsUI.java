@@ -19,12 +19,9 @@ public class ListContactsUI
     extends Composite
     implements ListContactsView
 {
-  interface ContactsViewUiBinder
-      extends UiBinder<Widget, ListContactsUI>
-  {
-  }
+  interface Binder extends UiBinder<Widget, ListContactsUI> {}
 
-  private static final ContactsViewUiBinder uiBinder = GWT.create( ContactsViewUiBinder.class );
+  private static final Binder uiBinder = GWT.create( Binder.class );
 
   @UiField
   FlexTable _contactsTable;
