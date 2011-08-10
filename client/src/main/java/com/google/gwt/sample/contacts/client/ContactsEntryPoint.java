@@ -56,8 +56,6 @@ public final class ContactsEntryPoint
   {
     final ContactGinjector injector = GWT.create( ContactGinjector.class );
 
-    // This just here to force the instantiation of activity manager
-    injector.getActivityManager();
     RootPanel.get().add( injector.getMainPanel() );
     // Goes to place represented on URL or default place
     injector.getPlaceHistoryHandler().handleCurrentHistory();
