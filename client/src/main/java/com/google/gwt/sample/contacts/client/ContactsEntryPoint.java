@@ -56,6 +56,9 @@ public final class ContactsEntryPoint
   {
     final ContactGinjector injector = GWT.create( ContactGinjector.class );
 
+    // Force the creation of the ActivityManager
+    injector.getActivityManager();
+
     RootPanel.get().add( injector.getMainPanel() );
     // Goes to place represented on URL or default place
     injector.getPlaceHistoryHandler().handleCurrentHistory();

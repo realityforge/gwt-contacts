@@ -34,7 +34,7 @@ public class ContactClientModule
     bind( EventBus.class ).to( SimpleEventBus.class ).in( Singleton.class );
     bind( SimplePanel.class ).in( Singleton.class );
     bind( PlaceHistoryMapper.class ).to( AppPlaceHistoryMapper.class ).in( Singleton.class );
-    bind( ActivityMapper.class ).to( AppActivityMapper.class ).asEagerSingleton();
+    bind( ActivityMapper.class ).to( AppActivityMapper.class ).in( Singleton.class );
 
     bind( ListContactsView.class ).to( ListContactsUI.class ).in( Singleton.class );
     bind( EditContactView.class ).to( EditContactUI.class ).in( Singleton.class );
