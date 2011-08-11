@@ -26,6 +26,8 @@ Getting Started
   to download source as the GWT compiler actually uses the source from
   dependencies to generate javascript. e.g. "buildr artifacts artifacts:sources"
 
+* Install the GWT and GlassFish Integration plugins into IDEA
+
 * Generate IDEA project files. e.g. "buildr idea"
 
 * Download and install GlassFish 3.1.1 or later.
