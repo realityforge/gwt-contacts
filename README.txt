@@ -30,6 +30,8 @@ Getting Started
 
 * Download and install GlassFish 3.1.1 or later.
   - Create a LoginRealm named "FireRealm".
+    - In DSE I tend to use an LDAP realm against ActiveDirectory.
+      See http://www.webdavsystem.com/javaserver/doc/authentication/ldap_glassfish
   - Install the Hibernate plugin
 
 * Setup GlassFish configuration in IDEA and make sure it deploys the contacts
