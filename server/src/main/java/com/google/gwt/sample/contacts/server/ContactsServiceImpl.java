@@ -9,7 +9,7 @@ import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
 
 @SuppressWarnings( "serial" )
-@WebServlet( urlPatterns = { "/contacts/contactsService" } )
+@WebServlet( urlPatterns = { ModuleInfo.PREFIX + ContactsService.PATH } )
 public class ContactsServiceImpl
   extends XsrfProtectedServiceServlet
   implements ContactsService

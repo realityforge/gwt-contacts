@@ -4,10 +4,12 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import com.google.gwt.user.client.rpc.XsrfProtectedService;
 import java.util.ArrayList;
 
-@RemoteServiceRelativePath( "contactsService" )
+@RemoteServiceRelativePath( ContactsService.PATH )
 public interface ContactsService
   extends XsrfProtectedService
 {
+  String PATH = "contactsService";
+
   void deleteContacts( ArrayList<String> ids );
 
   ArrayList<ContactDetails> getContactDetails();
