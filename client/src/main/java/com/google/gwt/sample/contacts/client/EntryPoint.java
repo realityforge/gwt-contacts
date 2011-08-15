@@ -1,6 +1,5 @@
 package com.google.gwt.sample.contacts.client;
 
-import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.sample.contacts.client.gin.ContactGinjector;
 import com.google.gwt.sample.contacts.client.gin.TokenManager;
@@ -13,8 +12,8 @@ import com.google.gwt.user.client.rpc.XsrfTokenService;
 import com.google.gwt.user.client.rpc.XsrfTokenServiceAsync;
 import com.google.gwt.user.client.ui.RootPanel;
 
-public final class ContactsEntryPoint
-  implements EntryPoint
+public final class EntryPoint
+  implements com.google.gwt.core.client.EntryPoint
 {
   public void onModuleLoad()
   {
