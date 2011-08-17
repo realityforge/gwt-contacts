@@ -10,7 +10,7 @@ import com.google.gwt.place.shared.WithTokenizers;
  * separate TokenizerFactory.
  */
 @WithTokenizers( { ListContactsPlace.Tokenizer.class, EditContactPlace.Tokenizer.class, AddContactPlace.Tokenizer.class } )
-public interface AppPlaceHistoryMapper
+public interface ApplicationPlaceHistoryMapper
   extends PlaceHistoryMapper
 {
 }

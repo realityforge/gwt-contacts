@@ -19,8 +19,8 @@ import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-/** AppActivityMapper associates each Place with its corresponding {@link Activity}. */
-public class AppActivityMapper
+/** ApplicationActivityMapper associates each Place with its corresponding {@link Activity}. */
+public class ApplicationActivityMapper
   implements ActivityMapper
 {
   private final PlaceController _placeController;
@@ -29,10 +29,10 @@ public class AppActivityMapper
   private final Provider<EditContactActivity> _editContactPresenter;
 
   @Inject
-  public AppActivityMapper( final PlaceController placeController,
-                            final EventBus eventBus,
-                            final Provider<ListContactsActivity> contactsPresenter,
-                            final Provider<EditContactActivity> editContactPresenter )
+  public ApplicationActivityMapper( final PlaceController placeController,
+                                    final EventBus eventBus,
+                                    final Provider<ListContactsActivity> contactsPresenter,
+                                    final Provider<EditContactActivity> editContactPresenter )
   {
     _placeController = placeController;
     _eventBus = eventBus;
