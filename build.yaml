@@ -6,8 +6,10 @@ gems:
 
 repositories:
   remote:
+   - http://repository.jboss.org/nexus/content/groups/public
    - http://repo.fire.dse.vic.gov.au/content/groups/fisg
    - http://www.ibiblio.org/maven2
+   - http://download.java.net/maven/glassfish
 
 artifacts:
   easymock: org.easymock:easymock:jar:2.5.2
@@ -23,3 +25,4 @@ artifacts:
   javax_ejb: org.apache.geronimo.specs:geronimo-ejb_3.1_spec:jar:1.0.2
   javax_servlet: org.apache.geronimo.specs:geronimo-servlet_3.0_spec:jar:1.0
   javax_persistence: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:jar:1.0.0.Final
+
