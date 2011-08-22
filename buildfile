@@ -1,34 +1,18 @@
-ARQUILLIAN_DEPEDENCIES =
-    [
-        'org.jboss.arquillian.junit:arquillian-junit-container:jar:1.0.0.CR4',
-        'org.jboss.arquillian.junit:arquillian-junit-core:jar:1.0.0.CR4',
-        'org.jboss.arquillian.test:arquillian-test-spi:jar:1.0.0.CR4',
-        'org.jboss.arquillian.core:arquillian-core-spi:jar:1.0.0.CR4',
-        'org.jboss.arquillian.core:arquillian-core-api:jar:1.0.0.CR4',
-        'org.jboss.shrinkwrap:shrinkwrap-api:jar:1.0.0-beta-5',
-        'org.jboss.arquillian.test:arquillian-test-api:jar:1.0.0.CR4',
-        'org.jboss.arquillian.container:arquillian-container-test-api:jar:1.0.0.CR4',
-        'org.jboss.arquillian.container:arquillian-container-test-spi:jar:1.0.0.CR4',
-        'org.jboss.arquillian.container:arquillian-container-spi:jar:1.0.0.CR4',
-        'org.jboss.arquillian.config:arquillian-config-api:jar:1.0.0.CR4',
-        'org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-api:jar:1.1.0-alpha-2',
-        'org.jboss.arquillian.config:arquillian-config-impl-base:jar:1.0.0.CR4',
-        'org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-spi:jar:1.1.0-alpha-2',
-        'org.jboss.arquillian.core:arquillian-core-impl-base:jar:1.0.0.CR4',
-        'org.jboss.arquillian.test:arquillian-test-impl-base:jar:1.0.0.CR4',
-        'org.jboss.arquillian.container:arquillian-container-impl-base:jar:1.0.0.CR4',
-        'org.jboss.arquillian.container:arquillian-container-test-impl-base:jar:1.0.0.CR4',
-        'org.jboss.shrinkwrap:shrinkwrap-impl-base:jar:1.0.0-beta-5',
-        'org.jboss.shrinkwrap:shrinkwrap-spi:jar:1.0.0-beta-5',
-        'org.jboss.arquillian.container:arquillian-glassfish-embedded-3.1:jar:1.0.0.CR1',
-        'org.jboss.arquillian.container:arquillian-container-spi:jar:1.0.0.CR4',
-        'org.jboss.shrinkwrap.descriptors:shrinkwrap-descriptors-api:jar:1.1.0-alpha-2',
-        'org.jboss.arquillian.protocol:arquillian-protocol-servlet:jar:1.0.0.CR4',
-        'org.jboss.arquillian.testenricher:arquillian-testenricher-cdi:jar:1.0.0.CR4',
-        'org.jboss.arquillian.testenricher:arquillian-testenricher-resource:jar:1.0.0.CR4',
-        'org.jboss.arquillian.testenricher:arquillian-testenricher-initialcontext:jar:1.0.0.CR4',
-        'org.jboss.shrinkwrap.container:shrinkwrap-container-glassfish-31:jar:1.0.0-beta-1'
-    ]
+SLF4J = [:slf4j_api, :slf4j_jdk14, :jcl_over_slf4j]
+HIBERNATE = [:javax_persistence,
+             :hibernate_annotations,
+             :javax_transaction,
+             :javax_validation,
+             :hibernate_validator,
+             :hibernate_entitymanager,
+             :hibernate_core,
+             :hibernate_ehcache,
+             :hibernate_c3p0,
+             :dom4j,
+             :hibernate_commons_annotations,
+             :javassist,
+             :commons_collections,
+             :antlr]
 
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
@@ -65,7 +49,7 @@ define 'gwt-contacts' do
     compile.with :gwt_user, :gwt_dev, :javax_servlet, :javax_ejb, :javax_persistence, project('shared')
     iml.add_jpa_facet
 
-    test.compile.with ARQUILLIAN_DEPEDENCIES, 'org.glassfish.extras:glassfish-embedded-all:jar:3.1.1'
+    test.compile.with 'org.glassfish.extras:glassfish-embedded-all:jar:3.1.1', HIBERNATE, SLF4J
     package(:jar)
   end
 

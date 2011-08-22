@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import javax.ejb.Stateless;
 import javax.persistence.TypedQuery;
 
-@Stateless
+@Stateless( name = ContactsEJB.EJB_NAME )
 public class ContactsEJB
   implements LocalContacts
 {
+  public static final String EJB_NAME = "Core.ContactsEJB";
+
   private static final String[] FIRST_NAMES = new String[]{
     "Hollie", "Emerson", "Healy", "Brigitte", "Elba", "Claudio",
     "Dena", "Christina", "Gail", "Orville", "Rae", "Mildred",
