@@ -54,8 +54,7 @@ public class ContactsEJBTest
     try
     {
       final Context context = c_container.getContext();
-      //noinspection unchecked
-      return (T) context.lookup( jndiName );
+      return type.cast( context.lookup( jndiName ) );
     }
     catch ( final NamingException ne )
     {
