@@ -14,6 +14,14 @@ HIBERNATE = [:javax_persistence,
              :commons_collections,
              :antlr]
 
+class SimpleLayout < Layout::Default
+  def initialize
+    super()
+    self[:target, :generated] = "generated"
+  end
+end
+
+
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
   project.version = '0.9-SNAPSHOT'
@@ -24,7 +32,7 @@ define 'gwt-contacts' do
   compile.options.lint = 'all'
 
   desc "GWT Contacts: Shared component"
-  define 'shared' do
+  define 'shared', :layout => SimpleLayout.new do
     compile.with :gwt_user
     iml.add_gwt_facet
 
@@ -33,7 +41,7 @@ define 'gwt-contacts' do
   end
 
   desc "GWT Contacts: Client-side component"
-  define 'client' do
+  define 'client', :layout => SimpleLayout.new do
     iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
 
     compile.with :gwt_user, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_inject, :gwt_gin, project('shared').package(:jar)
@@ -45,9 +53,19 @@ define 'gwt-contacts' do
   end
 
   desc "GWT Contacts: Server-side component"
-  define 'server' do
-    compile.with :gwt_user, :gwt_dev, :javax_servlet, :javax_ejb, :javax_persistence, project('shared')
+  define 'server', :layout => SimpleLayout.new do
+    compile.with :gwt_user,
+                 :gwt_dev,
+                 :javax_servlet,
+                 :javax_ejb,
+                 :javax_persistence,
+                 project('shared'),
+                 :intellij_annotations,
+                 :javax_validation
     iml.add_jpa_facet
+
+    define_persistence_unit(project, :contacts)
+    define_services_unit(project, :contacts)
 
     test.compile.with 'org.glassfish.extras:glassfish-embedded-all:jar:3.1.1', HIBERNATE, SLF4J
     package(:jar)
@@ -92,6 +110,7 @@ define 'gwt-contacts' do
                                 :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
                                 :dependencies => [:gwt_user, :gwt_dev, projects('client', 'shared', 'server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project)
+  ipr.extra_modules << "../domgen/domgen.iml"
 
   iml.add_jruby_facet
 

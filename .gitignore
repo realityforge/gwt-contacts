@@ -4,4 +4,6 @@
 target/
 reports/
 artifacts/
+derby.log
+server/generated
 .DS_Store

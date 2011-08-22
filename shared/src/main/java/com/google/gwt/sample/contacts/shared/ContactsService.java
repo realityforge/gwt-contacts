@@ -12,9 +12,9 @@ public interface ContactsService
 
   void deleteContacts( ArrayList<String> ids );
 
-  ArrayList<ContactDetails> getContactDetails();
+  ArrayList<ContactDetailsVO> getContactDetails();
 
-  Contact getContact( String id );
+  ContactVO getContact( String id );
 
-  Contact createOrUpdateContact( Contact contact );
+  ContactVO createOrUpdateContact( ContactVO contact );
 }

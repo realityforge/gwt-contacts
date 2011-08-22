@@ -2,7 +2,7 @@ package com.google.gwt.sample.contacts.client.view;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.sample.contacts.shared.Contact;
+import com.google.gwt.sample.contacts.shared.ContactVO;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -31,7 +31,7 @@ public class EditContactUI
   Button _cancelButton;
 
   private Presenter _presenter;
-  private Contact _contact;
+  private ContactVO _contact;
 
   public EditContactUI()
   {
@@ -64,7 +64,7 @@ public class EditContactUI
     _presenter = presenter;
   }
 
-  public void setContact( final Contact contact )
+  public void setContact( final ContactVO contact )
   {
     _contact = contact;
     _firstName.setValue( _contact.getFirstName() );

@@ -9,12 +9,13 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ContactsEJBTest
 {
   private static final String APP_NAME = "sample";
-  private static final String GLOBAL_JNDI_PREFIX = "java:global/" + APP_NAME + "/java/";
+  private static final String MODULE_NAME = "contacts";
+  private static final String GLOBAL_JNDI_PREFIX = "java:global/" + APP_NAME + "/" + MODULE_NAME + "/";
 
   private static EJBContainer c_container;
 
@@ -23,6 +24,7 @@ public class ContactsEJBTest
   {
     final Map<String, Object> properties = new HashMap<String, Object>();
     properties.put( EJBContainer.APP_NAME, APP_NAME );
+    properties.put( EJBContainer.MODULES, MODULE_NAME );
     c_container = EJBContainer.createEJBContainer( properties );
   }
 
@@ -39,7 +41,7 @@ public class ContactsEJBTest
   @Test
   public void testHelloEJB()
   {
-    final LocalContacts ejb = lookup( ContactsEJB.EJB_NAME, LocalContacts.class );
+    final Contacts ejb = lookup( Contacts.EJB_NAME, Contacts.class );
     assertEquals( 22, ejb.getContactDetails().size() );
   }
 

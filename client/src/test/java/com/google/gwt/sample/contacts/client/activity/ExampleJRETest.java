@@ -3,7 +3,7 @@ package com.google.gwt.sample.contacts.client.activity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.gwt.sample.contacts.shared.ContactDetails;
+import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class ExampleJRETest
   private ContactsServiceAsync _mockRpcService;
   private EventBus _mockEventBus;
   private ListContactsView _mockViewList;
-  private List<ContactDetails> _contactDetails;
+  private List<ContactDetailsVO> _contactDetails;
 
   protected void setUp()
   {
@@ -37,9 +37,9 @@ public class ExampleJRETest
 
   public void testDeleteButton()
   {
-    _contactDetails = new ArrayList<ContactDetails>();
-    _contactDetails.add( new ContactDetails( "0", "1_contact" ) );
-    _contactDetails.add( new ContactDetails( "1", "2_contact" ) );
+    _contactDetails = new ArrayList<ContactDetailsVO>();
+    _contactDetails.add( new ContactDetailsVO( "0", "1_contact" ) );
+    _contactDetails.add( new ContactDetailsVO( "1", "2_contact" ) );
     _listContactsActivity.setContactDetails( _contactDetails );
 
     _mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ) );
@@ -61,8 +61,8 @@ public class ExampleJRETest
       public Object answer()
         throws Throwable
       {
-        final ArrayList<ContactDetails> results = new ArrayList<ContactDetails>();
-        results.add( new ContactDetails( "0", "1_contact" ) );
+        final ArrayList<ContactDetailsVO> results = new ArrayList<ContactDetailsVO>();
+        results.add( new ContactDetailsVO( "0", "1_contact" ) );
         getCallback().onSuccess( results );
         return null;
       }

@@ -3,7 +3,7 @@ package com.google.gwt.sample.contacts.shared;
 import java.io.Serializable;
 
 @SuppressWarnings( "serial" )
-public class Contact
+public class ContactVO
   implements Serializable
 {
   private String _id;
@@ -11,11 +11,11 @@ public class Contact
   private String _lastName;
   private String _emailAddress;
 
-  public Contact()
+  public ContactVO()
   {
   }
 
-  public Contact( final String id, final String firstName, final String lastName, final String emailAddress )
+  public ContactVO( final String id, final String firstName, final String lastName, final String emailAddress )
   {
     _id = id;
     _firstName = firstName;

@@ -1,20 +1,20 @@
 package com.google.gwt.sample.contacts.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.sample.contacts.shared.Contact;
+import com.google.gwt.sample.contacts.shared.ContactVO;
 
 public class ContactUpdatedEvent
   extends GwtEvent<ContactUpdatedEventHandler>
 {
   public static final Type<ContactUpdatedEventHandler> TYPE = new Type<ContactUpdatedEventHandler>();
-  private final Contact _updatedContact;
+  private final ContactVO _updatedContact;
 
-  public ContactUpdatedEvent( final Contact updatedContact )
+  public ContactUpdatedEvent( final ContactVO updatedContact )
   {
     _updatedContact = updatedContact;
   }
 
-  public Contact getUpdatedContact()
+  public ContactVO getUpdatedContact()
   {
     return _updatedContact;
   }

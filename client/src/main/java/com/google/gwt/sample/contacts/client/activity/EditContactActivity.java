@@ -7,7 +7,7 @@ import com.google.gwt.sample.contacts.client.event.EditContactCancelledEvent;
 import com.google.gwt.sample.contacts.client.place.AddContactPlace;
 import com.google.gwt.sample.contacts.client.place.EditContactPlace;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
-import com.google.gwt.sample.contacts.shared.Contact;
+import com.google.gwt.sample.contacts.shared.ContactVO;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -39,9 +39,9 @@ public class EditContactActivity
   public EditContactActivity withPlace( final EditContactPlace place )
   {
     LOG.log( Level.INFO, "Editing contact: " + place.getId() );
-    _rpcService.getContact( place.getId(), new AsyncCallback<Contact>()
+    _rpcService.getContact( place.getId(), new AsyncCallback<ContactVO>()
     {
-      public void onSuccess( final Contact contact )
+      public void onSuccess( final ContactVO contact )
       {
         _view.setContact( contact );
       }
@@ -58,7 +58,7 @@ public class EditContactActivity
   public EditContactActivity withPlace( final AddContactPlace place )
   {
     LOG.log( Level.INFO, "Creating contact" );
-    _view.setContact( new Contact() );
+    _view.setContact( new ContactVO() );
     return this;
   }
 
@@ -69,11 +69,11 @@ public class EditContactActivity
     panel.setWidget( _view.asWidget() );
   }
 
-  public void onSaveButtonClicked(final Contact contact)
+  public void onSaveButtonClicked(final ContactVO contact)
   {
-    _rpcService.createOrUpdateContact( contact, new AsyncCallback<Contact>()
+    _rpcService.createOrUpdateContact( contact, new AsyncCallback<ContactVO>()
     {
-      public void onSuccess( final Contact result )
+      public void onSuccess( final ContactVO result )
       {
         _eventBus.fireEvent( new ContactUpdatedEvent( result ) );
       }

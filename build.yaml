@@ -26,6 +26,8 @@ artifacts:
   javax_servlet: org.apache.geronimo.specs:geronimo-servlet_3.0_spec:jar:1.0
   javax_persistence: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:jar:1.0.0.Final
 
+  intellij_annotations: com.intellij:annotations:jar:9.0.3
+
   # Hibernate
   javax_transaction: javax.transaction:jta:jar:1.1
   slf4j_api: org.slf4j:slf4j-api:jar:1.5.8

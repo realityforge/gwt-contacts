@@ -8,10 +8,10 @@ public interface ContactsServiceAsync
 {
   Request deleteContacts( ArrayList<String> ids, AsyncCallback<Void> callback );
 
-  Request getContactDetails( AsyncCallback<ArrayList<ContactDetails>> callback );
+  Request getContactDetails( AsyncCallback<ArrayList<ContactDetailsVO>> callback );
 
-  Request getContact( String id, AsyncCallback<Contact> callback );
+  Request getContact( String id, AsyncCallback<ContactVO> callback );
 
-  Request createOrUpdateContact( Contact contact, AsyncCallback<Contact> callback );
+  Request createOrUpdateContact( ContactVO contact, AsyncCallback<ContactVO> callback );
 }
 

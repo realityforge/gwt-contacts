@@ -1,17 +1,18 @@
 package com.google.gwt.sample.contacts.server;
 
-import com.google.gwt.sample.contacts.shared.Contact;
-import com.google.gwt.sample.contacts.shared.ContactDetails;
+import com.google.gwt.sample.contacts.server.ejb.ContactEJB;
+import com.google.gwt.sample.contacts.shared.ContactVO;
+import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
 import java.util.ArrayList;
+import java.util.List;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.TypedQuery;
 
-@Stateless( name = ContactsEJB.EJB_NAME )
+@Stateless( name = Contacts.EJB_NAME )
 public class ContactsEJB
-  implements LocalContacts
+  implements Contacts
 {
-  public static final String EJB_NAME = "Core.ContactsEJB";
-
   private static final String[] FIRST_NAMES = new String[]{
     "Hollie", "Emerson", "Healy", "Brigitte", "Elba", "Claudio",
     "Dena", "Christina", "Gail", "Orville", "Rae", "Mildred",
@@ -34,20 +35,20 @@ public class ContactsEJB
     "post_master@example.com", "rchilders@example.com", "buster@example.com",
     "user31065@example.com", "ftsgeolbx@example.com" };
 
-  @javax.persistence.PersistenceContext( unitName = "contacts" )
-  private javax.persistence.EntityManager _em;
+  @EJB
+  private ContactEJB _repository;
 
-  public Contact createOrUpdateContact( final Contact dto )
+  public ContactVO createOrUpdateContact( final ContactVO dto )
   {
     if ( null == dto.getId() )
     {
-      final ContactBean contact = new ContactBean();
+      final Contact contact = new Contact();
       updatePersistentFromDTO( dto, contact );
-      _em.persist( contact );
+      _repository.persist( contact );
     }
     else
     {
-      final ContactBean contact = findByID( dto.getId() );
+      final Contact contact = findByID( dto.getId() );
       updatePersistentFromDTO( dto, contact );
     }
     return dto;
@@ -57,17 +58,15 @@ public class ContactsEJB
   {
     for ( final String id : ids )
     {
-      _em.remove( findByID( id ) );
+      _repository.remove( findByID( id ) );
     }
   }
 
-  public ArrayList<ContactDetails> getContactDetails()
+  public ArrayList<ContactDetailsVO> getContactDetails()
   {
     initContactsIfRequired();
-    final TypedQuery<ContactBean> query = _em.createNamedQuery( ContactBean.findAll, ContactBean.class );
-
-    final ArrayList<ContactDetails> contactDetails = new ArrayList<ContactDetails>();
-    for ( final ContactBean contact : query.getResultList() )
+    final ArrayList<ContactDetailsVO> contactDetails = new ArrayList<ContactDetailsVO>();
+    for ( final Contact contact : _repository.findAll() )
     {
       contactDetails.add( toLightWeightContactDTO( contact ) );
     }
@@ -75,36 +74,28 @@ public class ContactsEJB
     return contactDetails;
   }
 
-  public Contact getContact( final String id )
+  public ContactVO getContact( final String id )
   {
     return toContactDTO( findByID( id ) );
   }
 
-  private Contact toContactDTO( final ContactBean result )
+  private ContactVO toContactDTO( final Contact result )
   {
-    return new Contact( String.valueOf( result.getID() ), result.getFirstName(), result.getLastName(),
+    return new ContactVO( String.valueOf( result.getID() ), result.getFirstName(), result.getLastName(),
                         result.getEmailAddress() );
   }
 
-  private ContactDetails toLightWeightContactDTO( final ContactBean contact )
+  private ContactDetailsVO toLightWeightContactDTO( final Contact contact )
   {
-    return new ContactDetails( String.valueOf( contact.getID() ), contact.getFullName() );
+    return new ContactDetailsVO( String.valueOf( contact.getID() ), contact.getFirstName() + " " + contact.getLastName() );
   }
 
-  private ContactBean findByID( final String id )
+  private Contact findByID( final String id )
   {
-    return findByID( Integer.parseInt( id ) );
+    return _repository.findByID( Integer.parseInt( id ) );
   }
 
-  private ContactBean findByID( final Integer id )
-  {
-    final javax.persistence.TypedQuery<ContactBean> query = _em.createNamedQuery( ContactBean.findByID,
-                                                                                 ContactBean.class );
-    query.setParameter( "ID", id );
-    return query.getSingleResult();
-  }
-
-  private void updatePersistentFromDTO( final Contact contact, final ContactBean persistent )
+  private void updatePersistentFromDTO( final ContactVO contact, final Contact persistent )
   {
     persistent.setFirstName( contact.getFirstName() );
     persistent.setLastName( contact.getLastName() );
@@ -113,11 +104,11 @@ public class ContactsEJB
 
   private void initContactsIfRequired()
   {
-    if ( 0 == _em.createNamedQuery( ContactBean.findAll, ContactBean.class ).getResultList().size() )
+    if ( 0 == _repository.findAll().size() )
     {
       for ( int i = 0; i < FIRST_NAMES.length && i < LAST_NAMES.length && i < EMAILS.length; ++i )
       {
-        final Contact dto = new Contact( null, FIRST_NAMES[ i ], LAST_NAMES[ i ], EMAILS[ i ] );
+        final ContactVO dto = new ContactVO( null, FIRST_NAMES[ i ], LAST_NAMES[ i ], EMAILS[ i ] );
         createOrUpdateContact( dto );
       }
     }
