@@ -21,6 +21,18 @@ class SimpleLayout < Layout::Default
   end
 end
 
+def define_with_central_layout(name, options = {}, &block)
+  options = options.dup
+  options[:layout] = SimpleLayout.new
+  options[:base_dir] = "#{name}"
+
+  define(name, options) do
+    project.instance_eval &block
+    project.clean { rm_rf _(:target, :generated) }
+    project
+  end
+end
+
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
   project.version = '0.9-SNAPSHOT'
@@ -31,7 +43,7 @@ define 'gwt-contacts' do
   compile.options.lint = 'all'
 
   desc "GWT Contacts: Shared component"
-  define 'shared', :layout => SimpleLayout.new do
+  define_with_central_layout('shared') do
     compile.with :gwt_user
     iml.add_gwt_facet
 
@@ -42,7 +54,7 @@ define 'gwt-contacts' do
   end
 
   desc "GWT Contacts: Client-side component"
-  define 'client', :layout => SimpleLayout.new do
+  define_with_central_layout('client') do
     iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
 
     compile.with :gwt_user, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_inject, :gwt_gin, project('shared').package(:jar)
@@ -56,7 +68,7 @@ define 'gwt-contacts' do
   end
 
   desc "GWT Contacts: Server-side component"
-  define 'server', :layout => SimpleLayout.new do
+  define_with_central_layout('server') do
     compile.with :gwt_user,
                  :gwt_dev,
                  :javax_inject,
@@ -78,7 +90,7 @@ define 'gwt-contacts' do
   end
 
   desc "GWT Contacts: Web component"
-  define 'web' do
+  define_with_central_layout('web') do
     iml.add_web_facet
 
     contact_module = gwt(["com.google.gwt.sample.contacts.Contacts"],
