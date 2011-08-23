@@ -35,7 +35,7 @@ end
 
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
-  project.version = '0.9-SNAPSHOT'
+  project.version = '1.0-SNAPSHOT'
   project.group = 'org.realityforge.gwt.contacts'
 
   compile.options.source = '1.6'
