@@ -9,6 +9,7 @@ Domgen.define_repository(:Contacts) do |repository|
 
   repository.define_data_module(:Contacts) do |data_module|
     data_module.java.package = 'com.google.gwt.sample.contacts.server'
+    data_module.jpa.model_package = 'com.google.gwt.sample.contacts.server'
 
     data_module.define_service(:Contacts) do |s|
       s.description("Contacts Service definition")
