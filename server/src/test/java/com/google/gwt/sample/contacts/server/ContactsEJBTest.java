@@ -49,7 +49,7 @@ public class ContactsEJBTest
      * If true, keeps temporary files (exploded EAR file and configuration file) created by the embedded EJB
      * container when Embedded GlassFish Server is stopped.
      */
-    properties.put( KEEP_TEMPORARY_FILES, "true" );
+    properties.put( KEEP_TEMPORARY_FILES, true );
 
     /**
      * If true, no changes are made to the existing configuration file, and a temporary server instance is not
@@ -62,12 +62,15 @@ public class ContactsEJBTest
      * If true, omits modules from the classpath if they are not specified using EJBContainer.MODULES and have a
      * manifest file with a Main-Class attribute.
      */
-    properties.put( SKIP_CLIENT_MODULES, "true" );
+    properties.put( SKIP_CLIENT_MODULES, true );
 
     properties.put( WEAVING, "true" );
 
     properties.put( GF_WEB_HTTP_PORT, null );
 
+    //Logger.getLogger("").getHandlers()[0].setLevel(Level.FINEST);
+    //Logger.getLogger("javax.enterprise.system.tools.deployment").setLevel(Level.FINEST);
+    //Logger.getLogger( "javax.enterprise.system" ).setLevel( Level.FINEST);
 
     c_container = EJBContainer.createEJBContainer( properties );
   }
@@ -85,6 +88,8 @@ public class ContactsEJBTest
   @Test
   public void testHelloEJB()
   {
+    //TODO: This does not work from Buildr as the compiled artifacts are split across multiple directories and
+    // EJBContainer wants them to be in one directory
     final Contacts ejb = lookup( Contacts.EJB_NAME, Contacts.class );
     assertEquals( 22, ejb.getContactDetails().size() );
   }
