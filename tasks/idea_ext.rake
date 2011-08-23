@@ -12,7 +12,7 @@ module Buildr::IntellijIdea
       @artifacts ||= []
     end
 
-    def add_artifact(name, type, build_on_make = true)
+    def add_artifact(name, type, build_on_make = false)
       self.artifacts << lambda do
         target = StringIO.new
         Builder::XmlMarkup.new(:target => target, :indent => 2).
@@ -34,7 +34,7 @@ module Buildr::IntellijIdea
 
     def add_exploded_war_artifact(project, options = {})
       artifact_name = options[:name] || project.iml.id
-      build_on_make = options[:build_on_make].nil? ? true : options[:build_on_make]
+      build_on_make = options[:build_on_make].nil? ? false : options[:build_on_make]
 
       add_artifact(artifact_name, "exploded-war", build_on_make) do |xml|
         dependencies = (options[:dependencies] || ([project] + project.compile.dependencies)).flatten
