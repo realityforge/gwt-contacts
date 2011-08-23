@@ -20,7 +20,7 @@ public final class Contacts
     final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT.create( XsrfTokenService.class );
     //noinspection GwtSetServiceEntryPointCalls
     ( (ServiceDefTarget) xsrf ).setServiceEntryPoint( GWT.getHostPageBaseURL() + "xsrf" );
-    // Do something like the following if you ar enot using container based security
+    // Do something like the following if you are not using container based security
     //com.google.gwt.user.client.Cookies.setCookie( "JSESSIONID", "Any value you like for the XSRF Token creation" );
     xsrf.getNewXsrfToken( new AsyncCallback<XsrfToken>()
     {
