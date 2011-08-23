@@ -73,7 +73,7 @@ public class ApplicationActivityMapper
     {
       public void onEditContact( final EditContactEvent event )
       {
-        _placeController.goTo( new EditContactPlace( event.getId() ) );
+        _placeController.goTo( new EditContactPlace( event.getID() ) );
       }
     } );
 

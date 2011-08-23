@@ -4,4 +4,3 @@
   See http://stackoverflow.com/questions/4098579/how-to-use-the-gwt-editor-framework-for-validation
 * Investigate the integration of Cell framework
   See http://stackoverflow.com/questions/4604489/gwt-simple-pager-help
-* Add domgen generation of events

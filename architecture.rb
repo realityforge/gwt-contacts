@@ -37,5 +37,15 @@ Domgen.define_repository(:Contacts) do |repository|
       t.string(:EmailAddress, 500, :nullable => true)
     end
 
+    data_module.define_message(:AddContact)
+    data_module.define_message(:ContactDeleted)
+    data_module.define_message(:ContactUpdated) do |m|
+      m.parameter(:Contact, "com.google.gwt.sample.contacts.shared.ContactVO")
+    end
+    data_module.define_message(:EditContactCancelled)
+    data_module.define_message(:EditContact) do |m|
+      m.string(:ID, 50)
+    end
+
   end
 end
