@@ -4,7 +4,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.ContactsAsync;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,14 +22,14 @@ public class ExampleJRETest
   extends TestCase
 {
   private ListContactsActivity _listContactsActivity;
-  private ContactsServiceAsync _mockRpcService;
+  private ContactsAsync _mockRpcService;
   private EventBus _mockEventBus;
   private ListContactsView _mockViewList;
   private List<ContactDetailsVO> _contactDetails;
 
   protected void setUp()
   {
-    _mockRpcService = createStrictMock( ContactsServiceAsync.class );
+    _mockRpcService = createStrictMock( ContactsAsync.class );
     _mockEventBus = new SimpleEventBus();
     _mockViewList = createStrictMock( ListContactsView.class );
     _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
