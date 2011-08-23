@@ -9,6 +9,7 @@ Domgen.define_repository(:Contacts) do |repository|
 
   repository.define_data_module(:Contacts) do |data_module|
     data_module.java.package = 'com.google.gwt.sample.contacts.server'
+    data_module.jpa.model_package = 'com.google.gwt.sample.contacts.server'
 
     data_module.define_service(:Contacts) do |s|
       s.description("Contacts Service definition")
@@ -34,6 +35,16 @@ Domgen.define_repository(:Contacts) do |repository|
       t.string(:FirstName, 500, :nullable => true)
       t.string(:LastName, 500, :nullable => true)
       t.string(:EmailAddress, 500, :nullable => true)
+    end
+
+    data_module.define_message(:AddContact)
+    data_module.define_message(:ContactDeleted)
+    data_module.define_message(:ContactUpdated) do |m|
+      m.parameter(:Contact, "com.google.gwt.sample.contacts.shared.ContactVO")
+    end
+    data_module.define_message(:EditContactCancelled)
+    data_module.define_message(:EditContact) do |m|
+      m.string(:ID, 50)
     end
 
   end
