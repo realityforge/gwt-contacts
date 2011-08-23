@@ -1,8 +1,11 @@
-Domgen.define_repository(:contacts) do |repository|
+Domgen.define_repository(:Contacts) do |repository|
   repository.enable_facet(:sql)
   repository.enable_facet(:java)
   repository.enable_facet(:jpa)
   repository.enable_facet(:ejb)
+  repository.enable_facet(:gwt)
+
+  repository.gwt.package = 'com.google.gwt.sample.contacts'
 
   repository.define_data_module(:Contacts) do |data_module|
     data_module.java.package = 'com.google.gwt.sample.contacts.server'

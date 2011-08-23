@@ -21,7 +21,6 @@ class SimpleLayout < Layout::Default
   end
 end
 
-
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
   project.version = '0.9-SNAPSHOT'
@@ -38,6 +37,8 @@ define 'gwt-contacts' do
 
     package(:jar)
     package(:sources)
+
+    define_gwt_services_unit(project, :Contacts)
   end
 
   desc "GWT Contacts: Client-side component"
@@ -50,12 +51,15 @@ define 'gwt-contacts' do
 
     package(:jar)
     package(:sources)
+
+    define_gwt_client_services(project, :Contacts)
   end
 
   desc "GWT Contacts: Server-side component"
   define 'server', :layout => SimpleLayout.new do
     compile.with :gwt_user,
                  :gwt_dev,
+                 :javax_inject,
                  :javax_servlet,
                  :javax_ejb,
                  :javax_persistence,
@@ -63,9 +67,11 @@ define 'gwt-contacts' do
                  :intellij_annotations,
                  :javax_validation
     iml.add_jpa_facet
+    iml.add_ejb_facet
 
-    define_persistence_unit(project, :contacts)
-    define_services_unit(project, :contacts)
+    define_persistence_unit(project, :Contacts)
+    define_services_unit(project, :Contacts)
+    define_gwt_servlets(project, :Contacts)
 
     test.compile.with 'org.glassfish.extras:glassfish-embedded-all:jar:3.1.1', HIBERNATE, SLF4J
     package(:jar)

@@ -1,13 +1,11 @@
 package com.google.gwt.sample.contacts.server;
 
-import com.google.gwt.sample.contacts.server.ejb.ContactEJB;
-import com.google.gwt.sample.contacts.shared.ContactVO;
+import com.google.gwt.sample.contacts.server.dao.ContactDAO;
 import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
+import com.google.gwt.sample.contacts.shared.ContactVO;
 import java.util.ArrayList;
-import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.persistence.TypedQuery;
 
 @Stateless( name = Contacts.EJB_NAME )
 public class ContactsEJB
@@ -36,7 +34,7 @@ public class ContactsEJB
     "user31065@example.com", "ftsgeolbx@example.com" };
 
   @EJB
-  private ContactEJB _repository;
+  private ContactDAO _repository;
 
   public ContactVO createOrUpdateContact( final ContactVO dto )
   {
@@ -82,12 +80,13 @@ public class ContactsEJB
   private ContactVO toContactDTO( final Contact result )
   {
     return new ContactVO( String.valueOf( result.getID() ), result.getFirstName(), result.getLastName(),
-                        result.getEmailAddress() );
+                          result.getEmailAddress() );
   }
 
   private ContactDetailsVO toLightWeightContactDTO( final Contact contact )
   {
-    return new ContactDetailsVO( String.valueOf( contact.getID() ), contact.getFirstName() + " " + contact.getLastName() );
+    return new ContactDetailsVO( String.valueOf( contact.getID() ),
+                                 contact.getFirstName() + " " + contact.getLastName() );
   }
 
   private Contact findByID( final String id )

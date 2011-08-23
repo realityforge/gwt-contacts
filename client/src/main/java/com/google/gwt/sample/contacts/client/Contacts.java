@@ -2,7 +2,6 @@ package com.google.gwt.sample.contacts.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.sample.contacts.client.gin.ContactGinjector;
-import com.google.gwt.sample.contacts.client.gin.TokenManager;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RpcTokenException;
@@ -47,7 +46,7 @@ public final class Contacts
 
       public void onSuccess( final XsrfToken xsrfToken )
       {
-        TokenManager.setXsrfToken( xsrfToken );
+        ContactsServicesGinModule.setXsrfToken( xsrfToken );
         startupApplication();
       }
     } );
