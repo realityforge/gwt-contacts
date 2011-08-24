@@ -117,7 +117,7 @@ define 'gwt-contacts' do
   # Remove the IDEA generated artifacts
   project.clean { rm_rf project._(:artifacts) }
 
-  doc.using :javadoc, {:tree => false, :since => false, :deprecated => false, :index => false, :help => false}
+  doc.using :javadoc, { :tree => false, :since => false, :deprecated => false, :index => false, :help => false }
   doc.from projects('shared', 'client', 'server')
 
   ipr.add_exploded_war_artifact(project,
