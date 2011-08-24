@@ -1,7 +1,5 @@
 package com.google.gwt.sample.contacts.server;
 
-import com.google.gwt.sample.contacts.server.services.Contacts;
-import com.google.gwt.sample.contacts.server.model.Contact;
 import com.google.gwt.sample.contacts.server.model.dao.ContactDAO;
 import com.google.gwt.sample.contacts.server.services.Contacts;
 import com.google.gwt.sample.contacts.server.services.ContactsEJB;
@@ -9,12 +7,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.matcher.Matchers;
-import java.util.HashMap;
 import java.util.Properties;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import org.eclipse.persistence.jpa.PersistenceProvider;
 import org.junit.Assert;
 import org.junit.Test;
 
