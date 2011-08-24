@@ -76,7 +76,7 @@ define 'gwt-contacts' do
                  :javax_ejb,
                  :javax_persistence,
                  project('shared').package(:jar),
-                 :intellij_annotations,
+                 :javax_annotation,
                  :javax_validation
     iml.add_jpa_facet
     iml.add_ejb_facet
@@ -85,7 +85,14 @@ define 'gwt-contacts' do
     define_services_unit(project, :Contacts)
     define_gwt_servlets(project, :Contacts)
 
-    test.compile.with 'org.glassfish.extras:glassfish-embedded-all:jar:3.1.1', HIBERNATE, SLF4J
+    test.compile.with :google_guice,
+                      :aopalliance,
+                      :google_guice_assistedinject,
+                      :hsqldb,
+                      'org.eclipse.persistence:javax.persistence:jar:2.0.1',
+                      :eclipselink
+                      #HIBERNATE,
+                      #SLF4J
     package(:jar)
   end
 
@@ -114,11 +121,10 @@ define 'gwt-contacts' do
     end
   end
 
-
   # Remove the IDEA generated artifacts
   project.clean { rm_rf project._(:artifacts) }
 
-  doc.using :javadoc, {:tree => false, :since => false, :deprecated => false, :index => false, :help => false}
+  doc.using :javadoc, { :tree => false, :since => false, :deprecated => false, :index => false, :help => false }
   doc.from projects('shared', 'client', 'server')
 
   ipr.add_exploded_war_artifact(project,

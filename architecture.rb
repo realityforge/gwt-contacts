@@ -8,8 +8,8 @@ Domgen.define_repository(:Contacts) do |repository|
   repository.java.package = 'com.google.gwt.sample.contacts.server'
 
   repository.define_data_module(:Contacts) do |data_module|
-    data_module.java.package = 'com.google.gwt.sample.contacts.server'
     data_module.gwt.package = 'com.google.gwt.sample.contacts'
+    data_module.java.package = 'com.google.gwt.sample.contacts.server'
 
     data_module.define_service(:Contacts) do |s|
       s.description("Contacts Service definition")
