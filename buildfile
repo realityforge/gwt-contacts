@@ -85,7 +85,14 @@ define 'gwt-contacts' do
     define_services_unit(project, :Contacts)
     define_gwt_servlets(project, :Contacts)
 
-    test.compile.with 'org.glassfish.extras:glassfish-embedded-all:jar:3.1.1', HIBERNATE, SLF4J
+    test.compile.with :google_guice,
+                      :aopalliance,
+                      :google_guice_assistedinject,
+                      :hsqldb,
+                      'org.eclipse.persistence:javax.persistence:jar:2.0.1',
+                      :eclipselink
+                      #HIBERNATE,
+                      #SLF4J
     package(:jar)
   end
 

@@ -10,6 +10,7 @@ repositories:
    - http://repo.fire.dse.vic.gov.au/content/groups/fisg
    - http://www.ibiblio.org/maven2
    - http://download.java.net/maven/glassfish
+   - http://mirror.aarnet.edu.au/pub/eclipse/rt/eclipselink/maven.repo/
 
 artifacts:
   easymock: org.easymock:easymock:jar:2.5.2
@@ -44,3 +45,9 @@ artifacts:
   c3p0: c3p0:c3p0:jar:0.9.1
   commons_collections: commons-collections:commons-collections:jar:3.1
   antlr: antlr:antlr:jar:2.7.6
+
+  eclipselink: org.eclipse.persistence:eclipselink:jar:2.1.0
+
+  # HSQL for Tests
+  #hsqldb: org.hsqldb:hsqldb:jar:2.2.4
+  hsqldb: org.hsqldb:hsqldb:jar:1.8.0.10
