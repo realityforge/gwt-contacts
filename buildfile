@@ -114,7 +114,6 @@ define 'gwt-contacts' do
     end
   end
 
-
   # Remove the IDEA generated artifacts
   project.clean { rm_rf project._(:artifacts) }
 
