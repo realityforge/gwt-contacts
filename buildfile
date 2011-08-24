@@ -76,7 +76,7 @@ define 'gwt-contacts' do
                  :javax_ejb,
                  :javax_persistence,
                  project('shared').package(:jar),
-                 :intellij_annotations,
+                 :javax_annotation,
                  :javax_validation
     iml.add_jpa_facet
     iml.add_ejb_facet
