@@ -1,5 +1,6 @@
 package com.google.gwt.sample.contacts.server;
 
+import com.google.gwt.sample.contacts.server.services.Contacts;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ejb.embeddable.EJBContainer;
