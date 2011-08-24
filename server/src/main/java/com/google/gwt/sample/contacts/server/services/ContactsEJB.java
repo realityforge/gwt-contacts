@@ -1,6 +1,7 @@
-package com.google.gwt.sample.contacts.server;
+package com.google.gwt.sample.contacts.server.services;
 
-import com.google.gwt.sample.contacts.server.dao.ContactDAO;
+import com.google.gwt.sample.contacts.server.model.Contact;
+import com.google.gwt.sample.contacts.server.model.dao.ContactDAO;
 import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
 import com.google.gwt.sample.contacts.shared.ContactVO;
 import java.util.ArrayList;
