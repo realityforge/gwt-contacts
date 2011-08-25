@@ -5,7 +5,7 @@ import com.google.inject.spi.TypeEncounter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-abstract class FieldBasedInjector<T> implements MembersInjector<T>
+public abstract class FieldBasedInjector<T> implements MembersInjector<T>
 {
   private final TypeEncounter<T> _typeEncounter;
   private final Annotation _annotation;
