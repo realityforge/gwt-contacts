@@ -35,4 +35,21 @@
   <set-property name="gwt.logging.firebugHandler" value="DISABLED" />
   <set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED" />
   -->
+
+  <!-- Some optimisations. See CompilerParameters.gwt.xml for more compiler options -->
+
+  <!-- Remove client side stack info. Can reduce javascript size by 15% -->
+  <!--<set-property name="compiler.stackMode" value="strip" />-->
+
+  <!--
+    Whether or not the compiler should alter Enum.name() to return
+    ordinal() as a way of obfuscating Enum field identifiers.
+
+    Can reduce javascript size if use lots of enums or large enums
+  -->
+   <!--<set-configuration-property name="compiler.enum.obfuscate.names" value="true" />-->
+
+
+
+  <!--<set-property name="CssResource.obfuscationPrefix" value="empty" />-->
 </module>
