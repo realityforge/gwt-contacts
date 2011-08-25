@@ -88,7 +88,7 @@ define 'gwt-contacts' do
     test.compile.with :google_guice,
                       :aopalliance,
                       :google_guice_assistedinject,
-                      :hsqldb,
+                      :h2db,
                       'org.eclipse.persistence:javax.persistence:jar:2.0.1',
                       :eclipselink
                       #HIBERNATE,
