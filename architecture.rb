@@ -8,6 +8,7 @@ Domgen.define_repository(:Contacts) do |repository|
   repository.java.package = 'com.google.gwt.sample.contacts.server'
 
   repository.define_data_module(:Contacts) do |data_module|
+    data_module.gwt.module_name = "contacts"
     data_module.gwt.package = 'com.google.gwt.sample.contacts'
     data_module.java.package = 'com.google.gwt.sample.contacts.server'
 
