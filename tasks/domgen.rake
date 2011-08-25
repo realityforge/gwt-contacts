@@ -22,7 +22,7 @@ def define_persistence_unit(project, repository_key)
 end
 
 def define_services_unit(project, repository_key)
-  base_generated_dir = project._(:target, :generated, "main/services")
+  base_generated_dir = project._(:target, :generated, "main/ejb")
 
   task = Domgen::GenerateTask.new(repository_key, "ejb", [:ejb], base_generated_dir) do |t|
     t.description = 'Generates the EJB Service interfaces'
@@ -34,9 +34,9 @@ def define_services_unit(project, repository_key)
 end
 
 def define_gwt_services_unit(project, repository_key)
-  base_generated_dir = project._(:target, :generated, "main/services")
+  base_generated_dir = project._(:target, :generated, "main/gwt")
 
-  task = Domgen::GenerateTask.new(repository_key, "gwt:shared", [:gwt_shared_service], base_generated_dir) do |t|
+  task = Domgen::GenerateTask.new(repository_key, "gwt", [:gwt_shared_service], base_generated_dir) do |t|
     t.description = 'Generates the Shared GWT Service interfaces'
   end
 
@@ -49,9 +49,9 @@ def define_gwt_services_unit(project, repository_key)
 end
 
 def define_gwt_client_services(project, repository_key)
-  base_generated_dir = project._(:target, :generated, "main/services")
+  base_generated_dir = project._(:target, :generated, "main/gwt")
 
-  task = Domgen::GenerateTask.new(repository_key, "gwt:client", [:gwt_client_service], base_generated_dir) do |t|
+  task = Domgen::GenerateTask.new(repository_key, "gwt", [:gwt_client_service], base_generated_dir) do |t|
     t.description = 'Generates the Client GWT Service support'
   end
 
@@ -64,9 +64,9 @@ def define_gwt_client_services(project, repository_key)
 end
 
 def define_gwt_servlets(project, repository_key)
-  base_generated_dir = project._(:target, :generated, "main/gwt_servlets")
+  base_generated_dir = project._(:target, :generated, "main/gwt")
 
-  task = Domgen::GenerateTask.new(repository_key, "gwt:servlet", [:gwt_server_service], base_generated_dir) do |t|
+  task = Domgen::GenerateTask.new(repository_key, "gwt", [:gwt_server_service], base_generated_dir) do |t|
     t.description = 'Generates the GWT Service implementations'
   end
 
