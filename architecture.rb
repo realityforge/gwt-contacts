@@ -21,7 +21,7 @@ Domgen.define_repository(:Contacts) do |repository|
         m.returns("java.util.ArrayList<com.google.gwt.sample.contacts.shared.ContactDetailsVO>")
       end
       s.method(:GetContact) do |m|
-        m.parameter(:ID, "java.lang.String")
+        m.string(:ID, 50)
         m.returns("com.google.gwt.sample.contacts.shared.ContactVO")
       end
       s.method(:CreateOrUpdateContact) do |m|
