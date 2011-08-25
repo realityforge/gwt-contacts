@@ -11,6 +11,7 @@ enhancements have been made;
 * Integration of checkstyle rules to help enforce good styles.
 * Conversion of the server-side to use EJBs for the service layer and JPA for
   the persistence layer.
+* Convert to using Domgen to generate service/event/entity boilerplate.
 * Conversion to using a maven-style source code layout and the Buildr tool to
   automate the builds.
 * Integration with the Intellij IDEA IDE added.
@@ -35,9 +36,10 @@ Getting Started
     - In DSE I tend to use an LDAP realm against ActiveDirectory.
       See http://www.webdavsystem.com/javaserver/doc/authentication/ldap_glassfish
       Also see IRIS Getting Started Guide.
-    - NOTE: If you want to re-enable roles you should go into
-      Common Tasks/Configurations/server-config/Security and change the parameter
-      "Default Principal To Role Mapping" to true and restart the server.
+    - Elsewhere I use the default file realm and add a user.
+    - NOTE: You should go into Common Tasks/Configurations/server-config/Security
+      and change the parameter "Default Principal To Role Mapping" to true and
+      restart the server.
   - Install the Hibernate plugin
 
 * Setup GlassFish configuration in IDEA and make sure it deploys the contacts
