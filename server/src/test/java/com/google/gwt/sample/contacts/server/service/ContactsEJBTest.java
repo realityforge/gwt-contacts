@@ -1,8 +1,8 @@
-package com.google.gwt.sample.contacts.server;
+package com.google.gwt.sample.contacts.server.service;
 
-import com.google.gwt.sample.contacts.server.model.dao.ContactDAO;
-import com.google.gwt.sample.contacts.server.services.Contacts;
-import com.google.gwt.sample.contacts.server.services.ContactsEJB;
+import com.google.gwt.sample.contacts.server.JpaTypeListener;
+import com.google.gwt.sample.contacts.server.TransactionInterceptor;
+import com.google.gwt.sample.contacts.server.entity.dao.ContactDAO;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
