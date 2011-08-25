@@ -1,6 +1,5 @@
 package com.google.gwt.sample.contacts.server;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.MembersInjector;
 import com.google.inject.spi.TypeEncounter;
 import java.lang.annotation.Annotation;

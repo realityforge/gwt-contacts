@@ -1,13 +1,11 @@
 package com.google.gwt.sample.contacts.server;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.MembersInjector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import org.apache.bcel.generic.GOTO;
 
 public abstract class AnnotationTypeListener
     implements TypeListener
