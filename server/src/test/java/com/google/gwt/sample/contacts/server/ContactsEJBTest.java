@@ -81,8 +81,7 @@ public class ContactsEJBTest
       properties.put( "eclipselink.ddl-generation.output-mode", "database" );
 
       final EntityManagerFactory factory = Persistence.createEntityManagerFactory( "test-contacts", properties );
-      final EntityManager entityManager = factory.createEntityManager();
-      return entityManager;
+      return factory.createEntityManager();
     }
   }
 }
