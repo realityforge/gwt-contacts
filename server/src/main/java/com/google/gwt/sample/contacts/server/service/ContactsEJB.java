@@ -2,12 +2,11 @@ package com.google.gwt.sample.contacts.server.service;
 
 import com.google.gwt.sample.contacts.server.entity.Contact;
 import com.google.gwt.sample.contacts.server.entity.dao.ContactDAO;
-import com.google.gwt.sample.contacts.server.service.Contacts;
 import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
 import com.google.gwt.sample.contacts.shared.ContactVO;
 import java.util.ArrayList;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 @Stateless( name = Contacts.EJB_NAME )
 public class ContactsEJB
@@ -35,7 +34,7 @@ public class ContactsEJB
     "post_master@example.com", "rchilders@example.com", "buster@example.com",
     "user31065@example.com", "ftsgeolbx@example.com" };
 
-  @Inject
+  @EJB
   private ContactDAO _repository;
 
   public ContactVO createOrUpdateContact( final ContactVO dto )
