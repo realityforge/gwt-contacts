@@ -39,6 +39,7 @@ public class EJBTestingModule
   {
     bind( EntityManager.class ).toInstance( createEntityManager() );
     bindListener( Matchers.any(), new JpaTypeListener() );
+    bindListener( Matchers.any(), new EjbTypeListener() );
     final TransactionInterceptor interceptor = new TransactionInterceptor();
     requestInjection( interceptor );
     bindInterceptor( annotatedWith( Stateless.class ),
