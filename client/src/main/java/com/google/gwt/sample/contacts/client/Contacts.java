@@ -47,7 +47,7 @@ public final class Contacts
 
       public void onSuccess( final XsrfToken xsrfToken )
       {
-        ContactsServicesGinModule.setXsrfToken( xsrfToken );
+        ContactsServicesGinModule.initialize( GWT.getModuleName(), xsrfToken );
         startupApplication();
       }
     } );
