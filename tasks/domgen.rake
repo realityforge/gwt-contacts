@@ -7,7 +7,9 @@ require 'domgen'
 Domgen::LoadSchema.new("#{workspace_dir}/architecture.rb")
 
 Domgen::Logger.level = ::Logger::DEBUG
-#Domgen::Xmi::GenerateXMITask.new(:contacts, "xmi", "#{workspace_dir}/target/xmi/contacts.xmi")
+Domgen::Xmi::GenerateXMITask.new(:Contacts, "xmi", "#{workspace_dir}/target/xmi/contacts.xmi") do |t|
+  t.description = 'Generates the xmi describing the repository'
+end
 
 def define_persistence_unit(project, repository_key)
   base_generated_dir = project._(:target, :generated, "main/jpa")
