@@ -38,7 +38,7 @@ public final class Contacts
           //   - XSRF token cannot be generated because session cookie isn't
           //     present
         }
-        catch ( Throwable e )
+        catch ( final Throwable e )
         {
           // unexpected
         }

@@ -9,38 +9,38 @@ public class TransactionInterceptor
   implements MethodInterceptor
 {
   @PersistenceContext
-  private EntityManager em;
+  private EntityManager _em;
 
   @PersistenceContext
-  private int depth;
+  private int _depth;
 
   @Override
-  public Object invoke( MethodInvocation invocation )
+  public Object invoke( final MethodInvocation invocation )
     throws Throwable
   {
     try
     {
-      if ( 0 == depth )
+      if ( 0 == _depth )
       {
-        em.getTransaction().begin();
+        _em.getTransaction().begin();
       }
-      depth++;
+      _depth++;
 
       final Object result = invocation.proceed();
-      depth--;
+      _depth--;
 
-      if ( 0 == depth )
+      if ( 0 == _depth )
       {
-        em.getTransaction().commit();
+        _em.getTransaction().commit();
       }
       return result;
     }
     catch ( final Throwable t )
     {
-      depth--;
-      if ( 0 == depth )
+      _depth--;
+      if ( 0 == _depth )
       {
-        em.getTransaction().rollback();
+        _em.getTransaction().rollback();
       }
 
       throw t;
