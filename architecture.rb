@@ -1,16 +1,14 @@
 Domgen.define_repository(:Contacts) do |repository|
   repository.enable_facet(:sql)
-  repository.enable_facet(:java)
   repository.enable_facet(:jpa)
   repository.enable_facet(:ejb)
   repository.enable_facet(:gwt)
 
-  repository.java.package = 'com.google.gwt.sample.contacts.server'
-
   repository.define_data_module(:Contacts) do |data_module|
     data_module.gwt.module_name = "contacts"
     data_module.gwt.package = 'com.google.gwt.sample.contacts'
-    data_module.java.package = 'com.google.gwt.sample.contacts.server'
+    data_module.jpa.entity_package = 'com.google.gwt.sample.contacts.server.entity'
+    data_module.ejb.service_package = 'com.google.gwt.sample.contacts.server.service'
 
     data_module.define_service(:Contacts) do |s|
       s.description("Contacts Service definition")
