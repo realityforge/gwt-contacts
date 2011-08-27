@@ -34,6 +34,11 @@ module Buildr
           args << "-draftCompile"
         end
 
+        if options[:no_class_metadata]
+          args << "-XdisableClassMetadata"
+          args << "-XdisableCastChecking"
+        end
+
         args += modules
 
         Java::Commands.java 'com.google.gwt.dev.Compiler', *(args + [{:classpath => cp, :properties => options[:properties], :java_args => options[:java_args]}])
