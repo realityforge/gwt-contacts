@@ -4,3 +4,5 @@
   See http://stackoverflow.com/questions/4098579/how-to-use-the-gwt-editor-framework-for-validation
 * Investigate the integration of Cell framework
   See http://stackoverflow.com/questions/4604489/gwt-simple-pager-help
+* Create a GWT Buildr extension that drives both the gwt task and the IDEA facet so that options
+  like -localWorkers, -style, -XdisableClassMetadata etc are controlled from one location
