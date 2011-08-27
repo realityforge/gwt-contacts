@@ -67,6 +67,18 @@ define 'gwt-contacts' do
     define_gwt_client_services(project, :Contacts)
   end
 
+  desc "GuiceyLoops: Guice EE testing support replacing Guicey-fruit"
+  define_with_central_layout('guiceyloops') do
+    compile.with :javax_inject,
+                 :javax_ejb,
+                 :javax_persistence,
+                 :javax_annotation,
+                 :google_guice,
+                 :aopalliance,
+                 :google_guice_assistedinject
+    package(:jar)
+  end
+
   desc "GWT Contacts: Server-side component"
   define_with_central_layout('server') do
     compile.with :gwt_user,
@@ -85,9 +97,8 @@ define 'gwt-contacts' do
     define_services_unit(project, :Contacts)
     define_gwt_servlets(project, :Contacts)
 
-    test.compile.with :google_guice,
-                      :aopalliance,
-                      :google_guice_assistedinject,
+    test.compile.with project('guiceyloops'),
+                      project('guiceyloops').compile.dependencies,
                       :h2db,
                       'org.eclipse.persistence:javax.persistence:jar:2.0.1',
                       :eclipselink

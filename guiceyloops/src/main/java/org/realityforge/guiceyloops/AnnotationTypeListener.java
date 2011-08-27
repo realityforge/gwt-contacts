@@ -1,4 +1,4 @@
-package com.google.gwt.sample.contacts.server;
+package org.realityforge.guiceyloops;
 
 import com.google.inject.MembersInjector;
 import com.google.inject.TypeLiteral;

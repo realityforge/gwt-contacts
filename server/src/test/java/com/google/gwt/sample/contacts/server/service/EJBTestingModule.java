@@ -1,7 +1,6 @@
-package com.google.gwt.sample.contacts.server;
+package com.google.gwt.sample.contacts.server.service;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.matcher.Matchers;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,12 +10,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import static com.google.inject.matcher.Matchers.annotatedWith;
-import static com.google.inject.matcher.Matchers.any;
 
 public class EJBTestingModule
   extends AbstractModule
@@ -38,13 +34,6 @@ public class EJBTestingModule
   protected void configure()
   {
     bind( EntityManager.class ).toInstance( createEntityManager() );
-    bindListener( Matchers.any(), new JpaTypeListener() );
-    bindListener( Matchers.any(), new EjbTypeListener() );
-    final TransactionInterceptor interceptor = new TransactionInterceptor();
-    requestInjection( interceptor );
-    bindInterceptor( annotatedWith( Stateless.class ),
-                     any(),
-                     interceptor );
   }
 
   private EntityManager createEntityManager()

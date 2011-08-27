@@ -1,4 +1,4 @@
-package com.google.gwt.sample.contacts.server;
+package org.realityforge.guiceyloops;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
