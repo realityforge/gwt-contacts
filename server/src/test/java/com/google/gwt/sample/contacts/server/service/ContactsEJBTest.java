@@ -14,7 +14,7 @@ public class ContactsEJBTest
   public void testContactsEJB()
   {
     Injector injector = Guice.createInjector( new TestModule(), new EJBTestingModule( "Contacts" ), new JEETestingModule() );
-    final Contacts _contacts = injector.getInstance( Contacts.class );
+    final ContactsService _contacts = injector.getInstance( ContactsService.class );
     Assert.assertEquals( 22, _contacts.getContactDetails().size() );
   }
 
@@ -23,7 +23,7 @@ public class ContactsEJBTest
   {
     protected void configure()
     {
-      bind( Contacts.class ).to( ContactsEJB.class );
+      bind( ContactsService.class ).to( ContactsEJB.class );
       bind( ContactDAO.class );
     }
   }

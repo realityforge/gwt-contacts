@@ -10,7 +10,7 @@ Domgen.define_repository(:Contacts) do |repository|
     data_module.jpa.entity_package = 'com.google.gwt.sample.contacts.server.entity'
     data_module.ejb.service_package = 'com.google.gwt.sample.contacts.server.service'
 
-    data_module.define_service(:Contacts) do |s|
+    data_module.define_service(:ContactsService) do |s|
       s.description("Contacts Service definition")
 
       s.method(:DeleteContacts) do |m|

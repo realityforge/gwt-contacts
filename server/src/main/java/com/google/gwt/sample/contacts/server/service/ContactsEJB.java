@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-@Stateless( name = Contacts.EJB_NAME )
+@Stateless( name = ContactsService.EJB_NAME )
 public class ContactsEJB
-  implements Contacts
+  implements ContactsService
 {
   private static final String[] FIRST_NAMES = new String[]{
     "Hollie", "Emerson", "Healy", "Brigitte", "Elba", "Claudio",
