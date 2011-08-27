@@ -1,10 +1,12 @@
-package com.google.gwt.sample.contacts.client.activity;
+package com.google.gwt.sample.contacts.client.gin;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.place.shared.Place;
 import com.google.gwt.place.shared.PlaceController;
+import com.google.gwt.sample.contacts.client.activity.EditContactActivity;
+import com.google.gwt.sample.contacts.client.activity.ListContactsActivity;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.AddContactEventHandler;
 import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
