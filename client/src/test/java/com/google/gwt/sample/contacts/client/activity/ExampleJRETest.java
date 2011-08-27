@@ -8,8 +8,10 @@ import com.google.gwt.sample.contacts.shared.ContactsAsync;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.TestCase;
 import org.easymock.IAnswer;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.getCurrentArguments;
@@ -19,7 +21,6 @@ import static org.easymock.EasyMock.verify;
 
 @SuppressWarnings( "unchecked" )
 public class ExampleJRETest
-  extends TestCase
 {
   private ListContactsActivity _listContactsActivity;
   private ContactsAsync _mockRpcService;
@@ -27,6 +28,7 @@ public class ExampleJRETest
   private ListContactsView _mockViewList;
   private List<ContactDetailsVO> _contactDetails;
 
+  @Before
   protected void setUp()
   {
     _mockRpcService = createStrictMock( ContactsAsync.class );
@@ -35,6 +37,7 @@ public class ExampleJRETest
     _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
   }
 
+  @Test
   public void testDeleteButton()
   {
     _contactDetails = new ArrayList<ContactDetailsVO>();
@@ -73,7 +76,7 @@ public class ExampleJRETest
     _listContactsActivity.onDeleteButtonClicked();
     verify( _mockRpcService );
 
-    assertEquals( 1, _listContactsActivity.getContactDetails().size() );
+    Assert.assertEquals( 1, _listContactsActivity.getContactDetails().size() );
   }
 
   private AsyncCallback getCallback()
