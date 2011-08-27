@@ -139,10 +139,13 @@ define 'gwt-contacts' do
   iml.add_jruby_facet
 
   checkstyle.config_directory = _('etc/checkstyle')
-  checkstyle.source_paths << project('shared').compile.sources
-  checkstyle.source_paths << project('shared').test.compile.sources
-  checkstyle.source_paths << project('client').compile.sources
-  checkstyle.source_paths << project('client').test.compile.sources
-  checkstyle.source_paths << project('server').compile.sources
-  checkstyle.source_paths << project('server').test.compile.sources
+  checkstyle.add_project_source_paths(project('shared'), false)
+  checkstyle.add_project_source_paths(project('client'), false)
+  checkstyle.add_project_source_paths(project('server'), false)
+  #checkstyle.source_paths << project('shared').compile.sources
+  #checkstyle.source_paths << project('shared').test.compile.sources
+  #checkstyle.source_paths << project('client').compile.sources
+  #checkstyle.source_paths << project('client').test.compile.sources
+  #checkstyle.source_paths << project('server').compile.sources
+  #checkstyle.source_paths << project('server').test.compile.sources
 end
