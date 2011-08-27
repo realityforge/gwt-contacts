@@ -6,8 +6,6 @@ import com.google.inject.spi.TypeEncounter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import javax.ejb.EJB;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 public class EjbTypeListener
     extends AnnotationTypeListener
