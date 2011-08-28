@@ -122,6 +122,17 @@ module Buildr
         @source_paths ||= [self.project.compile.sources, self.project.test.compile.sources]
       end
 
+      def add_project_source_paths(project, include_non_standard = false)
+        if include_non_standard
+          source_paths << project.compile.sources
+          source_paths << project.test.compile.sources
+        else
+          source_paths << project._(:source, :main, :java)
+          source_paths << project._(:source, :test, :java)
+        end
+
+      end
+
       protected
 
       def initialize(project)

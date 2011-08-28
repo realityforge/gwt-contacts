@@ -34,6 +34,11 @@ module Buildr
           args << "-draftCompile"
         end
 
+        if options[:no_class_metadata]
+          args << "-XdisableClassMetadata"
+          args << "-XdisableCastChecking"
+        end
+
         args += modules
 
         Java::Commands.java 'com.google.gwt.dev.Compiler', *(args + [{:classpath => cp, :properties => options[:properties], :java_args => options[:java_args]}])
@@ -52,7 +57,6 @@ module Buildr
           end
           dependencies = options[:dependencies] || project.compile.dependencies
           options = options.dup
-          options[:compile_report_dir] ||= project._(:target, :main, :gwt, output_key)
           Buildr::GWT.gwtc_main(module_names, dependencies + artifacts, output_dir, options)
         end
         task.enhance [project.compile]

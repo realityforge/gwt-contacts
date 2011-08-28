@@ -1,43 +1,67 @@
 package com.google.gwt.sample.contacts.client;
 
-import com.google.gwt.activity.shared.ActivityManager;
-import com.google.gwt.activity.shared.ActivityMapper;
-import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.place.shared.PlaceController;
-import com.google.gwt.place.shared.PlaceHistoryHandler;
-import com.google.gwt.sample.contacts.client.place.AppPlaceHistoryMapper;
-import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
-import com.google.gwt.sample.contacts.client.presenter.AppActivityMapper;
-import com.google.gwt.sample.contacts.shared.ContactsService;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.client.gin.ContactGinjector;
+import com.google.gwt.sample.contacts.client.gin.ContactsServicesGinModule;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.RpcTokenException;
+import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import com.google.gwt.user.client.rpc.XsrfToken;
+import com.google.gwt.user.client.rpc.XsrfTokenService;
+import com.google.gwt.user.client.rpc.XsrfTokenServiceAsync;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 
 public final class Contacts
-  implements EntryPoint
+  implements com.google.gwt.core.client.EntryPoint
 {
   public void onModuleLoad()
   {
-    final EventBus eventBus = new SimpleEventBus();
-    final PlaceController placeController = new PlaceController( eventBus );
+    final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT.create( XsrfTokenService.class );
+    //noinspection GwtSetServiceEntryPointCalls
+    ( (ServiceDefTarget) xsrf ).setServiceEntryPoint( GWT.getHostPageBaseURL() + "xsrf" );
+    // Do something like the following if you are not using container based security
+    //com.google.gwt.user.client.Cookies.setCookie( "JSESSIONID", "Any value you like for the XSRF Token creation" );
+    xsrf.getNewXsrfToken( new AsyncCallback<XsrfToken>()
+    {
+      public void onFailure( final Throwable caught )
+      {
+        try
+        {
+          throw caught;
+        }
+        catch ( final RpcTokenException e )
+        {
+          // Can be thrown for several reasons:
+          //   - duplicate session cookie, which may be a sign of a cookie
+          //     overwrite attack
+          //   - XSRF token cannot be generated because session cookie isn't
+          //     present
+        }
+        catch ( final Throwable e )
+        {
+          // unexpected
+        }
+        Window.alert( "Error generating security token. Please reload page." );
+      }
 
-    // Start PlaceHistoryHandler with our PlaceHistoryMapper
-    final AppPlaceHistoryMapper historyMapper = GWT.create( AppPlaceHistoryMapper.class );
-    final PlaceHistoryHandler historyHandler = new PlaceHistoryHandler( historyMapper );
-    historyHandler.register( placeController, eventBus, new ListContactsPlace() );
+      public void onSuccess( final XsrfToken xsrfToken )
+      {
+        ContactsServicesGinModule.initialize( GWT.getModuleName(), xsrfToken );
+        startupApplication();
+      }
+    } );
+  }
 
-    final ContactsServiceAsync rpcService = GWT.create( ContactsService.class );
+  private void startupApplication()
+  {
+    final ContactGinjector injector = GWT.create( ContactGinjector.class );
 
-    final ActivityMapper activityMapper = new AppActivityMapper( placeController, rpcService, eventBus );
-    final ActivityManager activityManager = new ActivityManager( activityMapper, eventBus );
-    final SimplePanel panel = new SimplePanel();
-    activityManager.setDisplay( panel );
+    // Force the creation of the ActivityManager
+    injector.getActivityManager();
 
-    RootPanel.get().add( panel );
+    RootPanel.get().add( injector.getMainPanel() );
     // Goes to place represented on URL or default place
-    historyHandler.handleCurrentHistory();
+    injector.getPlaceHistoryHandler().handleCurrentHistory();
   }
 }

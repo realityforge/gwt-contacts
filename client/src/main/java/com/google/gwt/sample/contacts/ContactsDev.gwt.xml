@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='contacts'>
+  <inherits name='com.google.gwt.sample.contacts.Contacts'/>
+
+  <!-- Compile for Chrome only -->
+  <set-property name="user.agent" value="safari"/>
+
+  <!-- To change the default logLevel -->
+  <set-property name="gwt.logging.logLevel" value="INFO"/>
+  <!-- TRUE or FALSE to enable logging at all -->
+  <set-property name="gwt.logging.enabled" value="TRUE"/>
+  <!-- ENABLED OR DISABLED for different Handlers -->
+
+  <set-property name="gwt.logging.consoleHandler" value="ENABLED"/>
+  <set-property name="gwt.logging.popupHandler" value="DISABLED" />
+
+  <!-- Enable remote logger -->
+  <set-property name="gwt.logging.simpleRemoteHandler" value="ENABLED" />
+
+  <!-- Remove client side stack info. Can reduce javascript size by 15% -->
+  <set-property name="compiler.stackMode" value="emulated" />
+
+  <!--
+    Whether or not the compiler should alter Enum.name() to return
+    ordinal() as a way of obfuscating Enum field identifiers.
+
+    Can reduce javascript size if use lots of enums or large enums
+  -->
+   <set-configuration-property name="compiler.enum.obfuscate.names" value="false" />
+</module>

@@ -1,5 +1,9 @@
-* Convert the application to use GIN for DI
-* Convert the application to Activities & Places
 * Investigate the integration of Editor framework
-* Add domgen generation of services
-* Add domgen generation of events
+  See GwtBase in GitHub account
+  See http://connexys.wordpress.com/2010/12/22/gwt-2-1-editor-with-simplebeaneditordriver/
+  See http://stackoverflow.com/questions/4098579/how-to-use-the-gwt-editor-framework-for-validation
+* Investigate the integration of Cell framework
+  See http://stackoverflow.com/questions/4604489/gwt-simple-pager-help
+* Create a GWT Buildr extension that drives both the gwt task and the IDEA facet so that options
+  like -localWorkers, -style, -XdisableClassMetadata etc are controlled from one location. Make it possible
+  to have multiple modules. i.e. a Dev module.

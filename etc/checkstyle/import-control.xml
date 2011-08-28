@@ -9,7 +9,7 @@
 
   <!-- For testing -->
   <allow pkg="org.easymock"/>
-  <allow class="junit.framework.TestCase"/>
+  <allow pkg="org.junit"/>
 
   <subpackage name="shared">
     <allow class="java.io.Serializable"/>
@@ -20,13 +20,17 @@
 
   <subpackage name="server">
     <allow pkg="com.google.gwt.sample.contacts.shared"/>
-    <allow class="com.google.gwt.user.server.rpc.RemoteServiceServlet"/>
+    <allow pkg="com.google.gwt.sample.contacts.server"/>
+    <allow pkg="com.google.gwt.user.server.rpc"/>
     <allow pkg="javax.servlet"/>
     <allow pkg="javax.ejb"/>
     <allow pkg="javax.persistence"/>
   </subpackage>
 
   <subpackage name="client">
+
+    <allow class="javax.inject.Inject"/>
+    <allow class="javax.inject.Provider"/>
 
     <allow class="com.google.gwt.core.client.EntryPoint" local-only="true"/>
     <allow class="com.google.gwt.core.client.RunAsyncCallback" local-only="true"/>
@@ -39,13 +43,36 @@
     <allow pkg="com.google.gwt.event.shared.*" regex="true"/>
     <allow pkg="com.google.gwt.user.client.*" regex="true"/>
 
+    <subpackage name="activity">
+      <allow class="com.google.gwt.activity.shared.Activity"/>
+      <allow class="com.google.gwt.activity.shared.AbstractActivity"/>
+      <allow class="com.google.gwt.event.shared.EventBus"/>
+      <allow class="com.google.gwt.place.shared.Place"/>
+    </subpackage>
+
+    <subpackage name="place">
+      <allow class="com.google.gwt.place.shared.Place"/>
+      <allow class="com.google.gwt.place.shared.PlaceTokenizer"/>
+      <allow class="com.google.gwt.place.shared.Prefix"/>
+    </subpackage>
+
+    <subpackage name="gin">
+      <!-- Application glue -->
+      <allow pkg="com.google.gwt.activity.shared"/>
+      <allow pkg="com.google.gwt.event.shared"/>
+      <allow pkg="com.google.gwt.place.shared"/>
+
+      <!-- Main UI panel -->
+      <allow class="com.google.gwt.user.client.ui.SimplePanel"/>
+
+      <!-- GIN stuff -->
+      <allow pkg="javax.inject"/>
+      <allow pkg="com.google.inject"/>
+      <allow pkg="com.google.gwt.inject.client"/>
+    </subpackage>
 
     <subpackage name="view">
       <allow pkg="com.smartgwt.client.*" regex="true"/>
-      <allow pkg="com.google.gwt.event.dom.client"/>
-    </subpackage>
-
-    <subpackage name="presenter">
       <allow pkg="com.google.gwt.event.dom.client"/>
     </subpackage>
 

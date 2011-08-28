@@ -6,15 +6,51 @@ gems:
 
 repositories:
   remote:
+   - http://repository.jboss.org/nexus/content/groups/public
    - http://repo.fire.dse.vic.gov.au/content/groups/fisg
    - http://www.ibiblio.org/maven2
+   - http://download.java.net/maven/glassfish
+   - http://mirror.aarnet.edu.au/pub/eclipse/rt/eclipselink/maven.repo
+   - http://www.smartclient.com/maven2
 
 artifacts:
   easymock: org.easymock:easymock:jar:2.5.2
+  gwt_dev: com.google.gwt:gwt-dev:jar:2.3.0 # Due to a bug in 2.3 packaging this is required to be deployed, Fixed in 2.5
   gwt_user: com.google.gwt:gwt-user:jar:2.3.0
+  google_guice: com.google.inject:guice:jar:3.0
+  google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
+  aopalliance: aopalliance:aopalliance:jar:1.0 # Required for guice
+  gwt_gin: com.google.gwt.inject:gin:jar:1.5.0
+  javax_inject: javax.inject:javax.inject:jar:1
   javax_validation: javax.validation:validation-api:jar:1.0.0.GA
   javax_validation_sources: javax.validation:validation-api:jar:sources:1.0.0.GA
   javax_ejb: org.apache.geronimo.specs:geronimo-ejb_3.1_spec:jar:1.0.2
   javax_servlet: org.apache.geronimo.specs:geronimo-servlet_3.0_spec:jar:1.0
   javax_persistence: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:jar:1.0.0.Final
-  smartgwt: com.smartgwt:smartgwt:jar:2.5.0
+  smartgwt: com.smartgwt:smartgwt:jar:2.5
+  javax_annotation: com.google.code.findbugs:jsr305:jar:1.3.9
+
+  # Hibernate
+  javax_transaction: javax.transaction:jta:jar:1.1
+  slf4j_api: org.slf4j:slf4j-api:jar:1.5.8
+  slf4j_jdk14: org.slf4j:slf4j-jdk14:jar:1.5.8
+  jcl_over_slf4j: org.slf4j:jcl-over-slf4j:jar:1.5.8
+  hibernate_annotations: org.hibernate:hibernate-annotations:jar:3.5.3-Final
+  hibernate_commons_annotations: org.hibernate:hibernate-commons-annotations:jar:3.2.0.Final
+  hibernate_validator: org.hibernate:hibernate-validator:jar:4.0.2.GA
+  hibernate_entitymanager: org.hibernate:hibernate-entitymanager:jar:3.5.1-Final
+  hibernate_ehcache: org.hibernate:hibernate-ehcache:jar:3.5.1-Final
+  hibernate_core: org.hibernate:hibernate-core:jar:3.5.1-Final
+  hibernate_c3p0: org.hibernate:hibernate-c3p0:jar:3.5.1-Final
+  javassist: javassist:javassist:jar:3.9.0.GA
+  dom4j: dom4j:dom4j:jar:1.6.1
+  c3p0: c3p0:c3p0:jar:0.9.1
+  commons_collections: commons-collections:commons-collections:jar:3.1
+  antlr: antlr:antlr:jar:2.7.6
+
+  eclipselink: org.eclipse.persistence:eclipselink:jar:2.1.0
+
+  # HSQL for Tests
+  #hsqldb: org.hsqldb:hsqldb:jar:2.2.4
+  hsqldb: org.hsqldb:hsqldb:jar:1.8.0.10
+  h2db: com.h2database:h2:jar:1.3.159

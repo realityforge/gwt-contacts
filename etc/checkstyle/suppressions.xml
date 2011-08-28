@@ -15,8 +15,8 @@
   <suppress checks="MagicNumber" files=".*[\\/]client[\\/]view[\\/].*UI\.java"/>
 
   <!-- Turn off naming checks for persistent objects -->
-  <suppress checks="MemberName" files=".*[\\/]server[\\/].*Bean\.java"/>
-  <suppress checks="ConstantName" files=".*[\\/]server[\\/].*Bean\.java"/>
+  <suppress checks="MemberName" files=".*[\\/]server[\\/]entity[\\/].*\.java"/>
+  <suppress checks="ConstantName" files=".*[\\/]server[\\/]entity[\\/].*\.java"/>
 
   <!-- Turn off all checks for generated code. -->
   <suppress checks="." files=".*[\\/]generated[\\/].*\.java"/>

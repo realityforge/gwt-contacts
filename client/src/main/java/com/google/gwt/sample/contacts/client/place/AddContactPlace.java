@@ -12,7 +12,7 @@ public class AddContactPlace
     implements PlaceTokenizer<AddContactPlace>
   {
     @Override
-    public String getToken( AddContactPlace place )
+    public String getToken( final AddContactPlace place )
     {
       return "";
     }

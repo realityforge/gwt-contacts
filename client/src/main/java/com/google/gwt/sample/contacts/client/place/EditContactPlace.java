@@ -24,7 +24,7 @@ public class EditContactPlace
     implements PlaceTokenizer<EditContactPlace>
   {
     @Override
-    public String getToken( EditContactPlace place )
+    public String getToken( final EditContactPlace place )
     {
       return place.getId();
     }
