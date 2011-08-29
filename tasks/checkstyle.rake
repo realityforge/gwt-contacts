@@ -16,7 +16,8 @@ module Buildr
       end
 
       def checkstyle(configuration_file, format, output_file, source_paths, options = {})
-        cp = Buildr.artifacts(self.dependencies).each(&:invoke).map(&:to_s)
+        dependencies = (options[:dependencies] || []) + self.dependencies
+        cp = Buildr.artifacts(dependencies).each(&:invoke).map(&:to_s)
 
         args = []
         if options[:properties_file]
@@ -122,15 +123,8 @@ module Buildr
         @source_paths ||= [self.project.compile.sources, self.project.test.compile.sources]
       end
 
-      def add_project_source_paths(project, include_non_standard = false)
-        if include_non_standard
-          source_paths << project.compile.sources
-          source_paths << project.test.compile.sources
-        else
-          source_paths << project._(:source, :main, :java)
-          source_paths << project._(:source, :test, :java)
-        end
-
+      def extra_dependencies
+        @extra_dependencies ||= [self.project.compile.dependencies, self.project.test.compile.dependencies]
       end
 
       protected
@@ -161,7 +155,8 @@ module Buildr
                                           project.checkstyle.xml_output_file,
                                           project.checkstyle.source_paths.flatten.compact,
                                           :properties => project.checkstyle.properties,
-                                          :fail_on_error => project.checkstyle.fail_on_error?)
+                                          :fail_on_error => project.checkstyle.fail_on_error?,
+                                          :dependencies => project.checkstyle.extra_dependencies)
           end
 
           if project.checkstyle.html_enabled?
