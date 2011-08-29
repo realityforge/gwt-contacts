@@ -7,10 +7,6 @@
 
   <allow pkg="java.util"/>
 
-  <!-- For testing -->
-  <allow pkg="org.easymock"/>
-  <allow pkg="org.junit"/>
-
   <subpackage name="shared">
     <allow class="java.io.Serializable"/>
     <allow class="com.google.gwt.user.client.rpc.RemoteService"/>
@@ -72,8 +68,11 @@
     </subpackage>
 
     <subpackage name="view">
-      <allow pkg="com.google.gwt.uibinder.client"/>
-      <allow pkg="com.google.gwt.event.dom.client"/>
+      <allow class="com.google.gwt.user.client.ui.IsWidget"/>
+      <subpackage name="ui">
+        <allow pkg="com.google.gwt.uibinder.client"/>
+        <allow pkg="com.google.gwt.event.dom.client"/>
+      </subpackage>
     </subpackage>
 
   </subpackage>
