@@ -14,13 +14,12 @@ import javax.servlet.http.HttpSession;
 public class SessionFilter
     implements Filter
 {
-  public void init( FilterConfig filterConfig )
+  public void init( final FilterConfig filterConfig )
       throws ServletException
   {
   }
 
-  public void doFilter( ServletRequest request, ServletResponse response,
-                        FilterChain chain )
+  public void doFilter( final ServletRequest request, final ServletResponse response, final FilterChain chain )
       throws java.io.IOException, ServletException
   {
     final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
