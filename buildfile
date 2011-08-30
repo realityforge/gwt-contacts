@@ -55,7 +55,7 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Client-side component"
   define_with_central_layout('client') do
-    iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
+    iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.ContactsDev")
 
     compile.with :gwt_user, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_inject, :gwt_gin, project('shared').package(:jar)
 
