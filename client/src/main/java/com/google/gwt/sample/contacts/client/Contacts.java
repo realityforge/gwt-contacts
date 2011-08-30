@@ -24,8 +24,6 @@ public final class Contacts
     final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT.create( XsrfTokenService.class );
     //noinspection GwtSetServiceEntryPointCalls
     ( (ServiceDefTarget) xsrf ).setServiceEntryPoint( GWT.getHostPageBaseURL() + "xsrf" );
-    // Do something like the following if you are not using container based security
-    //com.google.gwt.user.client.Cookies.setCookie( "JSESSIONID", "Any value you like for the XSRF Token creation" );
     xsrf.getNewXsrfToken( new AsyncCallback<XsrfToken>()
     {
       public void onFailure( final Throwable caught )
@@ -37,7 +35,7 @@ public final class Contacts
         catch( final RpcTokenException e )
         {
           // Can be thrown for several reasons:
-//   - duplicate session cookie, which may be a sign of a cookie overwrite attack
+          //   - duplicate session cookie, which may be a sign of a cookie overwrite attack
           //   - XSRF token cannot be generated because session cookie isn't present
           LOG.log( Level.SEVERE, "Problem generating RPC token: Possible causes: duplicate session cookie which may be a sign of a cookie overwrite attack or XSRF token cannot be generated because session cookie isn't present", e );
 
