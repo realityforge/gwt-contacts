@@ -2,48 +2,45 @@ package com.google.gwt.sample.contacts.client.view.ui;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.sample.contacts.client.view.EditContactView;
-import com.google.gwt.sample.contacts.shared.ContactVO;
+import com.google.gwt.sample.contacts.client.view.ShowContactView;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class EditContactUI
+public class ShowContactUI
     extends AbstractContactUI
-    implements EditContactView
+    implements ShowContactView
 {
-  interface Binder extends UiBinder<Widget, EditContactUI> {}
+  interface Binder extends UiBinder<Widget, ShowContactUI> {}
 
   private static final Binder uiBinder = GWT.create( Binder.class );
 
   @UiField
-  Button _saveButton;
+  Button _editButton;
+
   @UiField
-  Button _cancelButton;
+  Button _closeButton;
 
   private Presenter _presenter;
 
-  public EditContactUI()
+  public ShowContactUI()
   {
     initWidget( uiBinder.createAndBindUi( this ) );
   }
 
-  @UiHandler( "_saveButton" )
-  void onSaveButtonClicked( final ClickEvent event )
+  @UiHandler( "_editButton" )
+  void onEditButtonClicked( final ClickEvent event )
   {
     if( _presenter != null )
     {
-      copyBackContact();
-      _presenter.onSaveButtonClicked( getContact() );
+      _presenter.onEditButtonClicked( getContact() );
     }
   }
 
-  @UiHandler( "_cancelButton" )
-  void onCancelButtonClicked( final ClickEvent event )
+  @UiHandler( "_closeButton" )
+  void onReturnToListButtonClicked( final ClickEvent event )
   {
     if( _presenter != null )
     {

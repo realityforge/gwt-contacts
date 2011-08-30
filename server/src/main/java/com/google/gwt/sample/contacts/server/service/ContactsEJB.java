@@ -44,13 +44,14 @@ public class ContactsEJB
       final Contact contact = new Contact();
       updatePersistentFromDTO( dto, contact );
       _repository.persist( contact );
+      return toContactDTO( contact );
     }
     else
     {
       final Contact contact = findByID( dto.getId() );
       updatePersistentFromDTO( dto, contact );
+      return toContactDTO( contact );
     }
-    return dto;
   }
 
   public void deleteContacts( final ArrayList<String> ids )

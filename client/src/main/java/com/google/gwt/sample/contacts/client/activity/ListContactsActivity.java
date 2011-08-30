@@ -4,7 +4,7 @@ import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.event.AddContactEvent;
-import com.google.gwt.sample.contacts.client.event.EditContactEvent;
+import com.google.gwt.sample.contacts.client.event.ShowContactEvent;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
 import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
@@ -57,7 +57,7 @@ public class ListContactsActivity
 
   public void onItemClicked( final ContactDetailsVO contactDetails )
   {
-    _eventBus.fireEvent( new EditContactEvent( contactDetails.getId() ) );
+    _eventBus.fireEvent( new ShowContactEvent( contactDetails.getId() ) );
   }
 
   public void onItemSelected( final ContactDetailsVO contactDetails )

@@ -9,7 +9,7 @@ import com.google.gwt.place.shared.WithTokenizers;
  * annotation or by extending PlaceHistoryMapperWithFactory and creating a
  * separate TokenizerFactory.
  */
-@WithTokenizers( { ListContactsPlace.Tokenizer.class, EditContactPlace.Tokenizer.class, AddContactPlace.Tokenizer.class } )
+@WithTokenizers( { ListContactsPlace.Tokenizer.class, EditContactPlace.Tokenizer.class, ShowContactPlace.Tokenizer.class, AddContactPlace.Tokenizer.class } )
 public interface ApplicationPlaceHistoryMapper
   extends PlaceHistoryMapper
 {

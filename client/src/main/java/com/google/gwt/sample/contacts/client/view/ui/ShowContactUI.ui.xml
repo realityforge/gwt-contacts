@@ -1,0 +1,23 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder
+  xmlns:ui="urn:ui:com.google.gwt.uibinder"
+  xmlns:g="urn:import:com.google.gwt.user.client.ui">
+
+  <ui:style>
+    .contactsViewButtonHPanel {
+      margin: 5px 0 0 5px;
+    }
+  </ui:style>
+
+  <g:DecoratorPanel width="18em">
+    <g:VerticalPanel width="100%">
+      <g:Label>Firstname</g:Label><g:TextBox ui:field="_firstName" readOnly="true"/>
+      <g:Label>Lastname</g:Label><g:TextBox ui:field="_lastName" enabled="false"/>
+      <g:Label>Email Address</g:Label><g:TextBox ui:field="_emailAddress" enabled="false"/>
+      <g:HorizontalPanel addStyleNames="{style.contactsViewButtonHPanel}">
+        <g:Button ui:field="_editButton" focus="true">Edit</g:Button>
+        <g:Button ui:field="_closeButton">Close</g:Button>
+      </g:HorizontalPanel>
+    </g:VerticalPanel>
+  </g:DecoratorPanel>
+</ui:UiBinder>

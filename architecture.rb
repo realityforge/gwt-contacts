@@ -39,9 +39,18 @@ Domgen.define_repository(:Contacts) do |repository|
     data_module.define_message(:AddContact)
     data_module.define_message(:ContactDeleted)
     data_module.define_message(:ContactUpdated) do |m|
-      m.parameter(:Contact, "com.google.gwt.sample.contacts.shared.ContactVO")
+      m.string(:ID, 50)
     end
-    data_module.define_message(:EditContactCancelled)
+    data_module.define_message(:AddContactCancelled)
+    data_module.define_message(:EditContactCancelled) do |m|
+      m.string(:ID, 50)
+    end
+    data_module.define_message(:ShowContact) do |m|
+      m.string(:ID, 50)
+    end
+    data_module.define_message(:ContactClosed) do |m|
+      m.string(:ID, 50)
+    end
     data_module.define_message(:EditContact) do |m|
       m.string(:ID, 50)
     end

@@ -12,8 +12,10 @@ import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
 import com.google.gwt.sample.contacts.client.shell.ApplicationActivityMapper;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
+import com.google.gwt.sample.contacts.client.view.ShowContactView;
 import com.google.gwt.sample.contacts.client.view.ui.EditContactUI;
 import com.google.gwt.sample.contacts.client.view.ui.ListContactsUI;
+import com.google.gwt.sample.contacts.client.view.ui.ShowContactUI;
 import com.google.inject.Provides;
 import javax.inject.Singleton;
 
@@ -28,6 +30,7 @@ public class ContactClientModule
 
     bind( ListContactsView.class ).to( ListContactsUI.class ).in( Singleton.class );
     bind( EditContactView.class ).to( EditContactUI.class ).in( Singleton.class );
+    bind( ShowContactView.class ).to( ShowContactUI.class ).in( Singleton.class );
   }
 
   // None of the components below are Gin enabled so lets create factory methods for them

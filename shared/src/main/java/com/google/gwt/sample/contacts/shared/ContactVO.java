@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 @SuppressWarnings( "serial" )
 public class ContactVO
-  implements Serializable
+    implements Serializable
 {
   private String _id;
   private String _firstName;
@@ -56,5 +56,10 @@ public class ContactVO
   public void setEmailAddress( final String emailAddress )
   {
     _emailAddress = emailAddress;
+  }
+
+  public String toString()
+  {
+    return "Contact[" + getId() + ", FirstName=" + getFirstName() + ", LastName=" + getLastName() + ", Email=" + getEmailAddress() + "]";
   }
 }
