@@ -1,6 +1,6 @@
 package com.google.gwt.sample.contacts.client.gin;
 
-import com.google.gwt.sample.contacts.client.view.ApplicationShell;
+import com.google.gwt.sample.contacts.client.shell.ApplicationShell;
 
 public interface ApplicationInjector
 {

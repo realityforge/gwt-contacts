@@ -1,4 +1,4 @@
-package com.google.gwt.sample.contacts.client.gin;
+package com.google.gwt.sample.contacts.client.shell;
 
 import com.google.gwt.activity.shared.Activity;
 import com.google.gwt.activity.shared.ActivityMapper;

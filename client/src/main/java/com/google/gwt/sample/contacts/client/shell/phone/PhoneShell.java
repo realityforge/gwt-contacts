@@ -1,29 +1,29 @@
-package com.google.gwt.sample.contacts.client.view.ui;
+package com.google.gwt.sample.contacts.client.shell.phone;
 
 import com.google.gwt.activity.shared.ActivityManager;
 import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
-import com.google.gwt.sample.contacts.client.view.ApplicationShell;
+import com.google.gwt.sample.contacts.client.shell.ApplicationShell;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import javax.inject.Inject;
 
 @SuppressWarnings( { "UnusedDeclaration" } )
-public class DesktopShell
+public class PhoneShell
     implements ApplicationShell
 {
-  @Inject private PlaceHistoryHandler _placeHistoryHandler;
-  @Inject private ActivityMapper _mapper;
-  @Inject private EventBus _eventBus;
+  private PlaceHistoryHandler _placeHistoryHandler;
+  private ActivityMapper _mapper;
+  private EventBus _eventBus;
 
-  /*@Inject
-  public DesktopShell( final PlaceHistoryHandler placeHistoryHandler, final ActivityMapper mapper, final EventBus eventBus )
+  @Inject
+  public PhoneShell( final PlaceHistoryHandler placeHistoryHandler, final ActivityMapper mapper, final EventBus eventBus )
   {
     _placeHistoryHandler = placeHistoryHandler;
     _mapper = mapper;
     _eventBus = eventBus;
-  }*/
+  }
 
   public void activate()
   {
