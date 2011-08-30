@@ -7,6 +7,22 @@
   <inherits name="com.google.gwt.inject.Inject"/>
   <inherits name="com.google.gwt.logging.Logging"/>
 
+  <define-property name="ui.modality" values="phone, tablet, desktop"/>
+  <property-provider name="ui.modality"><![CDATA[
+  {
+    var ua = window.navigator.userAgent.toLowerCase();
+    if ( ua.indexOf('android') != -1 ) { return 'phone'; }
+    if ( ua.indexOf('iphone') != -1 ) { return 'phone'; }
+    if ( ua.indexOf('iPad') != -1 ) { return 'tablet'; }
+    return 'desktop';
+  }
+]]></property-provider>
+
+  <replace-with class="com.google.gwt.sample.contacts.client.gin.DesktopInjectorWrapper">
+    <when-type-is class="com.google.gwt.sample.contacts.client.gin.InjectorWrapper"/>
+    <when-property-is name="ui.modality" value="desktop"/>
+  </replace-with>
+
   <entry-point class='com.google.gwt.sample.contacts.client.Contacts'/>
 
   <source path='client'/>
