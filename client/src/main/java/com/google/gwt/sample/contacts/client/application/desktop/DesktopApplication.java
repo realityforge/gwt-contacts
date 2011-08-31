@@ -1,10 +1,10 @@
 package com.google.gwt.sample.contacts.client.application.desktop;
 
 import com.google.gwt.activity.shared.ActivityManager;
-import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.sample.contacts.client.application.Application;
+import com.google.gwt.sample.contacts.client.application.ApplicationNavigator;
 import com.google.gwt.sample.contacts.client.view.DesktopShellView;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import javax.inject.Inject;
@@ -14,27 +14,34 @@ public class DesktopApplication
     implements Application
 {
   private final DesktopShellView _shell;
+  private final ApplicationNavigator _navigator;
   private final PlaceHistoryHandler _placeHistoryHandler;
-  private final ActivityMapper _mapper;
+  private final DetailRegionActivityMapper _detailRegionMapper;
+  private final MasterRegionActivityMapper _masterRegionMapper;
   private final EventBus _eventBus;
 
   @Inject
   public DesktopApplication( final DesktopShellView shell,
+                             final ApplicationNavigator navigator,
                              final PlaceHistoryHandler placeHistoryHandler,
-                             final ActivityMapper mapper,
+                             final DetailRegionActivityMapper detailRegionMapper,
+                             final MasterRegionActivityMapper masterRegionMapper,
                              final EventBus eventBus )
   {
     _shell = shell;
+    _navigator = navigator;
     _placeHistoryHandler = placeHistoryHandler;
-    _mapper = mapper;
+    _detailRegionMapper = detailRegionMapper;
+    _masterRegionMapper = masterRegionMapper;
     _eventBus = eventBus;
   }
 
   public void activate()
   {
-    // Force the creation of the ActivityManager
-    final ActivityManager activityManager = new ActivityManager( _mapper, _eventBus );
-    activityManager.setDisplay( _shell.getMasterRegion() );
+    _navigator.activate();
+
+    new ActivityManager( _masterRegionMapper, _eventBus ).setDisplay( _shell.getMasterRegion() );
+    new ActivityManager( _detailRegionMapper, _eventBus ).setDisplay( _shell.getDetailRegion() );
 
     RootLayoutPanel.get().add( _shell );
 

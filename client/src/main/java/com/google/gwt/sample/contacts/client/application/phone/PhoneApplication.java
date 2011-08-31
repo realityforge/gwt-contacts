@@ -1,7 +1,6 @@
 package com.google.gwt.sample.contacts.client.application.phone;
 
 import com.google.gwt.activity.shared.ActivityManager;
-import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.sample.contacts.client.application.Application;
@@ -15,13 +14,13 @@ public class PhoneApplication
 {
   private final PhoneShellView _shell;
   private final PlaceHistoryHandler _placeHistoryHandler;
-  private final ActivityMapper _mapper;
+  private final PhoneActivityMapper _mapper;
   private final EventBus _eventBus;
 
   @Inject
   public PhoneApplication( final PhoneShellView shell,
                            final PlaceHistoryHandler placeHistoryHandler,
-                           final ActivityMapper mapper,
+                           final PhoneActivityMapper mapper,
                            final EventBus eventBus )
   {
     _shell = shell;
