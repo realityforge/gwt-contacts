@@ -31,6 +31,11 @@ public class DesktopShellUI
     return _masterPanel;
   }
 
+  public AcceptsOneWidget getDetailRegion()
+  {
+    return _detailsPanel;
+  }
+
   public Widget asWidget()
   {
     return this;

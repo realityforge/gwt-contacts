@@ -16,14 +16,10 @@
       <g:Label>Top</g:Label>
     </g:north>
     <g:center>
-      <g:SimplePanel ui:field="_detailsPanel" addStyleNames="{style.DetailsPanel}">
-        <g:Label>Details</g:Label>
-      </g:SimplePanel>
+      <g:SimplePanel ui:field="_detailsPanel" addStyleNames="{style.DetailsPanel}"/>
     </g:center>
     <g:west size='20'>
-      <g:SimplePanel ui:field="_masterPanel" addStyleNames="{style.MasterPanel}">
-        <g:Label>Master</g:Label>
-      </g:SimplePanel>
+      <g:SimplePanel ui:field="_masterPanel" addStyleNames="{style.MasterPanel}"/>
     </g:west>
   </g:DockLayoutPanel>
 </ui:UiBinder>

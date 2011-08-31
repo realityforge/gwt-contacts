@@ -7,4 +7,6 @@ public interface DesktopShellView
     extends IsWidget
 {
   AcceptsOneWidget getMasterRegion();
+
+  AcceptsOneWidget getDetailRegion();
 }
