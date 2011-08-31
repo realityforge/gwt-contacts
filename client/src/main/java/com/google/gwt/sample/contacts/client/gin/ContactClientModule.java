@@ -1,6 +1,5 @@
 package com.google.gwt.sample.contacts.client.gin;
 
-import com.google.gwt.activity.shared.ActivityMapper;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.inject.client.AbstractGinModule;
@@ -9,16 +8,11 @@ import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
 import com.google.gwt.sample.contacts.client.place.ApplicationPlaceHistoryMapper;
 import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
-import com.google.gwt.sample.contacts.client.application.ApplicationActivityMapper;
-import com.google.gwt.sample.contacts.client.view.DesktopShellView;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.gwt.sample.contacts.client.view.PhoneShellView;
 import com.google.gwt.sample.contacts.client.view.ShowContactView;
-import com.google.gwt.sample.contacts.client.view.ui.DesktopShellUI;
 import com.google.gwt.sample.contacts.client.view.ui.EditContactUI;
 import com.google.gwt.sample.contacts.client.view.ui.ListContactsUI;
-import com.google.gwt.sample.contacts.client.view.ui.PhoneShellUI;
 import com.google.gwt.sample.contacts.client.view.ui.ShowContactUI;
 import com.google.inject.Provides;
 import javax.inject.Singleton;
@@ -30,16 +24,10 @@ public class ContactClientModule
   {
     bind( EventBus.class ).to( SimpleEventBus.class ).in( Singleton.class );
     bind( PlaceHistoryMapper.class ).to( ApplicationPlaceHistoryMapper.class ).in( Singleton.class );
-    bind( ActivityMapper.class ).to( ApplicationActivityMapper.class ).in( Singleton.class );
 
     bind( ListContactsView.class ).to( ListContactsUI.class ).in( Singleton.class );
     bind( EditContactView.class ).to( EditContactUI.class ).in( Singleton.class );
     bind( ShowContactView.class ).to( ShowContactUI.class ).in( Singleton.class );
-
-    //TODO WIll these be optimized out if unused?
-
-    bind( DesktopShellView.class ).to( DesktopShellUI.class ).in( Singleton.class );
-    bind( PhoneShellView.class ).to( PhoneShellUI.class ).in( Singleton.class );
   }
 
   // None of the components below are Gin enabled so lets create factory methods for them

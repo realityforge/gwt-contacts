@@ -18,17 +18,17 @@
   }
 ]]></property-provider>
 
-  <replace-with class="com.google.gwt.sample.contacts.client.gin.DesktopInjectorWrapper">
+  <replace-with class="com.google.gwt.sample.contacts.client.gin.desktop.DesktopInjectorWrapper">
     <when-type-is class="com.google.gwt.sample.contacts.client.gin.InjectorWrapper"/>
     <when-property-is name="ui.modality" value="desktop"/>
   </replace-with>
 
-  <replace-with class="com.google.gwt.sample.contacts.client.gin.DesktopInjectorWrapper">
+  <replace-with class="com.google.gwt.sample.contacts.client.gin.desktop.DesktopInjectorWrapper">
     <when-type-is class="com.google.gwt.sample.contacts.client.gin.InjectorWrapper"/>
     <when-property-is name="ui.modality" value="tablet"/>
   </replace-with>
 
-  <replace-with class="com.google.gwt.sample.contacts.client.gin.PhoneInjectorWrapper">
+  <replace-with class="com.google.gwt.sample.contacts.client.gin.phone.PhoneInjectorWrapper">
     <when-type-is class="com.google.gwt.sample.contacts.client.gin.InjectorWrapper"/>
     <when-property-is name="ui.modality" value="phone"/>
   </replace-with>
