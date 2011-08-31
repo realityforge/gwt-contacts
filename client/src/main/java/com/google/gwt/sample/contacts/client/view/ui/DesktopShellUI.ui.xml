@@ -12,9 +12,6 @@
   </ui:style>
 
   <g:DockLayoutPanel unit='EM'>
-    <g:north size='5'>
-      <g:Label>Top</g:Label>
-    </g:north>
     <g:center>
       <g:SimplePanel ui:field="_detailsPanel" addStyleNames="{style.DetailsPanel}"/>
     </g:center>
