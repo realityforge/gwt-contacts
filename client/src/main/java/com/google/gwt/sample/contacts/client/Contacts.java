@@ -1,7 +1,6 @@
 package com.google.gwt.sample.contacts.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.sample.contacts.client.gin.ApplicationInjector;
 import com.google.gwt.sample.contacts.client.gin.ContactsServicesGinModule;
 import com.google.gwt.sample.contacts.client.gin.InjectorWrapper;
 import com.google.gwt.user.client.Window;
