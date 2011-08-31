@@ -29,6 +29,7 @@
     <allow class="javax.inject.Provider"/>
 
     <allow class="com.google.gwt.core.client.EntryPoint" local-only="true"/>
+    <allow class="com.google.gwt.sample.contacts.client.gin.ApplicationInjector" local-only="true"/>
     <allow class="com.google.gwt.core.client.RunAsyncCallback" local-only="true"/>
 
     <allow class="com.google.gwt.core.client.GWT"/>
@@ -50,6 +51,17 @@
       <allow class="com.google.gwt.place.shared.Place"/>
       <allow class="com.google.gwt.place.shared.PlaceTokenizer"/>
       <allow class="com.google.gwt.place.shared.Prefix"/>
+      <allow class="com.google.gwt.place.shared.WithTokenizers"/>
+      <allow class="com.google.gwt.place.shared.PlaceHistoryMapper"/>
+    </subpackage>
+
+    <subpackage name="application">
+      <allow class="com.google.gwt.activity.shared.Activity"/>
+      <allow class="com.google.gwt.activity.shared.ActivityMapper"/>
+      <allow class="com.google.gwt.activity.shared.ActivityManager"/>
+      <allow class="com.google.gwt.place.shared.Place"/>
+      <allow class="com.google.gwt.place.shared.PlaceHistoryHandler"/>
+      <allow class="com.google.gwt.place.shared.PlaceController"/>
     </subpackage>
 
     <subpackage name="gin">
