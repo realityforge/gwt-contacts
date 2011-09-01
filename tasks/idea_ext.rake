@@ -106,16 +106,15 @@ module Buildr::IntellijIdea
     end
 
     def add_gwt_configuration(launch_page, project, options = {})
-
       name = options[:name] || "Run #{launch_page}"
-      compile_parameters = options[:compile_parameters] || "-draftCompile -localWorkers 2"
-      compile_max_heap_size = options[:compile_max_heap_size] || "512"
+      shell_parameters = options[:shell_parameters] || ""
+      vm_parameters = options[:vm_parameters] || "-Xmx512m"
 
       add_configuration(name, "GWT.ConfigurationType", "GWT Configuration") do |xml|
         xml.module(:name => project.iml.id)
         xml.option(:name => "RUN_PAGE", :value => launch_page)
-        xml.option(:name => "compilerParameters", :value => compile_parameters)
-        xml.option(:name => "compilerMaxHeapSize", :value => compile_max_heap_size)
+        xml.option(:name => "SHELL_PARAMETERS", :value => shell_parameters)
+        xml.option(:name => "VM_PARAMETERS", :value => vm_parameters)
 
         xml.RunnerSettings(:RunnerId => "Run")
         xml.ConfigurationWrapper(:RunnerId => "Run")
