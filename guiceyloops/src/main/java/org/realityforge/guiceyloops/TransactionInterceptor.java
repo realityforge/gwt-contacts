@@ -11,7 +11,6 @@ public class TransactionInterceptor
   @PersistenceContext
   private EntityManager _em;
 
-  @PersistenceContext
   private int _depth;
 
   @Override
