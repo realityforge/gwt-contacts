@@ -23,7 +23,7 @@ public abstract class FieldBasedInjector<T> implements MembersInjector<T>
   {
     try
     {
-      _field.set( t, getValue() );
+      getField().set( t, getValue() );
     }
     catch( IllegalAccessException e )
     {
