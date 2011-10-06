@@ -5,6 +5,7 @@ import com.google.gwt.sample.contacts.server.entity.dao.ContactDAO;
 import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
 import com.google.gwt.sample.contacts.shared.ContactVO;
 import java.util.ArrayList;
+import javax.annotation.Nonnull;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -37,7 +38,8 @@ public class ContactsEJB
   @EJB
   private ContactDAO _repository;
 
-  public ContactVO createOrUpdateContact( final ContactVO dto )
+  @Nonnull
+  public ContactVO createOrUpdateContact( @Nonnull final ContactVO dto )
   {
     if ( null == dto.getId() )
     {
@@ -54,7 +56,7 @@ public class ContactsEJB
     }
   }
 
-  public void deleteContacts( final ArrayList<String> ids )
+  public void deleteContacts( @Nonnull java.util.ArrayList<java.lang.String> ids )
   {
     for ( final String id : ids )
     {
@@ -62,6 +64,7 @@ public class ContactsEJB
     }
   }
 
+  @Nonnull
   public ArrayList<ContactDetailsVO> getContactDetails()
   {
     initContactsIfRequired();
@@ -74,7 +77,8 @@ public class ContactsEJB
     return contactDetails;
   }
 
-  public ContactVO getContact( final String id )
+  @Nonnull
+  public ContactVO getContact( @Nonnull final String id )
   {
     return toContactDTO( findByID( id ) );
   }

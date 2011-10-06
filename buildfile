@@ -44,7 +44,7 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Shared component"
   define_with_central_layout('shared') do
-    compile.with :gwt_user
+    compile.with :javax_annotation, :gwt_user
     iml.add_gwt_facet
 
     package(:jar)
@@ -57,7 +57,7 @@ define 'gwt-contacts' do
   define_with_central_layout('client') do
     iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.ContactsDev")
 
-    compile.with :gwt_user, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_inject, :gwt_gin, project('shared').package(:jar)
+    compile.with :gwt_user, :javax_annotation, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_inject, :gwt_gin, project('shared').package(:jar)
 
     test.with :easymock
 
@@ -145,7 +145,7 @@ define 'gwt-contacts' do
                                 :war_module_names => [project('web').iml.id],
                                 :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
                                 :dependencies => [:gwt_user, :gwt_dev, projects('client', 'shared', 'server')])
-  ipr.add_gwt_configuration("#{project.name}/Contacts.html", project)
+  ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => "-noserver -port 8080")
   ipr.extra_modules << "../domgen/domgen.iml"
 
   iml.add_jruby_facet
