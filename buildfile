@@ -44,7 +44,7 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Shared component"
   define_with_central_layout('shared') do
-    compile.with :gwt_user
+    compile.with :javax_annotation, :gwt_user
     iml.add_gwt_facet
 
     package(:jar)
@@ -57,7 +57,7 @@ define 'gwt-contacts' do
   define_with_central_layout('client') do
     iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.Contacts")
 
-    compile.with :gwt_user, :smartgwt, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_inject, :gwt_gin, project('shared').package(:jar)
+    compile.with :gwt_user, :smartgwt, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_annotation, :javax_inject, :gwt_gin, project('shared').package(:jar)
 
     test.with :easymock
 

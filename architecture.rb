@@ -1,16 +1,16 @@
-Domgen.define_repository(:Contacts) do |repository|
+Domgen.repository(:Contacts) do |repository|
   repository.enable_facet(:sql)
   repository.enable_facet(:jpa)
   repository.enable_facet(:ejb)
   repository.enable_facet(:gwt)
 
-  repository.define_data_module(:Contacts) do |data_module|
+  repository.data_module(:Contacts) do |data_module|
     data_module.gwt.module_name = "contacts"
     data_module.gwt.package = 'com.google.gwt.sample.contacts'
     data_module.jpa.entity_package = 'com.google.gwt.sample.contacts.server.entity'
     data_module.ejb.service_package = 'com.google.gwt.sample.contacts.server.service'
 
-    data_module.define_service(:ContactsService) do |s|
+    data_module.service(:ContactsService) do |s|
       s.description("Contacts Service definition")
 
       s.method(:DeleteContacts) do |m|
@@ -29,20 +29,20 @@ Domgen.define_repository(:Contacts) do |repository|
       end
     end
 
-    data_module.define_object_type(:Contact) do |t|
+    data_module.entity(:Contact) do |t|
       t.integer(:ID, :primary_key => true)
       t.string(:FirstName, 500, :nullable => true)
       t.string(:LastName, 500, :nullable => true)
       t.string(:EmailAddress, 500, :nullable => true)
     end
 
-    data_module.define_message(:AddContact)
-    data_module.define_message(:ContactDeleted)
-    data_module.define_message(:ContactUpdated) do |m|
+    data_module.message(:AddContact)
+    data_module.message(:ContactDeleted)
+    data_module.message(:ContactUpdated) do |m|
       m.parameter(:Contact, "com.google.gwt.sample.contacts.shared.ContactVO")
     end
-    data_module.define_message(:EditContactCancelled)
-    data_module.define_message(:EditContact) do |m|
+    data_module.message(:EditContactCancelled)
+    data_module.message(:EditContact) do |m|
       m.string(:ID, 50)
     end
 
