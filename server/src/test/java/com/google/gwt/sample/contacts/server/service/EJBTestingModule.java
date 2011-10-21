@@ -10,9 +10,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import static com.google.inject.matcher.Matchers.annotatedWith;
+import static com.google.inject.matcher.Matchers.any;
 
 public class EJBTestingModule
   extends AbstractModule
@@ -34,6 +37,12 @@ public class EJBTestingModule
   protected void configure()
   {
     bind( EntityManager.class ).toInstance( createEntityManager() );
+        final TransactionInterceptor interceptor = new TransactionInterceptor();
+    requestInjection( interceptor );
+    bindInterceptor( annotatedWith( Stateless.class ),
+                     any(),
+                     interceptor );
+
   }
 
   private EntityManager createEntityManager()
