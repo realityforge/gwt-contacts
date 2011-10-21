@@ -24,7 +24,6 @@ public class ContactsEJBTest
     protected void configure()
     {
       bind( ContactsService.class ).to( ContactsEJB.class );
-      bind( ContactDAO.class );
     }
   }
 }
