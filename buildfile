@@ -151,6 +151,7 @@ define 'gwt-contacts' do
                                 :dependencies => [:gwt_user, :gwt_dev, projects('client', 'shared', 'server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => "-noserver -port 8080")
   ipr.extra_modules << "../domgen/domgen.iml"
+  ipr.extra_modules << "../replicant/replicant.iml"
 
   iml.add_jruby_facet
 
