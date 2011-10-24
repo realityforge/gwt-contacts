@@ -1,6 +1,6 @@
 package com.google.gwt.sample.contacts.client.gin;
 
-import com.google.web.bindery.event.shared.EventBus;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.place.shared.PlaceController;
