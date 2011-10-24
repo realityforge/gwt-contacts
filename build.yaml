@@ -54,3 +54,6 @@ artifacts:
   h2db: com.h2database:h2:jar:1.3.159
 
   guiceyloops: org.realityforge:guiceyloops:jar:0.2
+
+  replicant: org.realityforge:replicant:jar:0.2
+  replicant_sources: org.realityforge:replicant:jar:sources:0.2

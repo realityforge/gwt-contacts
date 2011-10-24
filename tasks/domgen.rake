@@ -14,7 +14,7 @@ end
 def define_persistence_unit(project, repository_key)
   base_generated_dir = project._(:target, :generated, "main/jpa")
 
-  task = Domgen::GenerateTask.new(repository_key, "jpa", [:jpa_model, :jpa_ejb], base_generated_dir) do |t|
+  task = Domgen::GenerateTask.new(repository_key, "jpa", [:jpa_model, :jpa_ejb, :imit_jpa], base_generated_dir) do |t|
     t.description = 'Generates the Java code for the persistent objects'
   end
 
@@ -53,7 +53,7 @@ end
 def define_gwt_client_services(project, repository_key)
   base_generated_dir = project._(:target, :generated, "main/gwt")
 
-  task = Domgen::GenerateTask.new(repository_key, "gwt", [:gwt_client_service], base_generated_dir) do |t|
+  task = Domgen::GenerateTask.new(repository_key, "gwt", [:gwt_client_service, :imit, :imit_json], base_generated_dir) do |t|
     t.description = 'Generates the Client GWT Service support'
   end
 

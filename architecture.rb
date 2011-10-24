@@ -3,11 +3,16 @@ Domgen.repository(:Contacts) do |repository|
   repository.enable_facet(:jpa)
   repository.enable_facet(:ejb)
   repository.enable_facet(:gwt)
+  repository.enable_facet(:imit)
+
+  repository.imit.imitation_package = 'com.google.gwt.sample.contacts.client.entity'
+  repository.imit.encoder_package = 'com.google.gwt.sample.contacts.server.entity'
 
   repository.data_module(:Contacts) do |data_module|
     data_module.gwt.module_name = "contacts"
     data_module.gwt.package = 'com.google.gwt.sample.contacts'
     data_module.jpa.entity_package = 'com.google.gwt.sample.contacts.server.entity'
+    data_module.imit.imitation_package = 'com.google.gwt.sample.contacts.client.entity'
     data_module.ejb.service_package = 'com.google.gwt.sample.contacts.server.service'
 
     data_module.service(:ContactsService) do |s|

@@ -44,7 +44,11 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Shared component"
   define_with_central_layout('shared') do
-    compile.with :javax_annotation, :gwt_user
+    compile.with :javax_annotation,
+                 :replicant,
+                 :replicant_sources,
+                 :javax_inject,
+                 :gwt_user
     iml.add_gwt_facet
 
     package(:jar)
@@ -57,7 +61,16 @@ define 'gwt-contacts' do
   define_with_central_layout('client') do
     iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.ContactsDev")
 
-    compile.with :gwt_user, :javax_annotation, :google_guice, :aopalliance, :google_guice_assistedinject, :javax_inject, :gwt_gin, project('shared').package(:jar)
+    compile.with :gwt_user,
+                 :javax_annotation,
+                 :google_guice,
+                 :aopalliance,
+                 :google_guice_assistedinject,
+                 :javax_inject,
+                 :replicant,
+                 :replicant_sources,
+                 :gwt_gin,
+                 project('shared').package(:jar)
 
     test.with :easymock
 
@@ -74,6 +87,7 @@ define 'gwt-contacts' do
                  :javax_inject,
                  :javax_servlet,
                  :javax_ejb,
+                 :replicant,
                  :javax_persistence,
                  project('shared').package(:jar),
                  :javax_annotation,
@@ -108,6 +122,8 @@ define 'gwt-contacts' do
                                            project('client'),
                                            project('shared'),
                                            # Validation needed to quieten warnings from gwt compiler
+                                           :replicant,
+                                           :replicant_sources,
                                            :javax_validation,
                                            :javax_validation_sources],
                          :java_args => ["-Xms512M", "-Xmx512M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
