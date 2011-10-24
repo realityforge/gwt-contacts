@@ -54,7 +54,8 @@ public class ListContactsUI
     {
       final ContactDetailsVO t = rowData.get( i );
       _contactsTable.setWidget( i, 0, new CheckBox() );
-      _contactsTable.setWidget( i, 1, new Label( t.getDisplayName() ) );
+      _contactsTable.setWidget( i, 1, new Label( t.getType() ) );
+      _contactsTable.setWidget( i, 2, new Label( t.getDisplayName() ) );
     }
   }
 
@@ -85,7 +86,7 @@ public class ListContactsUI
       if( null != cell )
       {
 
-        if( 1 == cell.getCellIndex() )
+        if( 2 == cell.getCellIndex() )
         {
           _presenter.onItemClicked( _rowData.get( cell.getRowIndex() ) );
         }

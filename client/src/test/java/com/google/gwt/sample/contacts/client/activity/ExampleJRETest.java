@@ -41,8 +41,8 @@ public class ExampleJRETest
   public void testDeleteButton()
   {
     _contactDetails = new ArrayList<ContactDetailsVO>();
-    _contactDetails.add( new ContactDetailsVO( "0", "1_contact" ) );
-    _contactDetails.add( new ContactDetailsVO( "1", "2_contact" ) );
+    _contactDetails.add( new ContactDetailsVO( "0", "type1", "1_contact" ) );
+    _contactDetails.add( new ContactDetailsVO( "1", "type2", "2_contact" ) );
     _listContactsActivity.setContactDetails( _contactDetails );
 
     _mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ) );
@@ -65,7 +65,7 @@ public class ExampleJRETest
         throws Throwable
       {
         final ArrayList<ContactDetailsVO> results = new ArrayList<ContactDetailsVO>();
-        results.add( new ContactDetailsVO( "0", "1_contact" ) );
+        results.add( new ContactDetailsVO( "0", "type1", "1_contact" ) );
         getCallback().onSuccess( results );
         return null;
       }

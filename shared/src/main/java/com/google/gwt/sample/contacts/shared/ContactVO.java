@@ -7,6 +7,7 @@ public class ContactVO
     implements Serializable
 {
   private String _id;
+  private String _type;
   private String _firstName;
   private String _lastName;
   private String _emailAddress;
@@ -15,8 +16,13 @@ public class ContactVO
   {
   }
 
-  public ContactVO( final String id, final String firstName, final String lastName, final String emailAddress )
+  public ContactVO( final String id,
+                    final String type,
+                    final String firstName,
+                    final String lastName,
+                    final String emailAddress )
   {
+    _type = type;
     _id = id;
     _firstName = firstName;
     _lastName = lastName;
@@ -26,6 +32,11 @@ public class ContactVO
   public String getId()
   {
     return _id;
+  }
+
+  public String getType()
+  {
+    return _type;
   }
 
   public String getFirstName()
@@ -60,6 +71,10 @@ public class ContactVO
 
   public String toString()
   {
-    return "Contact[" + getId() + ", FirstName=" + getFirstName() + ", LastName=" + getLastName() + ", Email=" + getEmailAddress() + "]";
+    return "Contact[" + getId() +
+           ", Type=" + getType() +
+           ", FirstName=" + getFirstName() +
+           ", LastName=" + getLastName() +
+           ", Email=" + getEmailAddress() + "]";
   }
 }

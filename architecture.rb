@@ -34,8 +34,17 @@ Domgen.repository(:Contacts) do |repository|
       end
     end
 
+    data_module.entity(:ContactType) do |t|
+      t.integer(:ID, :primary_key => true)
+      t.string(:Name, 50)
+      t.string(:RenderCode, 50)
+
+      t.jpa.query("Name", "O.Name = :Name", :multiplicity => :zero_or_one)
+    end
+
     data_module.entity(:Contact) do |t|
       t.integer(:ID, :primary_key => true)
+      t.reference(:ContactType)
       t.string(:FirstName, 500, :nullable => true)
       t.string(:LastName, 500, :nullable => true)
       t.string(:EmailAddress, 500, :nullable => true)
