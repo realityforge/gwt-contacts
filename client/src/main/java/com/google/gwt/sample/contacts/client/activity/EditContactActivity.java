@@ -2,14 +2,14 @@ package com.google.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.sample.contacts.client.event.AddContactCancelledEvent;
-import com.google.gwt.sample.contacts.client.event.ContactUpdatedEvent;
-import com.google.gwt.sample.contacts.client.event.EditContactCancelledEvent;
+import com.google.gwt.sample.contacts.client.event.contacts.AddContactCancelledEvent;
+import com.google.gwt.sample.contacts.client.event.contacts.ContactUpdatedEvent;
+import com.google.gwt.sample.contacts.client.event.contacts.EditContactCancelledEvent;
 import com.google.gwt.sample.contacts.client.place.AddContactPlace;
 import com.google.gwt.sample.contacts.client.place.EditContactPlace;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.sample.contacts.shared.ContactVO;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.contacts.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;

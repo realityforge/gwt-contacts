@@ -2,12 +2,12 @@ package com.google.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.sample.contacts.client.event.ContactClosedEvent;
-import com.google.gwt.sample.contacts.client.event.EditContactEvent;
+import com.google.gwt.sample.contacts.client.event.contacts.ContactClosedEvent;
+import com.google.gwt.sample.contacts.client.event.contacts.EditContactEvent;
 import com.google.gwt.sample.contacts.client.place.ShowContactPlace;
 import com.google.gwt.sample.contacts.client.view.ShowContactView;
 import com.google.gwt.sample.contacts.shared.ContactVO;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.contacts.ContactsServiceAsync;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;

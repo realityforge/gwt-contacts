@@ -4,7 +4,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
-import com.google.gwt.sample.contacts.shared.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.contacts.ContactsServiceAsync;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.List;
