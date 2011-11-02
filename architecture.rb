@@ -16,25 +16,6 @@ Domgen.repository(:Contacts) do |repository|
     data_module.imit.imitation_package = 'com.google.gwt.sample.contacts.client.entity'
     data_module.ejb.service_package = 'com.google.gwt.sample.contacts.server.service'
 
-    data_module.service(:ContactsService) do |s|
-      s.description("Contacts Service definition")
-
-      s.method(:DeleteContacts) do |m|
-        m.parameter(:IDS, "java.util.ArrayList<java.lang.String>")
-      end
-      s.method(:GetContactDetails) do |m|
-        m.returns("java.util.ArrayList<com.google.gwt.sample.contacts.shared.ContactDetailsVO>")
-      end
-      s.method(:GetContact) do |m|
-        m.string(:ID, 50)
-        m.returns("com.google.gwt.sample.contacts.shared.ContactVO")
-      end
-      s.method(:CreateOrUpdateContact) do |m|
-        m.parameter(:Contact, "com.google.gwt.sample.contacts.shared.ContactVO")
-        m.returns("com.google.gwt.sample.contacts.shared.ContactVO")
-      end
-    end
-
     data_module.entity(:ContactType) do |t|
       t.integer(:ID, :primary_key => true)
       t.string(:Name, 50)
@@ -70,5 +51,23 @@ Domgen.repository(:Contacts) do |repository|
       m.string(:ID, 50)
     end
 
+    data_module.service(:ContactsService) do |s|
+      s.description("Contacts Service definition")
+
+      s.method(:DeleteContacts) do |m|
+        m.parameter(:IDS, "java.util.ArrayList<java.lang.String>")
+      end
+      s.method(:GetContactDetails) do |m|
+        m.returns("java.util.ArrayList<com.google.gwt.sample.contacts.shared.ContactDetailsVO>")
+      end
+      s.method(:GetContact) do |m|
+        m.string(:ID, 50)
+        m.returns("com.google.gwt.sample.contacts.shared.ContactVO")
+      end
+      s.method(:CreateOrUpdateContact) do |m|
+        m.parameter(:Contact, "com.google.gwt.sample.contacts.shared.ContactVO")
+        m.returns("com.google.gwt.sample.contacts.shared.ContactVO")
+      end
+    end
   end
 end
