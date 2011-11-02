@@ -72,7 +72,7 @@ define 'gwt-contacts' do
                  :gwt_gin,
                  project('shared').package(:jar)
 
-    test.with :easymock
+    test.with :easymock, :mockito
 
     package(:jar)
     package(:sources)
