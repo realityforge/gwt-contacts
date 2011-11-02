@@ -53,13 +53,17 @@ end
 def define_gwt_client_services(project, repository_key)
   base_generated_dir = project._(:target, :generated, "main/gwt")
 
-  task = Domgen::GenerateTask.new(repository_key, "gwt", [:gwt_client_service, :imit, :imit_json], base_generated_dir) do |t|
+  task = Domgen::GenerateTask.new(repository_key, "gwt", [:gwt_client_service_test, :gwt_client_service, :imit, :imit_json], base_generated_dir) do |t|
     t.description = 'Generates the Client GWT Service support'
   end
 
   java_dir = "#{base_generated_dir}/java"
   file(java_dir => [task.task_name])
   project.compile.from java_dir
+
+  test_java_dir = "#{base_generated_dir}/test"
+  file(test_java_dir => [task.task_name])
+  project.test.compile.from test_java_dir
 
   package(:sources).enhance [file(java_dir)]
   package(:sources).include "#{java_dir}/com"
