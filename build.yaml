@@ -55,8 +55,8 @@ artifacts:
 
   guiceyloops: org.realityforge:guiceyloops:jar:0.2
 
-  replicant: org.realityforge:replicant:jar:0.2.2
-  replicant_sources: org.realityforge:replicant:jar:sources:0.2.2
+  replicant: org.realityforge:replicant:jar:0.2.4
+  replicant_sources: org.realityforge:replicant:jar:sources:0.2.4
 
   # Mocking library used
   mockito: org.mockito:mockito-all:jar:1.8.5
