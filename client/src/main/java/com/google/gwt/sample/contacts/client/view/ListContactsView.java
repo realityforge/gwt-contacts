@@ -1,6 +1,6 @@
 package com.google.gwt.sample.contacts.client.view;
 
-import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDetailsDTO;
 import com.google.gwt.user.client.ui.IsWidget;
 import java.util.List;
 
@@ -13,12 +13,12 @@ public interface ListContactsView
 
     void onDeleteButtonClicked();
 
-    void onItemClicked( ContactDetailsVO clickedItem );
+    void onItemClicked( ContactDetailsDTO clickedItem );
 
-    void onItemSelected( ContactDetailsVO selectedItem );
+    void onItemSelected( ContactDetailsDTO selectedItem );
   }
 
   void setPresenter( Presenter presenter );
 
-  void setRowData( List<ContactDetailsVO> rowData );
+  void setRowData( List<ContactDetailsDTO> rowData );
 }

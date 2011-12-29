@@ -3,7 +3,7 @@ package com.google.gwt.sample.contacts.client.view.ui;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDetailsDTO;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -32,7 +32,7 @@ public class ListContactsUI
   Button _deleteButton;
 
   private Presenter _presenter;
-  private List<ContactDetailsVO> _rowData;
+  private List<ContactDetailsDTO> _rowData;
 
   public ListContactsUI()
   {
@@ -44,7 +44,7 @@ public class ListContactsUI
     _presenter = presenter;
   }
 
-  public void setRowData( final List<ContactDetailsVO> rowData )
+  public void setRowData( final List<ContactDetailsDTO> rowData )
   {
     _contactsTable.removeAllRows();
     _rowData = rowData;
@@ -52,7 +52,7 @@ public class ListContactsUI
     final int size = rowData.size();
     for( int i = 0; i < size; ++i )
     {
-      final ContactDetailsVO t = rowData.get( i );
+      final ContactDetailsDTO t = rowData.get( i );
       _contactsTable.setWidget( i, 0, new CheckBox() );
       _contactsTable.setWidget( i, 1, new Label( t.getType() ) );
       _contactsTable.setWidget( i, 2, new Label( t.getDisplayName() ) );

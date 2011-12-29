@@ -6,8 +6,8 @@ import com.google.gwt.sample.contacts.client.event.contacts.ContactClosedEvent;
 import com.google.gwt.sample.contacts.client.event.contacts.EditContactEvent;
 import com.google.gwt.sample.contacts.client.place.ShowContactPlace;
 import com.google.gwt.sample.contacts.client.view.ShowContactView;
-import com.google.gwt.sample.contacts.shared.ContactVO;
-import com.google.gwt.sample.contacts.shared.contacts.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.contacts.GwtContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDTO;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -21,14 +21,14 @@ public class ShowContactActivity
 {
   private static final Logger LOG = Logger.getLogger( "ShowContact" );
 
-  private final ContactsServiceAsync _rpcService;
+  private final GwtContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
   private final ShowContactView _view;
 
   private String _contactID;
 
   @Inject
-  public ShowContactActivity( final ContactsServiceAsync rpcService,
+  public ShowContactActivity( final GwtContactsServiceAsync rpcService,
                               final EventBus eventBus,
                               final ShowContactView view )
   {
@@ -41,9 +41,9 @@ public class ShowContactActivity
   {
     _contactID = place.getId();
     LOG.log( Level.INFO, "Showing contact: " + _contactID );
-    _rpcService.getContact( _contactID, new AsyncCallback<ContactVO>()
+    _rpcService.getContact( _contactID, new AsyncCallback<ContactDTO>()
     {
-      public void onSuccess( final ContactVO contact )
+      public void onSuccess( final ContactDTO contact )
       {
         _view.setContact( contact );
       }
@@ -64,9 +64,9 @@ public class ShowContactActivity
     panel.setWidget( _view.asWidget() );
   }
 
-  public void onEditButtonClicked( final ContactVO contact )
+  public void onEditButtonClicked( final ContactDTO contact )
   {
-    _eventBus.fireEvent( new EditContactEvent( contact.getId() ) );
+    _eventBus.fireEvent( new EditContactEvent( contact.getID() ) );
   }
 
   public void onCancelButtonClicked()

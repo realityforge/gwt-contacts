@@ -51,10 +51,10 @@ define 'gwt-contacts' do
                  :gwt_user
     iml.add_gwt_facet
 
+    define_gwt_services_unit(project, :Contacts)
+
     package(:jar)
     package(:sources)
-
-    define_gwt_services_unit(project, :Contacts)
   end
 
   desc "GWT Contacts: Client-side component"

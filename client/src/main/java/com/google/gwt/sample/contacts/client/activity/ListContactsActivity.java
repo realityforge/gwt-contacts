@@ -6,8 +6,8 @@ import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.event.contacts.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.contacts.ShowContactEvent;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
-import com.google.gwt.sample.contacts.shared.contacts.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.contacts.GwtContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDetailsDTO;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -19,22 +19,22 @@ public class ListContactsActivity
   extends AbstractActivity
   implements ListContactsView.Presenter
 {
-  private final ContactsServiceAsync _rpcService;
+  private final GwtContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
   private final ListContactsView _view;
-  private final SelectionModel<ContactDetailsVO> _selectionModel;
+  private final SelectionModel<ContactDetailsDTO> _selectionModel;
 
-  private List<ContactDetailsVO> _contactDetails;
+  private List<ContactDetailsDTO> _contactDetails;
 
   @Inject
-  public ListContactsActivity( final ContactsServiceAsync rpcService,
+  public ListContactsActivity( final GwtContactsServiceAsync rpcService,
                                final EventBus eventBus,
                                final ListContactsView view )
   {
     _rpcService = rpcService;
     _eventBus = eventBus;
     _view = view;
-    _selectionModel = new SelectionModel<ContactDetailsVO>();
+    _selectionModel = new SelectionModel<ContactDetailsDTO>();
   }
 
   @Override
@@ -55,12 +55,12 @@ public class ListContactsActivity
     deleteSelectedContacts();
   }
 
-  public void onItemClicked( final ContactDetailsVO contactDetails )
+  public void onItemClicked( final ContactDetailsDTO contactDetails )
   {
-    _eventBus.fireEvent( new ShowContactEvent( contactDetails.getId() ) );
+    _eventBus.fireEvent( new ShowContactEvent( contactDetails.getID() ) );
   }
 
-  public void onItemSelected( final ContactDetailsVO contactDetails )
+  public void onItemSelected( final ContactDetailsDTO contactDetails )
   {
     if ( _selectionModel.isSelected( contactDetails ) )
     {
@@ -83,34 +83,33 @@ public class ListContactsActivity
     {
       for ( int j = 0; j < size - 1; ++j )
       {
-        if ( _contactDetails.get( j )
-               .getDisplayName()
-               .compareToIgnoreCase( _contactDetails.get( j + 1 ).getDisplayName() ) >= 0 )
+          final ContactDetailsDTO current = _contactDetails.get(j);
+          final ContactDetailsDTO last = _contactDetails.get(j + 1);
+          if ( current.getDisplayName().compareToIgnoreCase(last.getDisplayName()) >= 0 )
         {
-          final ContactDetailsVO tmp = _contactDetails.get( j );
-          _contactDetails.set( j, _contactDetails.get( j + 1 ) );
-          _contactDetails.set( j + 1, tmp );
+            _contactDetails.set( j, last);
+          _contactDetails.set( j + 1, current);
         }
       }
     }
   }
 
-  public void setContactDetails( final List<ContactDetailsVO> contactDetails )
+  public void setContactDetails( final List<ContactDetailsDTO> contactDetails )
   {
     this._contactDetails = contactDetails;
     sortContactDetails();
   }
 
-  public List<ContactDetailsVO> getContactDetails()
+  public List<ContactDetailsDTO> getContactDetails()
   {
     return _contactDetails;
   }
 
   private void fetchContactDetails()
   {
-    _rpcService.getContactDetails( new AsyncCallback<ArrayList<ContactDetailsVO>>()
+    _rpcService.getContactDetails( new AsyncCallback<List<ContactDetailsDTO>>()
     {
-      public void onSuccess( final ArrayList<ContactDetailsVO> result )
+      public void onSuccess( final List<ContactDetailsDTO> result )
       {
         setContactDetails( result );
         _view.setRowData( _contactDetails );
@@ -125,12 +124,12 @@ public class ListContactsActivity
 
   private void deleteSelectedContacts()
   {
-    final List<ContactDetailsVO> selectedContacts = _selectionModel.getSelectedItems();
+    final List<ContactDetailsDTO> selectedContacts = _selectionModel.getSelectedItems();
     final ArrayList<String> ids = new ArrayList<String>();
 
-    for ( final ContactDetailsVO selected : selectedContacts )
+    for ( final ContactDetailsDTO selected : selectedContacts )
     {
-      ids.add( selected.getId() );
+      ids.add( selected.getID() );
     }
 
     _rpcService.deleteContacts( ids, new AsyncCallback<Void>()

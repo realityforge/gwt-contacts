@@ -4,9 +4,10 @@ import com.google.gwt.sample.contacts.server.entity.Contact;
 import com.google.gwt.sample.contacts.server.entity.ContactType;
 import com.google.gwt.sample.contacts.server.entity.dao.ContactDAO;
 import com.google.gwt.sample.contacts.server.entity.dao.ContactTypeDAO;
-import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
-import com.google.gwt.sample.contacts.shared.ContactVO;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDTO;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDetailsDTO;
 import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -46,10 +47,11 @@ public class ContactsEJB
   @EJB
   private ContactTypeDAO _contactTypeDAO;
 
+  @Override
   @Nonnull
-  public ContactVO createOrUpdateContact( @Nonnull final ContactVO dto )
+  public ContactDTO createOrUpdateContact( @Nonnull final ContactDTO dto )
   {
-    if( null == dto.getId() )
+    if( null == dto.getID() )
     {
       final Contact contact = new Contact();
       updatePersistentFromDTO( dto, contact );
@@ -58,13 +60,14 @@ public class ContactsEJB
     }
     else
     {
-      final Contact contact = findByID( dto.getId() );
+      final Contact contact = findByID( dto.getID() );
       updatePersistentFromDTO( dto, contact );
       return toContactDTO( contact );
     }
   }
 
-  public void deleteContacts( @Nonnull java.util.ArrayList<java.lang.String> ids )
+  @Override
+  public void deleteContacts( @Nonnull java.util.List<java.lang.String> ids )
   {
     for( final String id : ids )
     {
@@ -72,11 +75,12 @@ public class ContactsEJB
     }
   }
 
+  @Override
   @Nonnull
-  public ArrayList<ContactDetailsVO> getContactDetails()
+  public List<ContactDetailsDTO> getContactDetails()
   {
     initContactsIfRequired();
-    final ArrayList<ContactDetailsVO> contactDetails = new ArrayList<ContactDetailsVO>();
+    final ArrayList<ContactDetailsDTO> contactDetails = new ArrayList<ContactDetailsDTO>();
     for( final Contact contact : _contactDAO.findAll() )
     {
       contactDetails.add( toLightWeightContactDTO( contact ) );
@@ -85,24 +89,25 @@ public class ContactsEJB
     return contactDetails;
   }
 
+  @Override
   @Nonnull
-  public ContactVO getContact( @Nonnull final String id )
+  public ContactDTO getContact( @Nonnull final String id )
   {
     return toContactDTO( findByID( id ) );
   }
 
-  private ContactVO toContactDTO( final Contact result )
+  private ContactDTO toContactDTO( final Contact result )
   {
-    return new ContactVO( String.valueOf( result.getID() ),
+    return new ContactDTO( String.valueOf( result.getID() ),
                           result.getContactType().getName(),
                           result.getFirstName(),
                           result.getLastName(),
                           result.getEmailAddress() );
   }
 
-  private ContactDetailsVO toLightWeightContactDTO( final Contact contact )
+  private ContactDetailsDTO toLightWeightContactDTO( final Contact contact )
   {
-    return new ContactDetailsVO( String.valueOf( contact.getID() ),
+    return new ContactDetailsDTO( String.valueOf( contact.getID() ),
                                  contact.getContactType().getName(),
                                  contact.getFirstName() + " " + contact.getLastName() );
   }
@@ -129,7 +134,7 @@ public class ContactsEJB
     }
   }
 
-  private void updatePersistentFromDTO( final ContactVO contact, final Contact persistent )
+  private void updatePersistentFromDTO( final ContactDTO contact, final Contact persistent )
   {
     String type = contact.getType();
     type = ( null == type || "".equals( type ) ) ? CONTACT_TYPES[ 0 ] : type;
@@ -145,7 +150,7 @@ public class ContactsEJB
     {
       for( int i = 0; i < FIRST_NAMES.length && i < LAST_NAMES.length && i < EMAILS.length; ++i )
       {
-        final ContactVO dto = new ContactVO( null,
+        final ContactDTO dto = new ContactDTO( null,
                                              CONTACT_TYPES[ i % CONTACT_TYPES.length ],
                                              FIRST_NAMES[ i ],
                                              LAST_NAMES[ i ],

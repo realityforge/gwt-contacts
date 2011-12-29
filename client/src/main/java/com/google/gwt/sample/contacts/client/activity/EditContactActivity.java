@@ -8,8 +8,8 @@ import com.google.gwt.sample.contacts.client.event.contacts.EditContactCancelled
 import com.google.gwt.sample.contacts.client.place.AddContactPlace;
 import com.google.gwt.sample.contacts.client.place.EditContactPlace;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
-import com.google.gwt.sample.contacts.shared.ContactVO;
-import com.google.gwt.sample.contacts.shared.contacts.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.contacts.GwtContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDTO;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -23,14 +23,14 @@ public class EditContactActivity
 {
   private static final Logger LOG = Logger.getLogger( "EditContact" );
 
-  private final ContactsServiceAsync _rpcService;
+  private final GwtContactsServiceAsync _rpcService;
   private final EventBus _eventBus;
   private final EditContactView _view;
 
   private String _contactID;
 
   @Inject
-  public EditContactActivity( final ContactsServiceAsync rpcService,
+  public EditContactActivity( final GwtContactsServiceAsync rpcService,
                               final EventBus eventBus,
                               final EditContactView view )
   {
@@ -43,9 +43,9 @@ public class EditContactActivity
   {
     _contactID = place.getId();
     LOG.log( Level.INFO, "Editing contact: " + _contactID );
-    _rpcService.getContact( _contactID, new AsyncCallback<ContactVO>()
+    _rpcService.getContact( _contactID, new AsyncCallback<ContactDTO>()
     {
-      public void onSuccess( final ContactVO contact )
+      public void onSuccess( final ContactDTO contact )
       {
         _view.setContact( contact );
       }
@@ -63,7 +63,7 @@ public class EditContactActivity
   {
     _contactID = null;
     LOG.log( Level.INFO, "Creating contact" );
-    _view.setContact( new ContactVO() );
+    _view.setContact( null );
     return this;
   }
 
@@ -74,14 +74,14 @@ public class EditContactActivity
     panel.setWidget( _view.asWidget() );
   }
 
-  public void onSaveButtonClicked( final ContactVO contact )
+  public void onSaveButtonClicked( final ContactDTO contact )
   {
     LOG.log( Level.INFO, "onSaveButtonClicked() = " + contact );
-    _rpcService.createOrUpdateContact( contact, new AsyncCallback<ContactVO>()
+    _rpcService.createOrUpdateContact( contact, new AsyncCallback<ContactDTO>()
     {
-      public void onSuccess( final ContactVO result )
+      public void onSuccess( final ContactDTO result )
       {
-        _eventBus.fireEvent( new ContactUpdatedEvent( result.getId() ) );
+        _eventBus.fireEvent( new ContactUpdatedEvent( result.getID() ) );
       }
 
       public void onFailure( final Throwable caught )

@@ -3,8 +3,8 @@ package com.google.gwt.sample.contacts.client.activity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.gwt.sample.contacts.shared.ContactDetailsVO;
-import com.google.gwt.sample.contacts.shared.contacts.ContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.contacts.GwtContactsServiceAsync;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDetailsDTO;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +23,15 @@ import static org.easymock.EasyMock.verify;
 public class ExampleJRETest
 {
   private ListContactsActivity _listContactsActivity;
-  private ContactsServiceAsync _mockRpcService;
+  private GwtContactsServiceAsync _mockRpcService;
   private EventBus _mockEventBus;
   private ListContactsView _mockViewList;
-  private List<ContactDetailsVO> _contactDetails;
+  private List<ContactDetailsDTO> _contactDetails;
 
   @Before
   public void setUp()
   {
-    _mockRpcService = createStrictMock( ContactsServiceAsync.class );
+    _mockRpcService = createStrictMock( GwtContactsServiceAsync.class );
     _mockEventBus = new SimpleEventBus();
     _mockViewList = createStrictMock( ListContactsView.class );
     _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
@@ -40,9 +40,9 @@ public class ExampleJRETest
   @Test
   public void testDeleteButton()
   {
-    _contactDetails = new ArrayList<ContactDetailsVO>();
-    _contactDetails.add( new ContactDetailsVO( "0", "type1", "1_contact" ) );
-    _contactDetails.add( new ContactDetailsVO( "1", "type2", "2_contact" ) );
+    _contactDetails = new ArrayList<ContactDetailsDTO>();
+    _contactDetails.add( new ContactDetailsDTO( "0", "type1", "1_contact" ) );
+    _contactDetails.add( new ContactDetailsDTO( "1", "type2", "2_contact" ) );
     _listContactsActivity.setContactDetails( _contactDetails );
 
     _mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ) );
@@ -64,8 +64,8 @@ public class ExampleJRETest
       public Object answer()
         throws Throwable
       {
-        final ArrayList<ContactDetailsVO> results = new ArrayList<ContactDetailsVO>();
-        results.add( new ContactDetailsVO( "0", "type1", "1_contact" ) );
+        final ArrayList<ContactDetailsDTO> results = new ArrayList<ContactDetailsDTO>();
+        results.add( new ContactDetailsDTO( "0", "type1", "1_contact" ) );
         getCallback().onSuccess( results );
         return null;
       }

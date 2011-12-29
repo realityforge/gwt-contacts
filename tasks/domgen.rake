@@ -38,8 +38,9 @@ end
 def define_gwt_services_unit(project, repository_key)
   base_generated_dir = project._(:target, :generated, "main/gwt")
 
-  task = Domgen::GenerateTask.new(repository_key, "gwt", [:gwt_shared_service], base_generated_dir) do |t|
+  task = Domgen::GenerateTask.new(repository_key, "gwt", [:ee_data_types, :gwt_shared_service], base_generated_dir) do |t|
     t.description = 'Generates the Shared GWT Service interfaces'
+    #t.verbose = true
   end
 
   java_dir = "#{base_generated_dir}/java"

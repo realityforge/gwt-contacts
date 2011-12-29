@@ -4,34 +4,52 @@ Domgen.repository(:Contacts) do |repository|
   repository.enable_facet(:ejb)
   repository.enable_facet(:gwt)
   repository.enable_facet(:imit)
+  repository.enable_facet(:ee)
 
   repository.gwt.module_name = "contacts"
   repository.gwt.package = 'com.google.gwt.sample.contacts'
-  repository.imit.imitation_package = 'com.google.gwt.sample.contacts.client.entity'
+  repository.ee.package = 'com.google.gwt.sample.contacts.shared'
+  repository.imit.entity_package = 'com.google.gwt.sample.contacts.client.entity'
   repository.imit.encoder_package = 'com.google.gwt.sample.contacts.server.entity'
 
   repository.data_module(:Contacts) do |data_module|
-    data_module.gwt.enabled = true
+    data_module.ee.data_type_package = 'com.google.gwt.sample.contacts.shared.data_type'
     data_module.jpa.entity_package = 'com.google.gwt.sample.contacts.server.entity'
-    data_module.imit.imitation_package = 'com.google.gwt.sample.contacts.client.entity'
+    data_module.imit.entity_package = 'com.google.gwt.sample.contacts.client.entity'
     data_module.ejb.service_package = 'com.google.gwt.sample.contacts.server.service'
+
+    data_module.struct(:ContactDetailsDTO) do |ss|
+      ss.text(:ID)
+      ss.text(:Type)
+      ss.text(:DisplayName)
+    end
+
+    data_module.struct(:ContactDTO) do |ss|
+      ss.text(:ID, :nullable => true)
+      ss.text(:Type, :nullable => true)
+      ss.text(:FirstName)
+      ss.text(:LastName)
+      ss.text(:EmailAddress)
+    end
 
     data_module.service(:ContactsService) do |s|
       s.description("Contacts Service definition")
 
       s.method(:DeleteContacts) do |m|
-        m.parameter(:IDS, "java.util.ArrayList<java.lang.String>")
+        m.text(:ID, :collection_type => :sequence)
       end
       s.method(:GetContactDetails) do |m|
-        m.returns("java.util.ArrayList<com.google.gwt.sample.contacts.shared.ContactDetailsVO>")
+        m.returns(:struct,
+                  :struct => data_module.struct_by_name(:ContactDetailsDTO),
+                  :collection_type => :sequence)
       end
       s.method(:GetContact) do |m|
         m.string(:ID, 50)
-        m.returns("com.google.gwt.sample.contacts.shared.ContactVO")
+        m.returns(:struct, :struct => data_module.struct_by_name(:ContactDTO))
       end
       s.method(:CreateOrUpdateContact) do |m|
-        m.parameter(:Contact, "com.google.gwt.sample.contacts.shared.ContactVO")
-        m.returns("com.google.gwt.sample.contacts.shared.ContactVO")
+        m.struct(:Contact, :ContactDTO)
+        m.returns(:struct, :struct => data_module.struct_by_name(:ContactDTO))
       end
     end
 

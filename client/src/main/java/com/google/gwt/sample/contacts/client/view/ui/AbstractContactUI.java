@@ -1,13 +1,13 @@
 package com.google.gwt.sample.contacts.client.view.ui;
 
-import com.google.gwt.sample.contacts.shared.ContactVO;
+import com.google.gwt.sample.contacts.shared.data_type.ContactDTO;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Widget;
 
 public abstract class AbstractContactUI
-    extends Composite
+  extends Composite
 {
   @UiField
   HasText _firstName;
@@ -16,24 +16,35 @@ public abstract class AbstractContactUI
   @UiField
   HasText _emailAddress;
 
-  private ContactVO _contact;
+  private ContactDTO _contact;
 
-  public final void setContact( final ContactVO contact )
+  public final void setContact( final ContactDTO contact )
   {
-    _contact = contact;
-    _firstName.setText( _contact.getFirstName() );
-    _lastName.setText( _contact.getLastName() );
-    _emailAddress.setText( _contact.getEmailAddress() );
+    if( null != contact )
+    {
+      _contact = contact;
+      _firstName.setText( _contact.getFirstName() );
+      _lastName.setText( _contact.getLastName() );
+      _emailAddress.setText( _contact.getEmailAddress() );
+    }
+    else
+    {
+      _firstName.setText( "" );
+      _lastName.setText( "" );
+      _emailAddress.setText( "" );
+    }
   }
 
   protected final void copyBackContact()
   {
-    _contact.setFirstName( _firstName.getText()  );
-    _contact.setLastName( _lastName.getText() );
-    _contact.setEmailAddress( _emailAddress.getText() );
+    _contact = new ContactDTO( null != _contact ? _contact.getID() : null,
+                               null != _contact ? _contact.getType() : null,
+                               _firstName.getText(),
+                               _lastName.getText(),
+                               _emailAddress.getText() );
   }
 
-  protected final ContactVO getContact()
+  protected final ContactDTO getContact()
   {
     return _contact;
   }
