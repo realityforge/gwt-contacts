@@ -118,7 +118,7 @@ module Buildr::IntellijIdea
 
         xml.RunnerSettings(:RunnerId => "Run")
         xml.ConfigurationWrapper(:RunnerId => "Run")
-        xml.method()
+        #xml.method()
       end
     end
 
