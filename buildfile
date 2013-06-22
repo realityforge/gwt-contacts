@@ -1,6 +1,7 @@
 require 'buildr/git_auto_version'
 require 'buildr/top_level_generate_dir'
 require 'buildr/single_intermediate_layout'
+require 'buildr/gwt'
 
 SLF4J = [:slf4j_api, :slf4j_jdk14, :jcl_over_slf4j]
 HIBERNATE = [:javax_persistence,
