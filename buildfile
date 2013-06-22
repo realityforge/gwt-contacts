@@ -1,3 +1,5 @@
+require 'buildr/git_auto_version'
+
 SLF4J = [:slf4j_api, :slf4j_jdk14, :jcl_over_slf4j]
 HIBERNATE = [:javax_persistence,
              :hibernate_annotations,
@@ -35,7 +37,6 @@ end
 
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
-  project.version = '1.0-SNAPSHOT'
   project.group = 'org.realityforge.gwt.contacts'
 
   compile.options.source = '1.6'
