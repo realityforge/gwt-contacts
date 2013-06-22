@@ -1,4 +1,5 @@
 require 'buildr/git_auto_version'
+require 'buildr/top_level_generate_dir'
 
 SLF4J = [:slf4j_api, :slf4j_jdk14, :jcl_over_slf4j]
 HIBERNATE = [:javax_persistence,
@@ -16,25 +17,6 @@ HIBERNATE = [:javax_persistence,
              :commons_collections,
              :antlr]
 
-class SimpleLayout < Layout::Default
-  def initialize
-    super()
-    self[:target, :generated] = "generated"
-  end
-end
-
-def define_with_central_layout(name, options = { }, &block)
-  options = options.dup
-  options[:layout] = SimpleLayout.new
-  options[:base_dir] = "#{name}"
-
-  define(name, options) do
-    project.instance_eval &block
-    project.clean { rm_rf _(:target, :generated) }
-    project
-  end
-end
-
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
   project.group = 'org.realityforge.gwt.contacts'
@@ -44,7 +26,7 @@ define 'gwt-contacts' do
   compile.options.lint = 'all'
 
   desc "GWT Contacts: Shared component"
-  define_with_central_layout('shared') do
+  define 'shared' do
     compile.with :javax_annotation,
                  :replicant,
                  :replicant_sources,
@@ -59,7 +41,7 @@ define 'gwt-contacts' do
   end
 
   desc "GWT Contacts: Client-side component"
-  define_with_central_layout('client') do
+  define 'client' do
     iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.ContactsDev")
 
     compile.with :gwt_user,
@@ -82,7 +64,7 @@ define 'gwt-contacts' do
   end
 
   desc "GWT Contacts: Server-side component"
-  define_with_central_layout('server') do
+  define 'server' do
     compile.with :gwt_user,
                  :gwt_dev,
                  :javax_inject,
@@ -111,7 +93,7 @@ define 'gwt-contacts' do
   end
 
   desc "GWT Contacts: Web component"
-  define_with_central_layout('web') do
+  define 'web' do
     iml.add_web_facet
 
     contact_module = gwt(["com.google.gwt.sample.contacts.Contacts"],
