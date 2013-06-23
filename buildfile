@@ -35,7 +35,7 @@ define 'gwt-contacts' do
                  :replicant_sources,
                  :javax_inject,
                  :gwt_user
-    iml.add_gwt_facet
+    iml.add_gwt_facet({}, :gwt_dev_artifact => :gwt_dev)
 
     define_gwt_services_unit(project, :Contacts)
 
@@ -45,7 +45,8 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Client-side component"
   define 'client' do
-    iml.add_gwt_facet("/contacts" => "com.google.gwt.sample.contacts.ContactsDev")
+    iml.add_gwt_facet({"/contacts" => "com.google.gwt.sample.contacts.ContactsDev"},
+                      :gwt_dev_artifact => :gwt_dev)
 
     compile.with :gwt_user,
                  :javax_annotation,
