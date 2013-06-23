@@ -37,10 +37,15 @@ define 'gwt-contacts' do
                  :gwt_user
     iml.add_gwt_facet({}, :gwt_dev_artifact => :gwt_dev)
 
-    define_gwt_services_unit(project, :Contacts)
-
     package(:jar)
     package(:sources)
+
+    Domgen::GenerateTask.new(:Contacts,
+                             "shared",
+                             [:ee_data_types, :gwt_shared_service],
+                             _(:target, :generated, "domgen"),
+                             project)
+
   end
 
   desc "GWT Contacts: Client-side component"
@@ -64,7 +69,11 @@ define 'gwt-contacts' do
     package(:jar)
     package(:sources)
 
-    define_gwt_client_services(project, :Contacts)
+    Domgen::GenerateTask.new(:Contacts,
+                             "client",
+                             [:gwt_client_service_test, :gwt_client_service, :imit, :imit_json],
+                             _(:target, :generated, "domgen"),
+                             project)
   end
 
   desc "GWT Contacts: Server-side component"
@@ -84,9 +93,11 @@ define 'gwt-contacts' do
     iml.add_jpa_facet
     iml.add_ejb_facet
 
-    define_persistence_unit(project, :Contacts)
-    define_services_unit(project, :Contacts)
-    define_gwt_servlets(project, :Contacts)
+    Domgen::GenerateTask.new(:Contacts,
+                             "server",
+                             [:ee, :gwt_server_service],
+                             _(:target, :generated, "domgen"),
+                             project)
 
     test.compile.with :guiceyloops,
                       :google_guice,
