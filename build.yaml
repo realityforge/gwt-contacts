@@ -11,6 +11,7 @@ repositories:
    - http://repository.jboss.org/nexus/content/groups/public
    - http://repo.fire.dse.vic.gov.au/content/groups/fisg
    - http://download.java.net/maven/glassfish
+   - http://github.com/realityforge/repository/raw/master
 
 artifacts:
   easymock: org.easymock:easymock:jar:2.5.2
