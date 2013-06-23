@@ -6,9 +6,9 @@ gems:
 
 repositories:
   remote:
+   - http://repo1.maven.org/maven2
    - http://repository.jboss.org/nexus/content/groups/public
    - http://repo.fire.dse.vic.gov.au/content/groups/fisg
-   - http://www.ibiblio.org/maven2
    - http://download.java.net/maven/glassfish
    - http://mirror.aarnet.edu.au/pub/eclipse/rt/eclipselink/maven.repo/
 
