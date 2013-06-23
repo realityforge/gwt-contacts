@@ -71,6 +71,8 @@ define 'gwt-contacts' do
   define 'server' do
     compile.with :gwt_user,
                  :gwt_dev,
+                 :jackson_core,
+                 :jackson_mapper,
                  :javax_inject,
                  :javax_servlet,
                  :javax_ejb,
