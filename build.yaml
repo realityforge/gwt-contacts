@@ -8,9 +8,6 @@ repositories:
   remote:
    - http://repo1.maven.org/maven2
    - http://download.eclipse.org/rt/eclipselink/maven.repo
-   - http://repository.jboss.org/nexus/content/groups/public
-   - http://repo.fire.dse.vic.gov.au/content/groups/fisg
-   - http://download.java.net/maven/glassfish
    - http://github.com/realityforge/repository/raw/master
 
 artifacts:
