@@ -2,16 +2,18 @@ package com.google.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.sample.contacts.client.data_type.ContactsFactory;
+import com.google.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
+import com.google.gwt.sample.contacts.client.service.contacts.ContactsService;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.gwt.sample.contacts.shared.contacts.GwtContactsServiceAsync;
-import com.google.gwt.sample.contacts.shared.data_type.ContactDetailsDTO;
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import java.util.ArrayList;
 import java.util.List;
 import org.easymock.IAnswer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.realityforge.replicant.client.AsyncCallback;
 import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.getCurrentArguments;
@@ -23,16 +25,18 @@ import static org.easymock.EasyMock.verify;
 public class ExampleJRETest
 {
   private ListContactsActivity _listContactsActivity;
-  private GwtContactsServiceAsync _mockRpcService;
+  private ContactsService _mockRpcService;
   private EventBus _mockEventBus;
   private ListContactsView _mockViewList;
   private List<ContactDetailsDTO> _contactDetails;
+  private ContactsFactory _factory;
 
   @Before
   public void setUp()
   {
-    _mockRpcService = createStrictMock( GwtContactsServiceAsync.class );
+    _mockRpcService = createStrictMock( ContactsService.class );
     _mockEventBus = new SimpleEventBus();
+    _factory = AutoBeanFactorySource.create( ContactsFactory.class );
     _mockViewList = createStrictMock( ListContactsView.class );
     _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
   }
@@ -41,8 +45,8 @@ public class ExampleJRETest
   public void testDeleteButton()
   {
     _contactDetails = new ArrayList<ContactDetailsDTO>();
-    _contactDetails.add( new ContactDetailsDTO( "0", "type1", "1_contact" ) );
-    _contactDetails.add( new ContactDetailsDTO( "1", "type2", "2_contact" ) );
+    _contactDetails.add( newContactDetails( "0", "type1", "1_contact" ) );
+    _contactDetails.add( newContactDetails( "1", "type2", "2_contact" ) );
     _listContactsActivity.setContactDetails( _contactDetails );
 
     _mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ) );
@@ -65,7 +69,7 @@ public class ExampleJRETest
         throws Throwable
       {
         final ArrayList<ContactDetailsDTO> results = new ArrayList<ContactDetailsDTO>();
-        results.add( new ContactDetailsDTO( "0", "type1", "1_contact" ) );
+        results.add( newContactDetails( "0", "type1", "1_contact" ) );
         getCallback().onSuccess( results );
         return null;
       }
@@ -77,6 +81,15 @@ public class ExampleJRETest
     verify( _mockRpcService );
 
     Assert.assertEquals( 1, _listContactsActivity.getContactDetails().size() );
+  }
+
+  private ContactDetailsDTO newContactDetails( final String id, final String type, final String displayName )
+  {
+    final ContactDetailsDTO contactDetails = _factory.createContactDetailsDTO().as();
+    contactDetails.setID( id );
+    contactDetails.setType( type );
+    contactDetails.setDisplayName( displayName );
+    return contactDetails;
   }
 
   private AsyncCallback getCallback()

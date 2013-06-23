@@ -4,20 +4,16 @@ Domgen.repository(:Contacts) do |repository|
   repository.enable_facet(:ejb)
   repository.enable_facet(:gwt)
   repository.enable_facet(:imit)
-  repository.enable_facet(:ee)
 
-  repository.gwt.module_name = "contacts"
-  repository.gwt.package = 'com.google.gwt.sample.contacts'
-  repository.ee.package = 'com.google.gwt.sample.contacts.shared'
-  repository.imit.entity_package = 'com.google.gwt.sample.contacts.client.entity'
-  repository.imit.encoder_package = 'com.google.gwt.sample.contacts.server.entity'
+  repository.gwt.module_name = 'contacts'
+  repository.gwt.base_package =
+    repository.auto_bean.base_package =
+      repository.imit.base_package =
+        repository.jpa.base_package =
+          repository.ee.base_package =
+            repository.ejb.base_package = 'com.google.gwt.sample.contacts'
 
   repository.data_module(:Contacts) do |data_module|
-    data_module.ee.data_type_package = 'com.google.gwt.sample.contacts.shared.data_type'
-    data_module.jpa.entity_package = 'com.google.gwt.sample.contacts.server.entity'
-    data_module.imit.entity_package = 'com.google.gwt.sample.contacts.client.entity'
-    data_module.ejb.service_package = 'com.google.gwt.sample.contacts.server.service'
-
     data_module.struct(:ContactDetailsDTO) do |ss|
       ss.text(:ID)
       ss.text(:Type)
@@ -34,22 +30,21 @@ Domgen.repository(:Contacts) do |repository|
 
     data_module.service(:ContactsService) do |s|
       s.description("Contacts Service definition")
+      s.gwt.xsrf_protected = true
 
       s.method(:DeleteContacts) do |m|
         m.text(:ID, :collection_type => :sequence)
       end
       s.method(:GetContactDetails) do |m|
-        m.returns(:struct,
-                  :struct => data_module.struct_by_name(:ContactDetailsDTO),
-                  :collection_type => :sequence)
+        m.returns(:struct, :referenced_struct => :ContactDetailsDTO, :collection_type => :sequence)
       end
       s.method(:GetContact) do |m|
         m.string(:ID, 50)
-        m.returns(:struct, :struct => data_module.struct_by_name(:ContactDTO))
+        m.returns(:struct, :referenced_struct => :ContactDTO)
       end
       s.method(:CreateOrUpdateContact) do |m|
         m.struct(:Contact, :ContactDTO)
-        m.returns(:struct, :struct => data_module.struct_by_name(:ContactDTO))
+        m.returns(:struct, :referenced_struct => :ContactDTO)
       end
     end
 
@@ -58,7 +53,7 @@ Domgen.repository(:Contacts) do |repository|
       t.string(:Name, 50)
       t.string(:RenderCode, 50)
 
-      t.jpa.query("Name", "O.Name = :Name", :multiplicity => :zero_or_one)
+      t.query('findByName')
     end
 
     data_module.entity(:Contact) do |t|

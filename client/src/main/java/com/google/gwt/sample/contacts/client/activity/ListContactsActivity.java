@@ -3,23 +3,24 @@ package com.google.gwt.sample.contacts.client.activity;
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.sample.contacts.client.common.SelectionModel;
+import com.google.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
 import com.google.gwt.sample.contacts.client.event.contacts.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.contacts.ShowContactEvent;
+import com.google.gwt.sample.contacts.client.service.contacts.ContactsService;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.gwt.sample.contacts.shared.contacts.GwtContactsServiceAsync;
-import com.google.gwt.sample.contacts.shared.data_type.ContactDetailsDTO;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
+import org.realityforge.replicant.client.AsyncCallback;
+import org.realityforge.replicant.client.AsyncErrorCallback;
 
 public class ListContactsActivity
   extends AbstractActivity
   implements ListContactsView.Presenter
 {
-  private final GwtContactsServiceAsync _rpcService;
+  private final ContactsService _rpcService;
   private final EventBus _eventBus;
   private final ListContactsView _view;
   private final SelectionModel<ContactDetailsDTO> _selectionModel;
@@ -27,7 +28,7 @@ public class ListContactsActivity
   private List<ContactDetailsDTO> _contactDetails;
 
   @Inject
-  public ListContactsActivity( final GwtContactsServiceAsync rpcService,
+  public ListContactsActivity( final ContactsService rpcService,
                                final EventBus eventBus,
                                final ListContactsView view )
   {
@@ -83,12 +84,12 @@ public class ListContactsActivity
     {
       for ( int j = 0; j < size - 1; ++j )
       {
-          final ContactDetailsDTO current = _contactDetails.get(j);
-          final ContactDetailsDTO last = _contactDetails.get(j + 1);
-          if ( current.getDisplayName().compareToIgnoreCase(last.getDisplayName()) >= 0 )
+        final ContactDetailsDTO current = _contactDetails.get( j );
+        final ContactDetailsDTO last = _contactDetails.get( j + 1 );
+        if ( current.getDisplayName().compareToIgnoreCase( last.getDisplayName() ) >= 0 )
         {
-            _contactDetails.set( j, last);
-          _contactDetails.set( j + 1, current);
+          _contactDetails.set( j, last );
+          _contactDetails.set( j + 1, current );
         }
       }
     }
@@ -107,19 +108,24 @@ public class ListContactsActivity
 
   private void fetchContactDetails()
   {
-    _rpcService.getContactDetails( new AsyncCallback<List<ContactDetailsDTO>>()
+    final AsyncCallback<List<ContactDetailsDTO>> success = new AsyncCallback<List<ContactDetailsDTO>>()
     {
       public void onSuccess( final List<ContactDetailsDTO> result )
       {
         setContactDetails( result );
         _view.setRowData( _contactDetails );
       }
+    };
+    final AsyncErrorCallback errorCallback = new AsyncErrorCallback()
+    {
+      @Override
 
       public void onFailure( final Throwable caught )
       {
         Window.alert( "Error fetching contact details" );
       }
-    } );
+    };
+    _rpcService.getContactDetails( success, errorCallback );
   }
 
   private void deleteSelectedContacts()
@@ -132,18 +138,22 @@ public class ListContactsActivity
       ids.add( selected.getID() );
     }
 
-    _rpcService.deleteContacts( ids, new AsyncCallback<Void>()
+    final AsyncCallback<Void> success = new AsyncCallback<Void>()
     {
       public void onSuccess( final Void result )
       {
         fetchContactDetails();
         _selectionModel.clear();
       }
-
+    };
+    final AsyncErrorCallback errorCallback = new AsyncErrorCallback()
+    {
+      @Override
       public void onFailure( final Throwable caught )
       {
         System.out.println( "Error deleting selected contacts" );
       }
-    } );
+    };
+    _rpcService.deleteContacts( ids, success, errorCallback );
   }
 }

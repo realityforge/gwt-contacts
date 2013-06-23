@@ -1,5 +1,6 @@
 package com.google.gwt.sample.contacts.server.service;
 
+import com.google.gwt.sample.contacts.server.service.contacts.ContactsService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

@@ -2,7 +2,7 @@ package com.google.gwt.sample.contacts.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.sample.contacts.client.gin.InjectorWrapper;
-import com.google.gwt.sample.contacts.client.ioc.ContactsGwtServicesModule;
+import com.google.gwt.sample.contacts.client.ioc.ContactsGwtRpcServicesModule;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.RpcTokenException;
@@ -50,7 +50,7 @@ public final class Contacts
       {
         try
         {
-          ContactsGwtServicesModule.initialize( GWT.getModuleName(), xsrfToken );
+          ContactsGwtRpcServicesModule.initialize( GWT.getModuleName(), xsrfToken );
           startupApplication();
         }
         catch( final Exception e )

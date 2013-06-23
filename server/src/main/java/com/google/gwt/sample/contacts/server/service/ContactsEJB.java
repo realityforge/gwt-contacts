@@ -1,11 +1,12 @@
 package com.google.gwt.sample.contacts.server.service;
 
-import com.google.gwt.sample.contacts.server.entity.Contact;
-import com.google.gwt.sample.contacts.server.entity.ContactType;
-import com.google.gwt.sample.contacts.server.entity.dao.ContactDAO;
-import com.google.gwt.sample.contacts.server.entity.dao.ContactTypeDAO;
-import com.google.gwt.sample.contacts.shared.data_type.ContactDTO;
-import com.google.gwt.sample.contacts.shared.data_type.ContactDetailsDTO;
+import com.google.gwt.sample.contacts.server.data_type.contacts.ContactDTO;
+import com.google.gwt.sample.contacts.server.data_type.contacts.ContactDetailsDTO;
+import com.google.gwt.sample.contacts.server.entity.contacts.Contact;
+import com.google.gwt.sample.contacts.server.entity.contacts.ContactType;
+import com.google.gwt.sample.contacts.server.entity.contacts.dao.ContactRepository;
+import com.google.gwt.sample.contacts.server.entity.contacts.dao.ContactTypeRepository;
+import com.google.gwt.sample.contacts.server.service.contacts.ContactsService;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -42,10 +43,10 @@ public class ContactsEJB
       "user31065@example.com", "ftsgeolbx@example.com" };
 
   @EJB
-  private ContactDAO _contactDAO;
+  private ContactRepository _contactDAO;
 
   @EJB
-  private ContactTypeDAO _contactTypeDAO;
+  private ContactTypeRepository _contactTypeDAO;
 
   @Override
   @Nonnull
