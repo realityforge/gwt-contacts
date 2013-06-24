@@ -79,7 +79,7 @@ define 'gwt-contacts' do
 
     Domgen::GenerateTask.new(:Contacts,
                              "server",
-                             [:ee, :gwt_server_service],
+                             [:ee, :gwt_server_service, :jpa_test_module],
                              _(:target, :generated, "domgen"),
                              project)
 

@@ -1,5 +1,6 @@
 package com.google.gwt.sample.contacts.server.service;
 
+import com.google.gwt.sample.contacts.server.ContactsRepositoryModule;
 import com.google.gwt.sample.contacts.server.service.contacts.ContactsService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -14,6 +15,7 @@ public class ContactsEJBTest
   public void testContactsEJB()
   {
     Injector injector = Guice.createInjector( new TestModule(),
+                                              new ContactsRepositoryModule(),
                                               new EJBTestingModule( "CONTACTS" ),
                                               new JEETestingModule() );
     final ContactsService _contacts = injector.getInstance( ContactsService.class );
