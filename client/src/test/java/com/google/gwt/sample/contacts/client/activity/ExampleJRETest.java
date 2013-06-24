@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.realityforge.replicant.client.AsyncCallback;
+import org.realityforge.replicant.client.AsyncErrorCallback;
 import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.getCurrentArguments;
@@ -49,7 +50,7 @@ public class ExampleJRETest
     _contactDetails.add( newContactDetails( "1", "type2", "2_contact" ) );
     _listContactsActivity.setContactDetails( _contactDetails );
 
-    _mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ) );
+    _mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ), isA( AsyncErrorCallback.class ) );
 
     expectLastCall().andAnswer( new IAnswer()
     {
@@ -62,7 +63,7 @@ public class ExampleJRETest
       }
     } );
 
-    _mockRpcService.getContactDetails( isA( AsyncCallback.class ) );
+    _mockRpcService.getContactDetails( isA( AsyncCallback.class ), isA( AsyncErrorCallback.class ) );
     expectLastCall().andAnswer( new IAnswer()
     {
       public Object answer()
@@ -95,6 +96,6 @@ public class ExampleJRETest
   private AsyncCallback getCallback()
   {
     final Object[] arguments = getCurrentArguments();
-    return (AsyncCallback) arguments[ arguments.length - 1 ];
+    return (AsyncCallback) arguments[ arguments.length - 2 ];
   }
 }
