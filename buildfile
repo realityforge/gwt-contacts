@@ -19,8 +19,8 @@ define 'gwt-contacts' do
                  :replicant_sources,
                  :javax_inject,
                  :gwt_user
-    iml.add_gwt_facet({}, :gwt_dev_artifact => :gwt_dev)
 
+    iml.add_gwt_facet({}, :gwt_dev_artifact => :gwt_dev)
 
     Domgen::GenerateTask.new(:Contacts,
                              "shared",
