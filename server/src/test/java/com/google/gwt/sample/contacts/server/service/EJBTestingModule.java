@@ -72,7 +72,8 @@ public class EJBTestingModule
       throw new IllegalStateException( e );
     }
 
-    final EntityManagerFactory factory = Persistence.createEntityManagerFactory( "test-contacts", properties );
+    final EntityManagerFactory factory =
+      Persistence.createEntityManagerFactory( getPersistenceUnitName(), properties );
     return factory.createEntityManager();
   }
 
@@ -89,6 +90,11 @@ public class EJBTestingModule
     properties.put( "eclipselink.ddl-generation.output-mode", "database" );
 
     return properties;
+  }
+
+  private String getPersistenceUnitName()
+  {
+    return "Contacts";
   }
 
   private String getJdbcURL()
