@@ -13,7 +13,9 @@ public class ContactsEJBTest
   @Test
   public void testContactsEJB()
   {
-    Injector injector = Guice.createInjector( new TestModule(), new EJBTestingModule( "Contacts" ), new JEETestingModule() );
+    Injector injector = Guice.createInjector( new TestModule(),
+                                              new EJBTestingModule( "CONTACTS" ),
+                                              new JEETestingModule() );
     final ContactsService _contacts = injector.getInstance( ContactsService.class );
     Assert.assertEquals( 22, _contacts.getContactDetails().size() );
   }

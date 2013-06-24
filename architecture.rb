@@ -14,6 +14,8 @@ Domgen.repository(:Contacts) do |repository|
             repository.ejb.base_package = 'com.google.gwt.sample.contacts'
 
   repository.data_module(:Contacts) do |data_module|
+    data_module.sql.schema = 'CONTACTS'
+
     data_module.struct(:ContactDetailsDTO) do |ss|
       ss.text(:ID)
       ss.text(:Type)
