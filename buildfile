@@ -21,8 +21,6 @@ define 'gwt-contacts' do
                  :gwt_user
     iml.add_gwt_facet({}, :gwt_dev_artifact => :gwt_dev)
 
-    package(:jar)
-    package(:sources)
 
     Domgen::GenerateTask.new(:Contacts,
                              "shared",
@@ -30,6 +28,8 @@ define 'gwt-contacts' do
                              _(:target, :generated, "domgen"),
                              project)
 
+    package(:jar)
+    package(:sources)
   end
 
   desc "GWT Contacts: Client-side component"
@@ -50,14 +50,14 @@ define 'gwt-contacts' do
 
     test.with :easymock, :mockito
 
-    package(:jar)
-    package(:sources)
-
     Domgen::GenerateTask.new(:Contacts,
                              "client",
                              [:gwt_client_service_test, :gwt_client_service, :imit, :imit_json],
                              _(:target, :generated, "domgen"),
                              project)
+
+    package(:jar)
+    package(:sources)
   end
 
   desc "GWT Contacts: Server-side component"
