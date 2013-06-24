@@ -86,6 +86,9 @@ public class EJBTestingModule
     properties.put( PASSWORD_KEY, "" );
     properties.put( PROVIDER_KEY, org.eclipse.persistence.jpa.PersistenceProvider.class.getName() );
 
+    properties.put( "javax.persistence.transactionType", "RESOURCE_LOCAL" );
+    properties.put( "javax.persistence.jtaDataSource", "" );
+
     properties.put( "eclipselink.ddl-generation", "create-tables" );
     properties.put( "eclipselink.ddl-generation.output-mode", "database" );
 
