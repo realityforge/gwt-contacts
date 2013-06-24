@@ -97,7 +97,7 @@ public class ListContactsActivity
 
   public void setContactDetails( final List<ContactDetailsDTO> contactDetails )
   {
-    this._contactDetails = contactDetails;
+    _contactDetails = contactDetails;
     sortContactDetails();
   }
 
