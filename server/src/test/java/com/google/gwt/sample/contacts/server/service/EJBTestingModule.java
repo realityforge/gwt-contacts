@@ -48,8 +48,6 @@ public class EJBTestingModule
   private EntityManager createEntityManager()
   {
     final String url = getJdbcURL();
-
-
     final Properties properties = setupProperties( url );
 
     try
