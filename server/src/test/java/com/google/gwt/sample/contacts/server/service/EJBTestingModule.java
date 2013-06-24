@@ -61,7 +61,7 @@ public class EJBTestingModule
 
       for ( final String schema : _schemas )
       {
-        statement.execute( "CREATE SCHEMA " + schema + ";\n" );
+        statement.execute( "CREATE SCHEMA \"" + schema + "\";\n" );
       }
       connection.close();
     }
