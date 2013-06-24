@@ -48,7 +48,7 @@ define 'gwt-contacts' do
                  :gwt_gin,
                  project('shared').package(:jar)
 
-    test.with :easymock, :mockito
+    test.with :easymock, :mockito, :json
 
     Domgen::GenerateTask.new(:Contacts,
                              "client",
