@@ -36,7 +36,7 @@ artifacts:
 
   json: org.json:json:jar:20090211
 
-  guiceyloops: org.realityforge:guiceyloops:jar:0.5
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.7
 
   replicant: org.realityforge:replicant:jar:0.4.7
   replicant_sources: org.realityforge:replicant:jar:sources:0.4.7
