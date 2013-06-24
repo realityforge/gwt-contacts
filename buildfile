@@ -4,22 +4,6 @@ require 'buildr/single_intermediate_layout'
 require 'buildr/checkstyle'
 require 'buildr/gwt'
 
-SLF4J = [:slf4j_api, :slf4j_jdk14, :jcl_over_slf4j]
-HIBERNATE = [:javax_persistence,
-             :hibernate_annotations,
-             :javax_transaction,
-             :javax_validation,
-             :hibernate_validator,
-             :hibernate_entitymanager,
-             :hibernate_core,
-             :hibernate_ehcache,
-             :hibernate_c3p0,
-             :dom4j,
-             :hibernate_commons_annotations,
-             :javassist,
-             :commons_collections,
-             :antlr]
-
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
   project.group = 'org.realityforge.gwt.contacts'
