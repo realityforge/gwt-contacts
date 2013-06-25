@@ -115,9 +115,10 @@ define 'gwt-contacts' do
 
     package(:war).tap do |war|
       war.include "#{contact_module}/WEB-INF"
-      war.include "#{contact_module}/contacts"
-      war.with :libs => [:gwt_user, :gwt_dev, project('shared').package(:jar), project('server')]
-      war.enhance [contact_module]
+      war.include file("#{contact_module}/contacts" => [contact_module])
+      war.with :libs => [:gwt_user,
+                         project('shared').package(:jar),
+                         project('server')]
     end
   end
 
