@@ -6,6 +6,7 @@ import com.google.gwt.inject.client.AbstractGinModule;
 import com.google.gwt.place.shared.PlaceController;
 import com.google.gwt.place.shared.PlaceHistoryHandler;
 import com.google.gwt.place.shared.PlaceHistoryMapper;
+import com.google.gwt.sample.contacts.client.activity.GlobalAsyncCallback;
 import com.google.gwt.sample.contacts.client.place.ApplicationPlaceHistoryMapper;
 import com.google.gwt.sample.contacts.client.place.ListContactsPlace;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
@@ -14,7 +15,9 @@ import com.google.gwt.sample.contacts.client.view.ShowContactView;
 import com.google.gwt.sample.contacts.client.view.ui.EditContactUI;
 import com.google.gwt.sample.contacts.client.view.ui.ListContactsUI;
 import com.google.gwt.sample.contacts.client.view.ui.ShowContactUI;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Provides;
+import com.google.inject.name.Names;
 import javax.inject.Singleton;
 
 public class ContactClientModule
@@ -24,6 +27,7 @@ public class ContactClientModule
   {
     bind( EventBus.class ).to( SimpleEventBus.class ).in( Singleton.class );
     bind( PlaceHistoryMapper.class ).to( ApplicationPlaceHistoryMapper.class ).in( Singleton.class );
+    bindNamedService( "GLOBAL", AsyncCallback.class, GlobalAsyncCallback.class );
 
     bind( ListContactsView.class ).to( ListContactsUI.class ).in( Singleton.class );
     bind( EditContactView.class ).to( EditContactUI.class ).in( Singleton.class );
@@ -48,5 +52,12 @@ public class ContactClientModule
   public PlaceController getPlaceController( final EventBus eventBus )
   {
     return new PlaceController( eventBus );
+  }
+
+  private <T> void bindNamedService( final String name,
+                                     final Class<T> service,
+                                     final Class<? extends T> implementation )
+  {
+    bind( service ).annotatedWith( Names.named( name ) ).to( implementation ).asEagerSingleton();
   }
 }
