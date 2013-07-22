@@ -2,7 +2,7 @@ def workspace_dir
   File.expand_path(File.dirname(__FILE__) + '/..')
 end
 
-$LOAD_PATH.insert(0, "#{workspace_dir}/../dbt/lib")
+$LOAD_PATH.insert(0, "#{workspace_dir}/vendor/plugins/dbt/lib")
 
 require 'dbt'
 
