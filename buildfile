@@ -24,7 +24,7 @@ define 'gwt-contacts' do
 
     Domgen::GenerateTask.new(:Contacts,
                              "shared",
-                             [:ee_data_types, :gwt_shared_service],
+                             [:gwt_shared_service],
                              _(:target, :generated, "domgen"),
                              project)
 
@@ -79,7 +79,7 @@ define 'gwt-contacts' do
 
     Domgen::GenerateTask.new(:Contacts,
                              "server",
-                             [:ee, :gwt_server_service, :jpa_test_module],
+                             [:ee_data_types, :ee, :gwt_server_service, :jpa_test_module],
                              _(:target, :generated, "domgen"),
                              project)
 
