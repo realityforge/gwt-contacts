@@ -1,0 +1,15 @@
+<% user_code = ENV["USER"] %>
+<% prefix = "#{user_code}_" %>
+devhost: &devhost
+  username: <%= user_code %>
+  password: letmein
+  host: 127.0.0.1
+  port: 5432
+
+development:
+  database: <%= prefix %>CONTACTS_DEV
+  <<: *devhost
+
+test:
+  database: <%= prefix %>CONTACTS_TEST
+  <<: *devhost
