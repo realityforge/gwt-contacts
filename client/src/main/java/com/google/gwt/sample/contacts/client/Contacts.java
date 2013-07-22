@@ -20,7 +20,7 @@ public final class Contacts
 
   public void onModuleLoad()
   {
-    final XsrfTokenServiceAsync xsrf = (XsrfTokenServiceAsync) GWT.create( XsrfTokenService.class );
+    final XsrfTokenServiceAsync xsrf = GWT.create( XsrfTokenService.class );
     //noinspection GwtSetServiceEntryPointCalls
     ( (ServiceDefTarget) xsrf ).setServiceEntryPoint( GWT.getHostPageBaseURL() + "xsrf" );
     xsrf.getNewXsrfToken( new AsyncCallback<XsrfToken>()
