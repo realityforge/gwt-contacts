@@ -1,0 +1,3 @@
+* -text
+*.rb text -crlf -binary
+*.rdoc text -crlf -binary
