@@ -4,6 +4,8 @@ Domgen.repository(:Contacts) do |repository|
   repository.enable_facet(:ejb)
   repository.enable_facet(:gwt)
   repository.enable_facet(:imit)
+  repository.enable_facet(:json)
+  repository.enable_facet(:jackson)
 
   repository.gwt.module_name = 'contacts'
   repository.gwt.base_package =
