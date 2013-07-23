@@ -39,7 +39,7 @@ Domgen.template_set(:gwt_shared_service) do |template_set|
                         Domgen::Generator::GWT::HELPERS)
 end
 
-Domgen.template_set(:gwt_client_service => [:auto_bean]) do |template_set|
+Domgen.template_set(:gwt_client_service) do |template_set|
   template_set.template(Domgen::Generator::GWT::FACETS,
                         :repository,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/rpc_services_module.java.erb",
@@ -84,6 +84,34 @@ Domgen.template_set(:gwt_server_service) do |template_set|
                         :service,
                         "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/servlet.java.erb",
                         'main/java/#{service.gwt.qualified_servlet_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+end
+
+Domgen.template_set(:gwt_client_jso) do |template_set|
+  template_set.template(Domgen::Generator::GWT::FACETS,
+                        :enumeration,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/enumeration.java.erb",
+                        'main/java/#{enumeration.gwt.qualified_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
+                        :struct,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct.java.erb",
+                        'main/java/#{struct.gwt.qualified_interface_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
+                        :struct,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/struct_factory.java.erb",
+                        'main/java/#{struct.gwt.qualified_factory_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
+                        :struct,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/jso_struct.java.erb",
+                        'main/java/#{struct.gwt.qualified_jso_name.gsub(".","/")}.java',
+                        Domgen::Generator::GWT::HELPERS)
+  template_set.template(Domgen::Generator::GWT::FACETS + [:json],
+                        :struct,
+                        "#{Domgen::Generator::GWT::TEMPLATE_DIRECTORY}/java_struct.java.erb",
+                        'main/java/#{struct.gwt.qualified_java_name.gsub(".","/")}.java',
                         Domgen::Generator::GWT::HELPERS)
 end
 
