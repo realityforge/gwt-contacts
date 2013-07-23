@@ -2,11 +2,10 @@ package com.google.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.sample.contacts.client.data_type.ContactsFactory;
 import com.google.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
+import com.google.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTOFactory;
 import com.google.gwt.sample.contacts.client.service.contacts.ContactsService;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
-import com.google.web.bindery.autobean.vm.AutoBeanFactorySource;
 import java.util.ArrayList;
 import java.util.List;
 import org.easymock.IAnswer;
@@ -30,14 +29,12 @@ public class ExampleJRETest
   private EventBus _mockEventBus;
   private ListContactsView _mockViewList;
   private List<ContactDetailsDTO> _contactDetails;
-  private ContactsFactory _factory;
 
   @Before
   public void setUp()
   {
     _mockRpcService = createStrictMock( ContactsService.class );
     _mockEventBus = new SimpleEventBus();
-    _factory = AutoBeanFactorySource.create( ContactsFactory.class );
     _mockViewList = createStrictMock( ListContactsView.class );
     _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
   }
@@ -86,11 +83,7 @@ public class ExampleJRETest
 
   private ContactDetailsDTO newContactDetails( final String id, final String type, final String displayName )
   {
-    final ContactDetailsDTO contactDetails = _factory.createContactDetailsDTO().as();
-    contactDetails.setID( id );
-    contactDetails.setType( type );
-    contactDetails.setDisplayName( displayName );
-    return contactDetails;
+    return ContactDetailsDTOFactory.create( id, type, displayName );
   }
 
   private AsyncCallback getCallback()

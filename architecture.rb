@@ -9,11 +9,10 @@ Domgen.repository(:Contacts) do |repository|
 
   repository.gwt.module_name = 'contacts'
   repository.gwt.base_package =
-    repository.auto_bean.base_package =
-      repository.imit.base_package =
-        repository.jpa.base_package =
-          repository.ee.base_package =
-            repository.ejb.base_package = 'com.google.gwt.sample.contacts'
+    repository.imit.base_package =
+      repository.jpa.base_package =
+        repository.ee.base_package =
+          repository.ejb.base_package = 'com.google.gwt.sample.contacts'
 
   repository.data_module(:Contacts) do |data_module|
     data_module.sql.schema = 'CONTACTS'
