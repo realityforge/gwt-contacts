@@ -21,7 +21,9 @@ class Dbt #nodoc
 
     task "#{database.task_prefix}:package" => ["#{database.task_prefix}:prepare_fs"] do
       banner("Packaging Database Scripts", database.key)
-      package_database(database, package_dir, options.dup)
+      params = options.dup
+      params[:jruby_version] = jruby_version
+      package_database(database, package_dir, params)
     end
     buildr_project.file("#{package_dir}/code" => "#{database.task_prefix}:package")
     buildr_project.file("#{package_dir}/data" => "#{database.task_prefix}:package")
@@ -42,7 +44,9 @@ class Dbt #nodoc
   private
 
   def self.execute_command(database, command)
-    if "create" == command
+    if "status" == command
+      puts @@runtime.status(database)
+    elsif "create" == command
       @@runtime.create(database)
     elsif "drop" == command
       @@runtime.drop(database)
@@ -88,7 +92,7 @@ class Dbt #nodoc
 
   def self.package_database_code(database, package_dir, options)
     FileUtils.mkdir_p package_dir
-    valid_commands = ["create", "drop"]
+    valid_commands = ["status", "create", "drop"]
     valid_commands << "restore" if database.restore?
     valid_commands << "backup" if database.backup?
     if database.enable_separate_import_task?
@@ -218,7 +222,8 @@ ARGV.each do |command|
 end
 TXT
     end
-    prefix = options[:jruby_version] ? "RBENV_VERSION=jruby-#{options[:jruby_version]} RUBYOPT= rbenv exec " : ''
+    jruby_version = options[:jruby_version] || (defined?(JRUBY_VERSION) ? JRUBY_VERSION : '1.7.2')
+    prefix = jruby_version ? "RBENV_VERSION=jruby-#{options[:jruby_version]} RUBYOPT= rbenv exec " : ''
     sh "#{prefix}jrubyc --dir #{::Buildr::Util.relative_path(package_dir, Dir.pwd)} #{::Buildr::Util.relative_path(package_dir, Dir.pwd)}"
     FileUtils.cp_r Dir.glob("#{File.expand_path(File.dirname(__FILE__) + '/..')}/*"), package_dir
   end

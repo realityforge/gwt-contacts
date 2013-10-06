@@ -32,7 +32,7 @@ class Dbt #nodoc
         begin
           target.send "#{keys.last}=", v
         rescue NoMethodError
-          raise "Attempted to configure property #{keys.last} on #{self.class} but property does not exist."
+          raise "Attempted to configure property \"#{keys.last}\" on #{self.class} but property does not exist."
         end
       end
     end

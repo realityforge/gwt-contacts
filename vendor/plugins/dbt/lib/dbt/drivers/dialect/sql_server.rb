@@ -243,7 +243,7 @@ SQL
 
       def setup_migrations
         if query("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'tblMigration'").empty?
-          execute("CREATE TABLE #{quote_table_name('dbo')}.#{quote_table_name('tblMigration')}(#{quote_column_name('Namespace')} varchar(50),#{quote_column_name('Migration')} varchar(255),#{quote_column_name('AppliedAt')} timestamp)")
+          execute("CREATE TABLE #{quote_table_name('dbo')}.#{quote_table_name('tblMigration')}(#{quote_column_name('Namespace')} varchar(50),#{quote_column_name('Migration')} varchar(255),#{quote_column_name('AppliedAt')} datetime)")
         end
       end
 
@@ -253,7 +253,7 @@ SQL
       end
 
       def mark_migration_as_run(namespace, migration_name)
-        execute("INSERT INTO #{quote_table_name('dbo')}.#{quote_table_name('tblMigration')}(#{quote_column_name('Namespace')},#{quote_column_name('Migration')},#{quote_column_name('AppliedAt')}) VALUES (#{quote_value(namespace)}, #{quote_value(migration_name)}, GETDATE()")
+        execute("INSERT INTO #{quote_table_name('dbo')}.#{quote_table_name('tblMigration')}(#{quote_column_name('Namespace')},#{quote_column_name('Migration')},#{quote_column_name('AppliedAt')}) VALUES (#{quote_value(namespace)}, #{quote_value(migration_name)}, GETDATE())")
       end
 
       def pre_fixture_import(table)

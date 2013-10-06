@@ -4,7 +4,7 @@
     "remote": "master/braid/vendor/plugins/dbt",
     "branch": "master",
     "squashed": true,
-    "revision": "c88c80f16321fbefa7448b9137d4928d1cb8c9ad"
+    "revision": "b1724720e75f880f2eefb3cdd6075fb0ae7c667b"
   },
   "vendor/plugins/domgen": {
     "url": "https://github.com/realityforge/domgen.git",

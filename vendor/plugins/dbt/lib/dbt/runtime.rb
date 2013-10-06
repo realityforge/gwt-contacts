@@ -15,6 +15,13 @@
 class Dbt
 
   class Runtime
+    def status(database)
+      return <<TXT
+Database Version: #{database.version}
+Migration Support: #{database.enable_migrations? ? 'Yes' : 'No'}
+TXT
+    end
+
     def create(database)
       create_database(database)
       init_database(database.key) do
@@ -54,6 +61,12 @@ class Dbt
     def query(database, sql)
       init_database(database.key) do
         return db.query(sql)
+      end
+    end
+
+    def execute(database, sql)
+      init_database(database.key) do
+        db.execute(sql)
       end
     end
 
@@ -732,7 +745,7 @@ class Dbt
 
     def load_resource(database, resource_path)
       require 'java'
-      stream = java.lang.ClassLoader.getCallerClassLoader().getResourceAsStream("#{database.resource_prefix}/#{resource_path}")
+      stream = java.lang.ClassLoader.getSystemResourceAsStream("#{database.resource_prefix}/#{resource_path}")
       raise "Missing resource #{resource_path}" unless stream
       content = ""
       while stream.available() > 0
@@ -763,7 +776,7 @@ class Dbt
 
     def resource_present?(database, resource_path)
       require 'java'
-      !!java.lang.ClassLoader.getCallerClassLoader().getResource("#{database.resource_prefix}/#{resource_path}")
+      !!java.lang.ClassLoader.getSystemResourceAsStream("#{database.resource_prefix}/#{resource_path}")
     end
 
     def try_find_file_in_module(database, module_name, subdir, table, extension)

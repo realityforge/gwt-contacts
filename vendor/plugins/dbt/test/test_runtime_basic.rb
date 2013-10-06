@@ -2,6 +2,28 @@ require File.expand_path('../helper', __FILE__)
 
 class TestRuntimeBasic < Dbt::TestCase
 
+  def test_status
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    db_scripts = create_dir("databases")
+    module_name = 'MyModule'
+    table_names = ['[MyModule].[foo]', '[MyModule].[bar]', '[MyModule].[baz]']
+    database = create_simple_db_definition(db_scripts, module_name, table_names)
+
+    database.version = 2
+    database.migrations = false
+    status = Dbt.runtime.status(database)
+    assert_match 'Migration Support: No', status
+    assert_match 'Database Version: 2', status
+
+    database.version = 1
+    database.migrations = true
+    status = Dbt.runtime.status(database)
+    assert_match 'Migration Support: Yes', status
+    assert_match 'Database Version: 1', status
+  end
+
   def test_query
     mock = Dbt::DbDriver.new
     Dbt.runtime.instance_variable_set("@db", mock)
