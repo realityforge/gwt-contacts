@@ -3,6 +3,7 @@
 *.ipr
 /config/database.yml
 /target/
+/Gemfile.lock
 /reports/
 /artifacts/
 /client/generated
