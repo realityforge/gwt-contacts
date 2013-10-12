@@ -43,9 +43,9 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.inverse.relationship_name)};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.inverse.relationship_name};\n"
+          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name)};\n"
         end
         s
       end
@@ -82,7 +82,7 @@ module Domgen
 
         if !declaring_relationship
           parameters << "orphanRemoval = #{attribute.inverse.jpa.orphan_removal?}"
-          parameters << "mappedBy = \"#{attribute.jpa.name}\""
+          parameters << "mappedBy = \"#{attribute.jpa.field_name}\""
         end
 
         #noinspection RubyUnusedLocalVariable
@@ -123,7 +123,7 @@ module Domgen
   {
 #{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(", ")});\n"}
 #{declared_immutable_attributes.select{|a|!a.nullable? && !a.jpa.primitive?}.collect{|a| "    if( null == #{a.jpa.name} )\n    {\n      throw new NullPointerException( \"#{a.jpa.name} is not nullable\" );\n    }"}.join("\n")}
-#{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.name} = #{a.jpa.name};" }.join("\n")}
+#{declared_immutable_attributes.collect { |a| "    this.#{a.jpa.field_name} = #{a.jpa.name};" }.join("\n")}
 #{declared_immutable_attributes.select{|a|a.reference?}.collect { |a| "    " + j_add_to_inverse(a) }.join("\n")}
   }
 JAVA
@@ -154,6 +154,7 @@ JAVA
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
             name = attribute.inverse.relationship_name
+            field_name = entity.jpa.to_field_name( name )
             type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
             java = description_javadoc_for attribute
@@ -161,32 +162,32 @@ JAVA
   public #{type} #{getter_for(attribute, name)}
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-     return #{name};
+     return #{field_name};
   }
 
   #{j_deprecation_warning(attribute)}final void add#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{name} )
+    if( null != #{field_name} )
     {
       throw new IllegalStateException("Attempted to add value when non null value exists.");
     }
-    if( value != #{name} )
+    if( value != #{field_name} )
     {
-      #{name} = value;
+      #{field_name} = value;
     }
   }
 
   public final void remove#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{name} && value != #{name} )
+    if( null != #{field_name} && value != #{field_name} )
     {
       throw new IllegalStateException("Attempted to remove value that was not the same.");
     }
-    if( null != #{name} )
+    if( null != #{field_name} )
     {
-      #{name} = null;
+      #{field_name} = null;
     }
   }
 JAVA
@@ -237,6 +238,7 @@ JAVA
 
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
+        field_name = attribute.jpa.field_name
         type = nullable_annotate(attribute, attribute.jpa.java_type, false)
         java = description_javadoc_for attribute
         java << <<JAVA
@@ -246,7 +248,7 @@ JAVA
 JAVA
         if attribute.generated_value? && !attribute.nullable?
           java << <<JAVA
-      if( null == #{name} )
+      if( null == #{field_name} )
       {
         throw new IllegalStateException("Attempting to access generated value #{name} before it has been flushed to the database.");
       }
@@ -254,12 +256,12 @@ JAVA
 
         end
         java << <<JAVA
-     return doGet#{attribute.jpa.name}();
+     return doGet#{name}();
   }
 
-  protected #{type} doGet#{attribute.jpa.name}()
+  protected #{type} doGet#{name}()
   {
-    return #{name};
+    return #{field_name};
   }
 
 JAVA
@@ -267,8 +269,8 @@ JAVA
           java << <<JAVA
   public void set#{name}( final #{type} value )
   {
-#{j_return_if_value_same(name, attribute.jpa.primitive?, attribute.nullable?)}
-        #{name} = value;
+#{j_return_if_value_same(field_name, attribute.jpa.primitive?, attribute.nullable?)}
+        #{field_name} = value;
   }
 JAVA
         end
@@ -277,26 +279,29 @@ JAVA
 
       def j_add_to_inverse(attribute)
         name = attribute.jpa.name
+        field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
         if !attribute.inverse.jpa.traversable?
           ''
         else
-          null_guard(attribute.nullable?, name) { "this.#{name}.add#{inverse_name}( this );" }
+          null_guard(attribute.nullable?, field_name) { "this.#{field_name}.add#{inverse_name}( this );" }
         end
       end
 
       def j_remove_from_inverse(attribute)
         name = attribute.jpa.name
+        field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
         if !attribute.inverse.jpa.traversable?
           ''
         else
-          null_guard(true, name) { "#{name}.remove#{inverse_name}( this );" }
+          null_guard(true, field_name) { "#{field_name}.remove#{inverse_name}( this );" }
         end
       end
 
       def j_reference_attribute(attribute)
         name = attribute.jpa.name
+        field_name = attribute.jpa.field_name
         type = nullable_annotate(attribute, attribute.jpa.java_type, false)
         java = description_javadoc_for attribute
         java << <<JAVA
@@ -308,7 +313,7 @@ JAVA
 
   protected #{type} doGet#{attribute.jpa.name}()
   {
-    return #{name};
+    return #{field_name};
   }
 
 JAVA
@@ -317,9 +322,9 @@ JAVA
   @SuppressWarnings( { "deprecation" } )
   public void set#{name}( final #{type} value )
   {
- #{j_return_if_value_same(name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
+ #{j_return_if_value_same(field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
         #{j_remove_from_inverse(attribute)}
-        #{name} = value;
+        #{field_name} = value;
  #{j_add_to_inverse(attribute)}
   }
 JAVA
@@ -350,6 +355,7 @@ STR
       def j_has_many_attribute(attribute)
         name = attribute.inverse.relationship_name
         plural_name = Domgen::Naming.pluralize(name)
+        field_name = attribute.entity.jpa.to_field_name(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = description_javadoc_for attribute
         java << <<STR
@@ -360,28 +366,28 @@ STR
 
   #{j_deprecation_warning(attribute)} final void add#{name}( final #{type} value )
   {
-    final java.util.List<#{type}> #{plural_name} = safeGet#{plural_name}();
-    if ( !#{plural_name}.contains( value ) )
+    final java.util.List<#{type}> #{field_name}Safe = safeGet#{plural_name}();
+    if ( !#{field_name}Safe.contains( value ) )
     {
-      #{plural_name}.add( value );
+      #{field_name}Safe.add( value );
     }
   }
 
   public final void remove#{name}( final #{type} value )
   {
-    if ( null != #{plural_name} && #{plural_name}.contains( value ) )
+    if ( null != #{field_name} && #{field_name}.contains( value ) )
     {
-      #{plural_name}.remove( value );
+      #{field_name}.remove( value );
     }
   }
 
   private java.util.List<#{type}> safeGet#{plural_name}()
   {
-    if( null == #{plural_name} )
+    if( null == #{field_name} )
     {
-      #{plural_name} = new java.util.LinkedList<#{type}>();
+      #{field_name} = new java.util.LinkedList<#{type}>();
     }
-    return #{plural_name};
+    return #{field_name};
   }
 STR
         java
@@ -519,6 +525,57 @@ JAVADOC
         "#{getter_prefix(attribute)}#{name}()"
       end
 
+      def validation_name(constraint_name)
+        "Validate#{constraint_name}"
+      end
+
+      def validation_prefix(constraint_name, entity)
+        return <<JAVA
+  @java.lang.annotation.Target( { java.lang.annotation.ElementType.TYPE } )
+  @java.lang.annotation.Retention( java.lang.annotation.RetentionPolicy.RUNTIME )
+  @javax.validation.Constraint( validatedBy = #{constraint_name}Validator.class )
+  @java.lang.annotation.Documented
+  public @interface #{validation_name(constraint_name)}
+  {
+    String message() default "{#{entity.jpa.qualified_name}.#{constraint_name}}";
+
+    Class<?>[] groups() default { };
+
+    Class<? extends javax.validation.Payload>[] payload() default { };
+  }
+
+  public static class #{constraint_name}Validator
+    implements javax.validation.ConstraintValidator<#{validation_name(constraint_name)}, #{entity.jpa.name}>
+  {
+    @Override
+    public void initialize( final #{validation_name(constraint_name)} constraintAnnotation )
+    {
+    }
+
+    @Override
+    public boolean isValid( final #{entity.jpa.name} object, final javax.validation.ConstraintValidatorContext constraintContext )
+    {
+      if ( null == object )
+      {
+        return true;
+      }
+      try
+      {
+JAVA
+      end
+
+      def validation_suffix
+        return <<JAVA
+      }
+      catch( final Throwable t )
+      {
+        return false;
+      }
+      return true;
+    }
+  }
+JAVA
+      end
     end
   end
 end

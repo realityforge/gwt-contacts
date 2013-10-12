@@ -85,6 +85,7 @@ require 'domgen/ejb/generator'
 
 # JWS
 require 'domgen/jws/model'
+require 'domgen/jws/helper'
 require 'domgen/jws/generator'
 
 # JMX
@@ -103,6 +104,15 @@ require 'domgen/ee/generator'
 # GWT
 require 'domgen/gwt/model'
 require 'domgen/gwt/generator'
+
+# GwtRPC
+require 'domgen/gwt_rpc/model'
+require 'domgen/gwt_rpc/generator'
+
+# RestyGWT
+require 'domgen/restygwt/model'
+require 'domgen/restygwt/helper'
+require 'domgen/restygwt/generator'
 
 # Imit
 require 'domgen/imit/model'

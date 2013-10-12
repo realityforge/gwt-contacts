@@ -58,7 +58,7 @@ module Domgen
       include Domgen::Java::ImitJavaCharacteristic
 
       def environmental?
-        parameter.gwt? && parameter.gwt.environmental?
+        parameter.gwt_rpc? && parameter.gwt_rpc.environmental?
       end
 
       protected
@@ -206,7 +206,7 @@ module Domgen
       include Domgen::Java::ClientJavaApplication
 
       def ioc_package
-        repository.gwt.client_ioc_package
+        repository.gwt_rpc.client_ioc_package
       end
 
       attr_writer :encoder_package
@@ -288,5 +288,5 @@ module Domgen
                               DataModule => Domgen::Imit::ImitationModule,
                               Repository => Domgen::Imit::ImitationApplication
                             },
-                            [:gwt])
+                            [:gwt_rpc])
 end

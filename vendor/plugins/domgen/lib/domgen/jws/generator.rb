@@ -17,14 +17,75 @@ module Domgen
     module JWS
       TEMPLATE_DIRECTORY = "#{File.dirname(__FILE__)}/templates"
       FACETS = [:jws]
-      HELPERS = [Domgen::Java::Helper]
+      HELPERS = [Domgen::Java::Helper, Domgen::JWS::Helper]
     end
   end
 end
-Domgen.template_set(:jws) do |template_set|
+
+Domgen.template_set(:jws_server_code) do |template_set|
   template_set.template(Domgen::Generator::JWS::FACETS,
                         :service,
                         "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/boundary_implementation.java.erb",
                         'main/java/#{service.jws.qualified_boundary_implementation_name.gsub(".","/")}.java',
                         Domgen::Generator::JWS::HELPERS)
 end
+
+Domgen.template_set(:jws_wsdl) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
+                        'main/resources/META-INF/wsdl/#{service.jws.wsdl_name}',
+                        Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/resources/META-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS)
+end
+
+Domgen.template_set(:jws_wsdl_resources) do |template_set|
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
+                        'main/resources/META-INF/wsdl/#{service.jws.wsdl_name}',
+                        Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/resources/META-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS)
+end
+
+Domgen.template_set(:jws_wsdl_assets) do |template_set|
+  # GlassFish 4 / EE4 requires that the files appear in META-INF which seems counter to documentation at
+  # https://jax-ws.java.net/nonav/2.1.5/docs/catalog-support.html
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
+                        'main/webapp/META-INF/wsdl/#{service.jws.wsdl_name}',
+                        Domgen::Generator::JWS::HELPERS)
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/webapp/META-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS)
+  # GlassFish 3.1.2.2 / EE6 requires that the files appear in WEB-INF
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :service,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/wsdl.xml.erb",
+                        'main/webapp/WEB-INF/wsdl/#{service.jws.wsdl_name}',
+                        Domgen::Generator::JWS::HELPERS,
+                        nil,
+                        :name => 'WEB-INF/wsdl.xml')
+  template_set.template(Domgen::Generator::JWS::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JWS::TEMPLATE_DIRECTORY}/jax_ws_catalog.xml.erb",
+                        'main/webapp/WEB-INF/jax-ws-catalog.xml',
+                        Domgen::Generator::JWS::HELPERS,
+                        nil,
+                        :name => 'WEB-INF/jax_ws_catalog.xml')
+end
+
+Domgen.template_set(:jws_server => [:jws_server_code, :jws_wsdl_assets])
+Domgen.template_set(:jws_client => [:jws_wsdl_resources])
+Domgen.template_set(:jws => [:jws_server, :jws_client])
