@@ -2,13 +2,8 @@
 *.iml
 *.ipr
 /config/database.yml
-/target/
+/target
 /Gemfile.lock
-/reports/
-/artifacts/
-/client/generated
-/database/generated
-/shared/generated
-/server/generated
-/web/generated
-.DS_Store
+/reports
+/artifacts
+/*/generated
