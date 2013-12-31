@@ -114,7 +114,7 @@ define 'gwt-contacts' do
     package(:war).tap do |war|
       war.include "#{contact_module}/WEB-INF"
       war.include file("#{contact_module}/contacts" => [contact_module])
-      war.with :libs => [:gwt_user,
+      war.with :libs => [:gwt_cache_filter,
                          project('shared').package(:jar),
                          project('server')]
     end
@@ -129,7 +129,7 @@ define 'gwt-contacts' do
   ipr.add_exploded_war_artifact(project,
                                 :war_module_names => [project('web').iml.id],
                                 :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
-                                :dependencies => [:gwt_user, :gwt_dev, projects('client', 'shared', 'server')])
+                                :dependencies => [:gwt_cache_filter, projects('shared', 'server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => "-noserver -port 8080")
 
   iml.add_jruby_facet
