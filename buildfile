@@ -132,6 +132,8 @@ define 'gwt-contacts' do
 
   ipr.add_exploded_war_artifact(project,
                                 :war_module_names => [project('web').iml.id],
+                                :jpa_module_names => [project('server').iml.id],
+                                :ejb_module_names => [project('server').iml.id],
                                 :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
                                 :dependencies => [:gwt_user, :gwt_cache_filter, :gwt_appcache_server, projects('shared', 'server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => "-noserver -port 8080")
