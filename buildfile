@@ -37,8 +37,8 @@ define 'gwt-contacts' do
     package(:jar)
     package(:sources)
 
-    iml.add_gwt_facet({'com.google.gwt.sample.contacts.ContactsDev' => true,
-                       'com.google.gwt.sample.contacts.Contacts' => false},
+    iml.add_gwt_facet({'org.realityforge.gwt.sample.contacts.ContactsDev' => true,
+                       'org.realityforge.gwt.sample.contacts.Contacts' => false},
                       :settings => {:compilerMaxHeapSize => "1024"},
                       :gwt_dev_artifact => :gwt_dev)
   end
@@ -69,7 +69,7 @@ define 'gwt-contacts' do
   define 'web' do
     iml.add_web_facet
 
-    gwt(["com.google.gwt.sample.contacts.Contacts"],
+    gwt(["org.realityforge.gwt.sample.contacts.Contacts"],
         :dependencies => [project('client').compile.dependencies,
                           # The following picks up both the jar and sources
                           # packages deliberately. It is needed for the

@@ -3,7 +3,7 @@
     "-//Puppy Crawl//DTD Import Control 1.1//EN"
     "http://www.puppycrawl.com/dtds/import_control_1_1.dtd">
 
-<import-control pkg="com.google.gwt.sample.contacts">
+<import-control pkg="org.realityforge.gwt.sample.contacts">
 
   <allow pkg="java.util"/>
 
@@ -15,8 +15,8 @@
   </subpackage>
 
   <subpackage name="server">
-    <allow pkg="com.google.gwt.sample.contacts.shared"/>
-    <allow pkg="com.google.gwt.sample.contacts.server"/>
+    <allow pkg="org.realityforge.gwt.sample.contacts.shared"/>
+    <allow pkg="org.realityforge.gwt.sample.contacts.server"/>
     <allow pkg="com.google.gwt.user.server.rpc"/>
     <allow pkg="javax.servlet"/>
     <allow pkg="javax.ejb"/>
@@ -29,14 +29,14 @@
     <allow class="javax.inject.Provider"/>
 
     <allow class="com.google.gwt.core.client.EntryPoint" local-only="true"/>
-    <allow class="com.google.gwt.sample.contacts.client.gin.ApplicationInjector" local-only="true"/>
+    <allow class="org.realityforge.gwt.sample.contacts.client.gin.ApplicationInjector" local-only="true"/>
     <allow class="com.google.gwt.core.client.RunAsyncCallback" local-only="true"/>
 
     <allow class="com.google.gwt.core.client.GWT"/>
 
     <allow pkg="com.google.gwt.event.logical.shared"/>
-    <allow pkg="com.google.gwt.sample.contacts.shared.*" regex="true"/>
-    <allow pkg="com.google.gwt.sample.contacts.client.*" regex="true"/>
+    <allow pkg="org.realityforge.gwt.sample.contacts.shared.*" regex="true"/>
+    <allow pkg="org.realityforge.gwt.sample.contacts.client.*" regex="true"/>
     <allow pkg="com.google.gwt.event.shared.*" regex="true"/>
     <allow pkg="com.google.gwt.user.client.*" regex="true"/>
 
