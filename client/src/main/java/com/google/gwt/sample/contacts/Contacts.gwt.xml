@@ -39,8 +39,6 @@
   <source path='client'/>
   <source path='shared'/>
 
-  <set-configuration-property name="UiBinder.useSafeHtmlTemplates" value="true"/>
-
   <set-property name="gwt.logging.enabled" value="FALSE"/>
 
   <!-- Some optimisations. See CompilerParameters.gwt.xml for more compiler options -->
