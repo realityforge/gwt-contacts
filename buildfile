@@ -13,24 +13,6 @@ define 'gwt-contacts' do
   compile.options.target = '1.7'
   compile.options.lint = 'all'
 
-  desc "GWT Contacts: Shared component"
-  define 'shared' do
-    compile.with :javax_annotation,
-                 :javax_inject,
-                 :gwt_user
-    compile.using :javac
-
-    iml.add_gwt_facet({}, :gwt_dev_artifact => :gwt_dev)
-
-    Domgen::GenerateTask.new(:Contacts,
-                             "shared",
-                             [:gwt_rpc_shared],
-                             _(:target, :generated, 'domgen'))
-
-    package(:jar)
-    package(:sources)
-  end
-
   desc "GWT Contacts: Client-side component"
   define 'client' do
     iml.add_gwt_facet({'com.google.gwt.sample.contacts.ContactsDev' => true,
@@ -46,14 +28,13 @@ define 'gwt-contacts' do
                  :aopalliance,
                  :google_guice_assistedinject,
                  :javax_inject,
-                 :gwt_gin,
-                 project('shared').package(:jar)
+                 :gwt_gin
 
     test.with :easymock, :mockito, :json
 
     Domgen::GenerateTask.new(:Contacts,
                              "client",
-                             [:gwt_client, :gwt_rpc_client, :gwt_client_jso],
+                             [:gwt_client, :gwt_rpc_shared, :gwt_rpc_client, :gwt_client_jso],
                              _(:target, :generated, 'domgen'))
 
     package(:jar)
@@ -71,7 +52,6 @@ define 'gwt-contacts' do
                  :javax_servlet,
                  :javax_ejb,
                  :javax_persistence,
-                 project('shared').package(:jar),
                  :javax_annotation,
                  :javax_validation
     iml.add_jpa_facet
@@ -79,7 +59,7 @@ define 'gwt-contacts' do
 
     Domgen::GenerateTask.new(:Contacts,
                              "server",
-                             [:ee_data_types, :ee, :gwt_rpc_server, :jpa_test_module],
+                             [:ee_data_types, :ee, :gwt_rpc_shared, :gwt_rpc_server, :jpa_test_module],
                              _(:target, :generated, 'domgen'))
 
     test.compile.with :guiceyloops,
@@ -103,7 +83,6 @@ define 'gwt-contacts' do
                                            # packages deliberately. It is needed for the
                                            # generators to access classes in annotations.
                                            project('client'),
-                                           project('shared'),
                                            # Validation needed to quieten warnings from gwt compiler
                                            :javax_validation,
                                            :javax_validation_sources],
@@ -113,9 +92,7 @@ define 'gwt-contacts' do
     package(:war).tap do |war|
       war.include "#{contact_module}/WEB-INF"
       war.include file("#{contact_module}/contacts" => [contact_module])
-      war.with :libs => [:gwt_cache_filter,
-                         project('shared').package(:jar),
-                         project('server')]
+      war.with :libs => [:gwt_cache_filter, project('server')]
     end
   end
 
@@ -124,20 +101,19 @@ define 'gwt-contacts' do
   project.clean { rm_rf _('database/generated') }
 
   doc.using :javadoc, { :tree => false, :since => false, :deprecated => false, :index => false, :help => false }
-  doc.from projects('shared', 'client', 'server')
+  doc.from projects('client', 'server')
 
   ipr.add_exploded_war_artifact(project,
                                 :war_module_names => [project('web').iml.id],
                                 :jpa_module_names => [project('server').iml.id],
                                 :ejb_module_names => [project('server').iml.id],
-                                :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
-                                :dependencies => [:gwt_user, :gwt_cache_filter, :gwt_appcache_server, projects('shared', 'server')])
+                                :gwt_module_names => [project('client').iml.id],
+                                :dependencies => [:gwt_user, :gwt_cache_filter, :gwt_appcache_server, projects('server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => "-noserver -port 8080")
 
   iml.add_jruby_facet
 
   checkstyle.config_directory = _('etc/checkstyle')
-  checkstyle.source_paths << project('shared')._(:source, :main, :java)
   checkstyle.source_paths << project('client')._(:source, :main, :java)
   checkstyle.source_paths << project('server')._(:source, :main, :java)
   checkstyle.extra_dependencies << :javax_servlet
