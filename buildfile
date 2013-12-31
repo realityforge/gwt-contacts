@@ -2,6 +2,7 @@ require 'buildr/git_auto_version'
 require 'buildr/top_level_generate_dir'
 require 'buildr/single_intermediate_layout'
 require 'buildr/checkstyle'
+require 'buildr/jacoco'
 require 'buildr/gwt'
 
 desc "GWT Contacts: Sample application showing off our best practices"
