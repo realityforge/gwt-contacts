@@ -103,5 +103,4 @@ define 'gwt-contacts' do
   checkstyle.source_paths << project('server')._(:source, :main, :java)
   checkstyle.extra_dependencies << PROVIDED_DEPS
   checkstyle.extra_dependencies << INCLUDED_DEPENDENCIES
-
 end
