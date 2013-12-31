@@ -34,7 +34,9 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Client-side component"
   define 'client' do
-    iml.add_gwt_facet({"/contacts" => "com.google.gwt.sample.contacts.ContactsDev"},
+    iml.add_gwt_facet({'com.google.gwt.sample.contacts.ContactsDev' => true,
+                       'com.google.gwt.sample.contacts.Contacts' => false},
+                      :settings => {:compilerMaxHeapSize => "1024"},
                       :gwt_dev_artifact => :gwt_dev)
 
     compile.with :gwt_user,
