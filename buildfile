@@ -16,8 +16,6 @@ define 'gwt-contacts' do
   desc "GWT Contacts: Shared component"
   define 'shared' do
     compile.with :javax_annotation,
-                 :replicant,
-                 :replicant_sources,
                  :javax_inject,
                  :gwt_user
 
@@ -47,8 +45,6 @@ define 'gwt-contacts' do
                  :aopalliance,
                  :google_guice_assistedinject,
                  :javax_inject,
-                 :replicant,
-                 :replicant_sources,
                  :gwt_gin,
                  project('shared').package(:jar)
 
@@ -108,8 +104,6 @@ define 'gwt-contacts' do
                                            project('client'),
                                            project('shared'),
                                            # Validation needed to quieten warnings from gwt compiler
-                                           :replicant,
-                                           :replicant_sources,
                                            :javax_validation,
                                            :javax_validation_sources],
                          :java_args => ["-Xms512M", "-Xmx512M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
