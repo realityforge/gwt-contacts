@@ -1,3 +1,6 @@
+gwt-contacts
+============
+
 This is the gwt "contacts" tutorial application from google. The following
 enhancements have been made;
 
