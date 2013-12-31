@@ -6,7 +6,7 @@ import com.google.gwt.sample.contacts.client.common.SelectionModel;
 import com.google.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
 import com.google.gwt.sample.contacts.client.event.contacts.AddContactEvent;
 import com.google.gwt.sample.contacts.client.event.contacts.ShowContactEvent;
-import com.google.gwt.sample.contacts.client.service.contacts.ContactsService;
+import com.google.gwt.sample.contacts.client.service.contacts.GwtRpcContactsService;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -20,7 +20,7 @@ public class ListContactsActivity
   extends AbstractActivity
   implements ListContactsView.Presenter
 {
-  private final ContactsService _rpcService;
+  private final GwtRpcContactsService _rpcService;
   private final EventBus _eventBus;
   private final ListContactsView _view;
   private final SelectionModel<ContactDetailsDTO> _selectionModel;
@@ -28,7 +28,7 @@ public class ListContactsActivity
   private List<ContactDetailsDTO> _contactDetails;
 
   @Inject
-  public ListContactsActivity( final ContactsService rpcService,
+  public ListContactsActivity( final GwtRpcContactsService rpcService,
                                final EventBus eventBus,
                                final ListContactsView view )
   {

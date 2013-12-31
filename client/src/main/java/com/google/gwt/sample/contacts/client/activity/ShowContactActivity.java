@@ -6,7 +6,7 @@ import com.google.gwt.sample.contacts.client.data_type.contacts.ContactDTO;
 import com.google.gwt.sample.contacts.client.event.contacts.ContactClosedEvent;
 import com.google.gwt.sample.contacts.client.event.contacts.EditContactEvent;
 import com.google.gwt.sample.contacts.client.place.ShowContactPlace;
-import com.google.gwt.sample.contacts.client.service.contacts.ContactsService;
+import com.google.gwt.sample.contacts.client.service.contacts.GwtRpcContactsService;
 import com.google.gwt.sample.contacts.client.view.ShowContactView;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -22,14 +22,14 @@ public class ShowContactActivity
 {
   private static final Logger LOG = Logger.getLogger( "ShowContact" );
 
-  private final ContactsService _rpcService;
+  private final GwtRpcContactsService _rpcService;
   private final EventBus _eventBus;
   private final ShowContactView _view;
 
   private String _contactID;
 
   @Inject
-  public ShowContactActivity( final ContactsService rpcService,
+  public ShowContactActivity( final GwtRpcContactsService rpcService,
                               final EventBus eventBus,
                               final ShowContactView view )
   {

@@ -8,7 +8,7 @@ import com.google.gwt.sample.contacts.client.event.contacts.ContactUpdatedEvent;
 import com.google.gwt.sample.contacts.client.event.contacts.EditContactCancelledEvent;
 import com.google.gwt.sample.contacts.client.place.AddContactPlace;
 import com.google.gwt.sample.contacts.client.place.EditContactPlace;
-import com.google.gwt.sample.contacts.client.service.contacts.ContactsService;
+import com.google.gwt.sample.contacts.client.service.contacts.GwtRpcContactsService;
 import com.google.gwt.sample.contacts.client.view.EditContactView;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
@@ -24,14 +24,14 @@ public class EditContactActivity
 {
   private static final Logger LOG = Logger.getLogger( "EditContact" );
 
-  private final ContactsService _rpcService;
+  private final GwtRpcContactsService _rpcService;
   private final EventBus _eventBus;
   private final EditContactView _view;
 
   private String _contactID;
 
   @Inject
-  public EditContactActivity( final ContactsService rpcService,
+  public EditContactActivity( final GwtRpcContactsService rpcService,
                               final EventBus eventBus,
                               final EditContactView view )
   {

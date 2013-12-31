@@ -4,7 +4,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
 import com.google.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTOFactory;
-import com.google.gwt.sample.contacts.client.service.contacts.ContactsService;
+import com.google.gwt.sample.contacts.client.service.contacts.GwtRpcContactsService;
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ import static org.easymock.EasyMock.verify;
 public class ExampleJRETest
 {
   private ListContactsActivity _listContactsActivity;
-  private ContactsService _mockRpcService;
+  private GwtRpcContactsService _mockRpcService;
   private EventBus _mockEventBus;
   private ListContactsView _mockViewList;
   private List<ContactDetailsDTO> _contactDetails;
@@ -33,7 +33,7 @@ public class ExampleJRETest
   @Before
   public void setUp()
   {
-    _mockRpcService = createStrictMock( ContactsService.class );
+    _mockRpcService = createStrictMock( GwtRpcContactsService.class );
     _mockEventBus = new SimpleEventBus();
     _mockViewList = createStrictMock( ListContactsView.class );
     _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
