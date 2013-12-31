@@ -9,16 +9,6 @@
     <welcome-file>Contacts.html</welcome-file>
   </welcome-file-list>
 
-  <servlet>
-    <servlet-name>remoteLoggingServlet</servlet-name>
-    <servlet-class>com.google.gwt.logging.server.RemoteLoggingServiceImpl</servlet-class>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>remoteLoggingServlet</servlet-name>
-    <url-pattern>/contacts/remote_logging</url-pattern>
-  </servlet-mapping>
-
   <session-config>
     <session-timeout>30</session-timeout>
     <cookie-config>
