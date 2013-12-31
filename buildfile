@@ -9,8 +9,8 @@ desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
   project.group = 'org.realityforge.gwt.contacts'
 
-  compile.options.source = '1.6'
-  compile.options.target = '1.6'
+  compile.options.source = '1.7'
+  compile.options.target = '1.7'
   compile.options.lint = 'all'
 
   desc "GWT Contacts: Shared component"
