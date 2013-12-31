@@ -67,18 +67,16 @@ define 'gwt-contacts' do
   define 'web' do
     iml.add_web_facet
 
-    contact_module = gwt(["com.google.gwt.sample.contacts.Contacts"],
-                         :dependencies => [project('client').compile.dependencies,
-                                           # The following picks up both the jar and sources
-                                           # packages deliberately. It is needed for the
-                                           # generators to access classes in annotations.
-                                           project('client')],
-                         :java_args => ["-Xms512M", "-Xmx512M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
-                         :draft_compile => (ENV["FAST_GWT"] == 'true'))
+    gwt(["com.google.gwt.sample.contacts.Contacts"],
+        :dependencies => [project('client').compile.dependencies,
+                          # The following picks up both the jar and sources
+                          # packages deliberately. It is needed for the
+                          # generators to access classes in annotations.
+                          project('client')],
+        :java_args => ["-Xms512M", "-Xmx512M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
+        :draft_compile => (ENV["FAST_GWT"] == 'true'))
 
     package(:war).tap do |war|
-      war.include "#{contact_module}/WEB-INF"
-      war.include file("#{contact_module}/contacts" => [contact_module])
       war.with :libs => [INCLUDED_DEPENDENCIES, project('server')]
     end
   end
