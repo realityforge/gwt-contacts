@@ -40,6 +40,8 @@ define 'gwt-contacts' do
                       :gwt_dev_artifact => :gwt_dev)
 
     compile.with :gwt_user,
+                 :gwt_appcache_linker,
+                 :gwt_appcache_server,
                  :javax_annotation,
                  :google_guice,
                  :aopalliance,
@@ -65,6 +67,7 @@ define 'gwt-contacts' do
   define 'server' do
     compile.with :gwt_user,
                  :gwt_dev,
+                 :gwt_appcache_server,
                  :jackson_core,
                  :jackson_mapper,
                  :javax_inject,
@@ -131,7 +134,7 @@ define 'gwt-contacts' do
   ipr.add_exploded_war_artifact(project,
                                 :war_module_names => [project('web').iml.id],
                                 :gwt_module_names => [project('client').iml.id, project('shared').iml.id],
-                                :dependencies => [:gwt_cache_filter, projects('shared', 'server')])
+                                :dependencies => [:gwt_user, :gwt_cache_filter, :gwt_appcache_server, projects('shared', 'server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => "-noserver -port 8080")
 
   iml.add_jruby_facet
