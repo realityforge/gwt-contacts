@@ -26,8 +26,7 @@ define 'gwt-contacts' do
     Domgen::GenerateTask.new(:Contacts,
                              "shared",
                              [:gwt_rpc_shared],
-                             _(:target, :generated, "domgen"),
-                             project)
+                             _(:target, :generated, 'domgen'))
 
     package(:jar)
     package(:sources)
@@ -55,8 +54,7 @@ define 'gwt-contacts' do
                              "client",
                              [:gwt_client, :gwt_rpc_client, :gwt_client_jso, :auto_bean_enumeration],
                              #[:gwt_client_service_test, :gwt_client_service, :imit, :imit_json],
-                             _(:target, :generated, "domgen"),
-                             project)
+                             _(:target, :generated, 'domgen'))
 
     package(:jar)
     package(:sources)
@@ -82,8 +80,7 @@ define 'gwt-contacts' do
     Domgen::GenerateTask.new(:Contacts,
                              "server",
                              [:ee_data_types, :ee, :gwt_rpc_server, :jpa_test_module],
-                             _(:target, :generated, "domgen"),
-                             project)
+                             _(:target, :generated, 'domgen'))
 
     test.compile.with :guiceyloops,
                       :google_guice,
