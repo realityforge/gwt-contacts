@@ -86,7 +86,7 @@ define 'gwt-contacts' do
                       :aopalliance,
                       :google_guice_assistedinject,
                       :h2db,
-                      'org.eclipse.persistence:javax.persistence:jar:2.0.1',
+                      :javax_persistence,
                       :eclipselink
     package(:jar)
   end
