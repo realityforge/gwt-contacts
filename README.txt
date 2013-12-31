@@ -19,9 +19,9 @@ enhancements have been made;
 Getting Started
 ---------------
 
-* Download a version of ruby. The build has been tested with JRuby 1.6.0.
+* Download the right version of ruby.
 
-* Install the buildr 1.4.6 gem. e.g. "jruby -S gem install -v 1.4.6 buildr"
+* Install the ruby dependencies. (i.e. "gem install bundler && bundler install")
 
 * Download dependencies and source for dependencies. Note: It is important
   to download source as the GWT compiler actually uses the source from
@@ -31,16 +31,7 @@ Getting Started
 
 * Generate IDEA project files. e.g. "buildr idea"
 
-* Download and install GlassFish 3.1.1 or later.
-  - Create a LoginRealm named "FireRealm".
-    - In DSE I tend to use an LDAP realm against ActiveDirectory.
-      See http://www.webdavsystem.com/javaserver/doc/authentication/ldap_glassfish
-      Also see IRIS Getting Started Guide.
-    - Elsewhere I use the default file realm and add a user.
-    - NOTE: You should go into Common Tasks/Configurations/server-config/Security
-      and change the parameter "Default Principal To Role Mapping" to true and
-      restart the server.
-  - Install the Hibernate plugin
+* Download and install GlassFish 3.1.2.2 or later.
 
 * Setup GlassFish configuration in IDEA and make sure it deploys the contacts
   artifact when it starts up.
