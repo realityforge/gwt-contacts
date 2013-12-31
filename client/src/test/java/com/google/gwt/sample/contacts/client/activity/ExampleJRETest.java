@@ -8,14 +8,14 @@ import com.google.gwt.sample.contacts.client.service.contacts.GwtRpcContactsServ
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.realityforge.replicant.client.AsyncCallback;
 import org.realityforge.replicant.client.AsyncErrorCallback;
-import static org.junit.Assert.*;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
+import static org.testng.Assert.*;
 
 @SuppressWarnings("unchecked")
 public class ExampleJRETest
@@ -26,7 +26,7 @@ public class ExampleJRETest
   private ListContactsView _mockViewList;
   private List<ContactDetailsDTO> _contactDetails;
 
-  @Before
+  @BeforeMethod
   public void setUp()
   {
     _mockRpcService = mock( GwtRpcContactsService.class );
