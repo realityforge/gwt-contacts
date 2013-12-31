@@ -5,6 +5,15 @@ require 'buildr/checkstyle'
 require 'buildr/jacoco'
 require 'buildr/gwt'
 
+JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources]
+GIN_JARS = [:gwt_gin, :google_guice, :aopalliance, :google_guice_assistedinject]
+APPCACHE_GWT_JARS = [:gwt_appcache_client, :gwt_appcache_linker, :gwt_appcache_server]
+GWT_JARS = JEE_GWT_JARS + GIN_JARS + [:gwt_user] + APPCACHE_GWT_JARS
+JEE_JARS = [:javax_inject, :javax_servlet, :javax_ejb, :javax_persistence, :javax_annotation, :javax_validation]
+JACKSON_DEPS = [:jackson_core, :jackson_mapper]
+PROVIDED_DEPS = JACKSON_DEPS + JEE_JARS
+INCLUDED_DEPENDENCIES = [:gwt_user, :gwt_appcache_server, :gwt_cache_filter]
+
 desc "GWT Contacts: Sample application showing off our best practices"
 define 'gwt-contacts' do
   project.group = 'org.realityforge.gwt.contacts'
@@ -20,15 +29,7 @@ define 'gwt-contacts' do
                       :settings => {:compilerMaxHeapSize => "1024"},
                       :gwt_dev_artifact => :gwt_dev)
 
-    compile.with :gwt_user,
-                 :gwt_appcache_linker,
-                 :gwt_appcache_server,
-                 :javax_annotation,
-                 :google_guice,
-                 :aopalliance,
-                 :google_guice_assistedinject,
-                 :javax_inject,
-                 :gwt_gin
+    compile.with GWT_JARS
 
     test.with :easymock, :mockito, :json
 
@@ -43,17 +44,7 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Server-side component"
   define 'server' do
-    compile.with :gwt_user,
-                 :gwt_dev,
-                 :gwt_appcache_server,
-                 :jackson_core,
-                 :jackson_mapper,
-                 :javax_inject,
-                 :javax_servlet,
-                 :javax_ejb,
-                 :javax_persistence,
-                 :javax_annotation,
-                 :javax_validation
+    compile.with PROVIDED_DEPS + INCLUDED_DEPENDENCIES
     iml.add_jpa_facet
     iml.add_ejb_facet
 
@@ -78,21 +69,17 @@ define 'gwt-contacts' do
 
     contact_module = gwt(["com.google.gwt.sample.contacts.Contacts"],
                          :dependencies => [project('client').compile.dependencies,
-                                           :gwt_user,
                                            # The following picks up both the jar and sources
                                            # packages deliberately. It is needed for the
                                            # generators to access classes in annotations.
-                                           project('client'),
-                                           # Validation needed to quieten warnings from gwt compiler
-                                           :javax_validation,
-                                           :javax_validation_sources],
+                                           project('client')],
                          :java_args => ["-Xms512M", "-Xmx512M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
                          :draft_compile => (ENV["FAST_GWT"] == 'true'))
 
     package(:war).tap do |war|
       war.include "#{contact_module}/WEB-INF"
       war.include file("#{contact_module}/contacts" => [contact_module])
-      war.with :libs => [:gwt_cache_filter, project('server')]
+      war.with :libs => [INCLUDED_DEPENDENCIES, project('server')]
     end
   end
 
@@ -108,7 +95,7 @@ define 'gwt-contacts' do
                                 :jpa_module_names => [project('server').iml.id],
                                 :ejb_module_names => [project('server').iml.id],
                                 :gwt_module_names => [project('client').iml.id],
-                                :dependencies => [:gwt_user, :gwt_cache_filter, :gwt_appcache_server, projects('server')])
+                                :dependencies => [INCLUDED_DEPENDENCIES, projects('server')])
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => "-noserver -port 8080")
 
   iml.add_jruby_facet
@@ -116,5 +103,7 @@ define 'gwt-contacts' do
   checkstyle.config_directory = _('etc/checkstyle')
   checkstyle.source_paths << project('client')._(:source, :main, :java)
   checkstyle.source_paths << project('server')._(:source, :main, :java)
-  checkstyle.extra_dependencies << :javax_servlet
+  checkstyle.extra_dependencies << PROVIDED_DEPS
+  checkstyle.extra_dependencies << INCLUDED_DEPENDENCIES
+
 end
