@@ -52,7 +52,7 @@ define 'gwt-contacts' do
 
     Domgen::GenerateTask.new(:Contacts,
                              "client",
-                             [:gwt_client, :gwt_rpc_client, :gwt_client_jso, :auto_bean_enumeration],
+                             [:gwt_client, :gwt_rpc_client, :gwt_client_jso],
                              #[:gwt_client_service_test, :gwt_client_service, :imit, :imit_json],
                              _(:target, :generated, 'domgen'))
 
