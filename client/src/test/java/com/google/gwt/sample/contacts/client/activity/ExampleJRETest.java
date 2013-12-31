@@ -8,20 +8,16 @@ import com.google.gwt.sample.contacts.client.service.contacts.GwtRpcContactsServ
 import com.google.gwt.sample.contacts.client.view.ListContactsView;
 import java.util.ArrayList;
 import java.util.List;
-import org.easymock.IAnswer;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.realityforge.replicant.client.AsyncCallback;
 import org.realityforge.replicant.client.AsyncErrorCallback;
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.getCurrentArguments;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-@SuppressWarnings( "unchecked" )
+@SuppressWarnings("unchecked")
 public class ExampleJRETest
 {
   private ListContactsActivity _listContactsActivity;
@@ -33,9 +29,9 @@ public class ExampleJRETest
   @Before
   public void setUp()
   {
-    _mockRpcService = createStrictMock( GwtRpcContactsService.class );
+    _mockRpcService = mock( GwtRpcContactsService.class );
     _mockEventBus = new SimpleEventBus();
-    _mockViewList = createStrictMock( ListContactsView.class );
+    _mockViewList = mock( ListContactsView.class );
     _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
   }
 
@@ -47,48 +43,45 @@ public class ExampleJRETest
     _contactDetails.add( newContactDetails( "1", "type2", "2_contact" ) );
     _listContactsActivity.setContactDetails( _contactDetails );
 
-    _mockRpcService.deleteContacts( isA( ArrayList.class ), isA( AsyncCallback.class ), isA( AsyncErrorCallback.class ) );
-
-    expectLastCall().andAnswer( new IAnswer()
+    doAnswer( new Answer<Void>()
     {
-      public Object answer()
+      @Override
+      public Void answer( final InvocationOnMock invocation )
         throws Throwable
       {
-        final AsyncCallback callback = getCallback();
+        final AsyncCallback callback = (AsyncCallback) invocation.getArguments()[ 1 ];
         callback.onSuccess( null );
         return null;
       }
-    } );
+    } ).when( _mockRpcService ).deleteContacts( anyList(),
+                                                any( AsyncCallback.class ),
+                                                any( AsyncErrorCallback.class ) );
 
-    _mockRpcService.getContactDetails( isA( AsyncCallback.class ), isA( AsyncErrorCallback.class ) );
-    expectLastCall().andAnswer( new IAnswer()
+    doAnswer( new Answer<Void>()
     {
-      public Object answer()
+      @Override
+      public Void answer( final InvocationOnMock invocation )
         throws Throwable
       {
         final ArrayList<ContactDetailsDTO> results = new ArrayList<ContactDetailsDTO>();
         results.add( newContactDetails( "0", "type1", "1_contact" ) );
-        getCallback().onSuccess( results );
+        final AsyncCallback callback = (AsyncCallback) invocation.getArguments()[ 0 ];
+        callback.onSuccess( results );
         return null;
       }
-    } );
+    } ).
+      when( _mockRpcService ).
+      getContactDetails( any( AsyncCallback.class ), any( AsyncErrorCallback.class ) );
 
 
-    replay( _mockRpcService );
     _listContactsActivity.onDeleteButtonClicked();
     verify( _mockRpcService );
 
-    Assert.assertEquals( 1, _listContactsActivity.getContactDetails().size() );
+    assertEquals( 1, _listContactsActivity.getContactDetails().size() );
   }
 
   private ContactDetailsDTO newContactDetails( final String id, final String type, final String displayName )
   {
     return ContactDetailsDTOFactory.create( id, type, displayName );
-  }
-
-  private AsyncCallback getCallback()
-  {
-    final Object[] arguments = getCurrentArguments();
-    return (AsyncCallback) arguments[ arguments.length - 2 ];
   }
 }

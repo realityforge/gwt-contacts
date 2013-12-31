@@ -31,7 +31,7 @@ define 'gwt-contacts' do
 
     compile.with GWT_JARS
 
-    test.with :easymock, :mockito, :json
+    test.with :mockito
 
     package(:jar)
     package(:sources)
