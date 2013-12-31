@@ -14,6 +14,22 @@
 
 class Dbt
   module SqlServerConfig
+
+    def build_jdbc_url(options = {})
+      credentials_inline = options[:credentials_inline].nil? ? false : options[:credentials_inline]
+      use_control_catalog = options[:use_control_catalog].nil? ? false : options[:use_control_catalog]
+
+      url = "jdbc:jtds:sqlserver://#{host}:#{port}/"
+      url += use_control_catalog ? control_catalog_name : catalog_name
+      url += ";instance=#{instance}" if instance
+      url += ";appname=#{appname}" if appname
+      if credentials_inline
+        url += ";user=#{username}"
+        url += ";password=#{password}"
+      end
+      url
+    end
+
     def control_catalog_name
       'msdb'
     end
@@ -33,6 +49,18 @@ class Dbt
 
     def force_drop?
       !!@force_drop
+    end
+
+    attr_writer :reindex_on_import
+
+    def reindex_on_import?
+      @reindex_on_import.nil? ? true : @reindex_on_import
+    end
+
+    attr_writer :shrink_on_import
+
+    def shrink_on_import?
+      @shrink_on_import.nil? ? false : @shrink_on_import
     end
   end
 
@@ -272,7 +300,7 @@ SQL
 
       def post_table_import(imp, table)
         post_fixture_import(table)
-        if imp.reindex?
+        if Dbt.configuration_for_key(imp.database.key).reindex_on_import?
           Dbt.runtime.info("Reindexing #{clean_table_name(table)}")
           execute("DBCC DBREINDEX (N'#{table}', '', 0) WITH NO_INFOMSGS")
         end
@@ -280,7 +308,7 @@ SQL
 
       def post_data_module_import(imp, module_name)
         sql_prefix = "DECLARE @DbName VARCHAR(100); SET @DbName = DB_NAME();"
-        if imp.shrink?
+        if Dbt.configuration_for_key(imp.database.key).shrink_on_import?
           # We are shrinking the database in case any of the import scripts created tables/columns and dropped them
           # later. This would leave large chunks of empty space in the underlying files. However it has to be done before
           # we reindex otherwise the indexes will be highly fragmented.
@@ -289,8 +317,8 @@ SQL
           execute("#{sql_prefix} DBCC SHRINKDATABASE(@DbName, 10, TRUNCATEONLY) WITH NO_INFOMSGS")
         end
 
-        if imp.reindex?
-          imp.database.table_ordering(module_name).each do |table|
+        if Dbt.configuration_for_key(imp.database.key).reindex_on_import?
+          imp.database.repository.table_ordering(module_name).each do |table|
             Dbt.runtime.info("Reindexing #{clean_table_name(table)}")
             execute("DBCC DBREINDEX (N'#{table}', '', 0) WITH NO_INFOMSGS")
           end
@@ -298,7 +326,7 @@ SQL
       end
 
       def post_database_import(imp)
-        if imp.reindex?
+        if Dbt.configuration_for_key(imp.database.key).reindex_on_import?
           sql_prefix = "DECLARE @DbName VARCHAR(100); SET @DbName = DB_NAME();"
 
           Dbt.runtime.info("Updating statistics")

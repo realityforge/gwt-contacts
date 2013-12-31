@@ -18,27 +18,30 @@ class Dbt #nodoc
     database = self.repository.database_for_key(database_key)
     package_dir = buildr_project._(:target, 'dbt')
     jruby_version = options[:jruby_version] || (defined?(JRUBY_VERSION) ? JRUBY_VERSION : '1.7.2')
+    include_code = options[:include_code].nil? || options[:include_code]
 
     task "#{database.task_prefix}:package" => ["#{database.task_prefix}:prepare_fs"] do
       banner("Packaging Database Scripts", database.key)
       params = options.dup
       params[:jruby_version] = jruby_version
+      params[:include_code] = include_code
       package_database(database, package_dir, params)
     end
-    buildr_project.file("#{package_dir}/code" => "#{database.task_prefix}:package")
-    buildr_project.file("#{package_dir}/data" => "#{database.task_prefix}:package")
     jar = buildr_project.package(:jar) do |j|
     end
-    dependencies =
-      ["org.jruby:jruby-complete:jar:#{jruby_version}"] +
-        Dbt::Config.driver_config_class(:jruby => true).jdbc_driver_dependencies
+    jar.include buildr_project.file("#{package_dir}/data" => "#{database.task_prefix}:package")
+    if include_code
+      buildr_project.file("#{package_dir}/code" => "#{database.task_prefix}:package")
+      dependencies =
+        ["org.jruby:jruby-complete:jar:#{jruby_version}"] +
+          Dbt::Config.driver_config_class(:jruby => true).jdbc_driver_dependencies
 
-    dependencies.each do |spec|
-      jar.merge(Buildr.artifact(spec))
+      dependencies.each do |spec|
+        jar.merge(::Buildr.artifact(spec))
+      end
+      jar.include "#{package_dir}/code", :as => '.'
+      jar.with :manifest => buildr_project.manifest.merge('Main-Class' => 'org.realityforge.dbt.dbtcli')
     end
-    jar.include "#{package_dir}/code", :as => '.'
-    jar.include "#{package_dir}/data"
-    jar.with :manifest => buildr_project.manifest.merge('Main-Class' => 'org.realityforge.dbt.dbtcli')
   end
 
   private
@@ -86,7 +89,7 @@ class Dbt #nodoc
 
   def self.package_database(database, package_dir, options)
     rm_rf package_dir
-    package_database_code(database, "#{package_dir}/code", options)
+    package_database_code(database, "#{package_dir}/code", options) if options[:include_code]
     self.runtime.package_database_data(database, "#{package_dir}/data")
   end
 
@@ -199,8 +202,6 @@ TXT
         import_config = {
           :modules => definition.modules,
           :dir => definition.dir,
-          :reindex => definition.reindex?,
-          :shrink => definition.shrink?,
           :pre_import_dirs => definition.pre_import_dirs,
           :post_import_dirs => definition.post_import_dirs
         }
@@ -214,7 +215,7 @@ puts "Environment: \#{Dbt::Config.environment}"
 puts "Config File: \#{Dbt::Config.config_filename}"
 puts "Commands: \#{ARGV.join(' ')}"
 
-Dbt.repository.load_configuration_data(Dbt::Config.config_filename)
+Dbt.repository.load_configuration_data
 Dbt.runtime.load_database_config(database)
 
 ARGV.each do |command|

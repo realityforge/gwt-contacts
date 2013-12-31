@@ -24,14 +24,6 @@ class Dbt
       "net.sourceforge.jtds.jdbc.Driver"
     end
 
-    def jdbc_url(use_control_catalog)
-      url = "jdbc:jtds:sqlserver://#{host}:#{port}/"
-      url += use_control_catalog ? control_catalog_name : catalog_name
-      url += ";instance=#{instance}" if instance
-      url += ";appname=#{appname}" if appname
-      url
-    end
-
     def jdbc_info
       info = java.util.Properties.new
       info.put('user', username) if username

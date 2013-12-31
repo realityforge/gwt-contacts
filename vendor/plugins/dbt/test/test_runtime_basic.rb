@@ -6,10 +6,7 @@ class TestRuntimeBasic < Dbt::TestCase
     mock = Dbt::DbDriver.new
     Dbt.runtime.instance_variable_set("@db", mock)
 
-    db_scripts = create_dir("databases")
-    module_name = 'MyModule'
-    table_names = ['[MyModule].[foo]', '[MyModule].[bar]', '[MyModule].[baz]']
-    database = create_simple_db_definition(db_scripts, module_name, table_names)
+    database = create_simple_db_definition(create_dir("databases"), 'MyModule', [])
 
     database.version = 2
     database.migrations = false
@@ -22,6 +19,135 @@ class TestRuntimeBasic < Dbt::TestCase
     status = Dbt.runtime.status(database)
     assert_match 'Migration Support: Yes', status
     assert_match 'Database Version: 1', status
+  end
+
+  def test_pre_db_artifacts_loads_repository_xml
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    base_dir = create_dir("database")
+    database = Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.search_dirs = [base_dir]
+    end
+    File.open("#{base_dir}/repository.yml", "w") do |f|
+      f.write Dbt::RepositoryDefinition.new(:modules => ['Core'], :table_map => {'Core' => []}).to_yaml
+    end
+
+    repository = Dbt::RepositoryDefinition.new(:modules => ['CodeMetrics'],
+                                               :table_map => {'CodeMetrics' => ['"CodeMetrics"."tblCollection"',
+                                                                                '"CodeMetrics"."tblMethodMetric"']})
+    database.pre_db_artifacts << create_zip('data/repository.yml' => repository.to_yaml)
+
+    Dbt.runtime.load_database_config(database)
+
+    assert_equal ['CodeMetrics','Core'], database.repository.modules
+    assert_equal ['"CodeMetrics"."tblCollection"','"CodeMetrics"."tblMethodMetric"'], database.repository.table_ordering('CodeMetrics')
+  end
+
+  def test_multiple_pre_db_artifacts_loads_repository_xml
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    base_dir = create_dir("database")
+    database = Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.search_dirs = [base_dir]
+    end
+    File.open("#{base_dir}/repository.yml", "w") do |f|
+      f.write Dbt::RepositoryDefinition.new(:modules => ['Core'], :table_map => {'Core' => []}).to_yaml
+    end
+
+    repository = Dbt::RepositoryDefinition.new(:modules => ['CodeMetrics'],
+                                               :table_map => {'CodeMetrics' => ['"CodeMetrics"."tblCollection"',
+                                                                                '"CodeMetrics"."tblMethodMetric"']})
+    database.pre_db_artifacts << create_zip('data/repository.yml' => repository.to_yaml)
+
+    repository = Dbt::RepositoryDefinition.new(:modules => ['Second'],
+                                               :table_map => {'Second' => ['"Second"."tblA"', '"Second"."tblB"']})
+    database.pre_db_artifacts << create_zip('data/repository.yml' => repository.to_yaml)
+
+    Dbt.runtime.load_database_config(database)
+
+    assert_equal ['CodeMetrics','Second','Core'], database.repository.modules
+    assert_equal ['"CodeMetrics"."tblCollection"','"CodeMetrics"."tblMethodMetric"'], database.repository.table_ordering('CodeMetrics')
+    assert_equal ['"Second"."tblA"','"Second"."tblB"'], database.repository.table_ordering('Second')
+  end
+
+  def test_post_db_artifacts_loads_repository_xml
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    base_dir = create_dir("database")
+    database = Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.search_dirs = [base_dir]
+    end
+    File.open("#{base_dir}/repository.yml", "w") do |f|
+      f.write Dbt::RepositoryDefinition.new(:modules => ['Core'], :table_map => {'Core' => []}).to_yaml
+    end
+
+    repository = Dbt::RepositoryDefinition.new(:modules => ['CodeMetrics'],
+                                               :table_map => {'CodeMetrics' => ['"CodeMetrics"."tblCollection"',
+                                                                                '"CodeMetrics"."tblMethodMetric"']})
+    database.post_db_artifacts << create_zip('data/repository.yml' => repository.to_yaml)
+
+    Dbt.runtime.load_database_config(database)
+
+    assert_equal ['Core','CodeMetrics'], database.repository.modules
+    assert_equal ['"CodeMetrics"."tblCollection"','"CodeMetrics"."tblMethodMetric"'], database.repository.table_ordering('CodeMetrics')
+  end
+
+  def test_multiple_post_db_artifacts_loads_repository_xml
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    base_dir = create_dir("database")
+    database = Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.search_dirs = [base_dir]
+    end
+    File.open("#{base_dir}/repository.yml", "w") do |f|
+      f.write Dbt::RepositoryDefinition.new(:modules => ['Core'], :table_map => {'Core' => []}).to_yaml
+    end
+
+    repository = Dbt::RepositoryDefinition.new(:modules => ['CodeMetrics'],
+                                               :table_map => {'CodeMetrics' => ['"CodeMetrics"."tblCollection"',
+                                                                                '"CodeMetrics"."tblMethodMetric"']})
+    database.post_db_artifacts << create_zip('data/repository.yml' => repository.to_yaml)
+
+    repository = Dbt::RepositoryDefinition.new(:modules => ['Second'],
+                                               :table_map => {'Second' => ['"Second"."tblA"', '"Second"."tblB"']})
+    database.post_db_artifacts << create_zip('data/repository.yml' => repository.to_yaml)
+
+    Dbt.runtime.load_database_config(database)
+
+    assert_equal ['Core', 'CodeMetrics','Second'], database.repository.modules
+    assert_equal ['"CodeMetrics"."tblCollection"','"CodeMetrics"."tblMethodMetric"'], database.repository.table_ordering('CodeMetrics')
+    assert_equal ['"Second"."tblA"','"Second"."tblB"'], database.repository.table_ordering('Second')
+  end
+
+  def test_pre_and_post_db_artifacts_loads_repository_xml
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    base_dir = create_dir("database")
+    database = Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.search_dirs = [base_dir]
+    end
+    File.open("#{base_dir}/repository.yml", "w") do |f|
+      f.write Dbt::RepositoryDefinition.new(:modules => ['Core'], :table_map => {'Core' => []}).to_yaml
+    end
+
+    repository = Dbt::RepositoryDefinition.new(:modules => ['CodeMetrics'], :table_map => {'CodeMetrics' => []})
+    database.pre_db_artifacts << create_zip('data/repository.yml' => repository.to_yaml)
+    repository = Dbt::RepositoryDefinition.new(:modules => ['Second'], :table_map => {'Second' => []})
+    database.post_db_artifacts << create_zip('data/repository.yml' => repository.to_yaml)
+
+    Dbt.runtime.load_database_config(database)
+
+    assert_equal ['CodeMetrics', 'Core', 'Second'], database.repository.modules
   end
 
   def test_query
@@ -246,6 +372,72 @@ class TestRuntimeBasic < Dbt::TestCase
     create_table_sql("#{module_name}/Dir3", 'g')
     create_table_sql("#{module_name}/Dir4", 'h')
     create_table_sql("db-post-create", 'postCreate')
+
+    mock.expects(:open).with(config, true).in_sequence(@s)
+    mock.expects(:drop).with(database, config).in_sequence(@s)
+    mock.expects(:create_database).with(database, config).in_sequence(@s)
+    mock.expects(:close).with().in_sequence(@s)
+    mock.expects(:open).with(config, false).in_sequence(@s)
+    expect_create_table(mock, '', 'db-pre-create/', 'preCreate')
+    mock.expects(:create_schema).with(module_name).in_sequence(@s)
+    expect_create_table(mock, module_name, '', 'a')
+    expect_create_table(mock, module_name, '', 'b')
+    expect_create_table(mock, module_name, 'Dir1/', 'c')
+    expect_create_table(mock, module_name, 'Dir1/', 'd')
+    expect_create_table(mock, module_name, 'Dir2/', 'e')
+    expect_create_table(mock, module_name, 'Dir2/', 'f')
+    expect_delete(mock, module_name, 'foo')
+    expect_fixture(mock, module_name, 'foo')
+    expect_create_table(mock, module_name, 'Dir3/', 'g')
+    expect_create_table(mock, module_name, 'Dir4/', 'h')
+    expect_create_table(mock, '', 'db-post-create/', 'postCreate')
+    mock.expects(:close).with().in_sequence(@s)
+
+    Dbt.runtime.create(database)
+  end
+
+  def psn(dir,table_name)
+    "data/#{dir}/#{table_name}.sql"
+  end
+
+  def test_create_with_sql_from_package_import
+    Dbt::Config.default_up_dirs = ['.', 'Dir1', 'Dir2']
+    Dbt::Config.default_finalize_dirs = ['Dir3', 'Dir4']
+    Dbt::Config.default_fixture_dir_name = 'foo'
+    Dbt::Config.default_pre_create_dirs = ['db-pre-create']
+    Dbt::Config.default_post_create_dirs = ['db-post-create']
+
+    mock = Dbt::DbDriver.new
+    Dbt.runtime.instance_variable_set("@db", mock)
+
+    config = create_postgres_config()
+
+    db_scripts = create_dir("databases")
+    module_name = 'MyModule'
+    packaged_definition = Dbt::RepositoryDefinition.new(:modules => [module_name],
+                                                        :table_map => {module_name => ['[MyModule].[foo]']})
+    zipfile = create_zip("data/repository.yml" => packaged_definition.to_yaml,
+                         psn("db-pre-create", 'preCreate') => ct('preCreate'),
+                         "data/#{module_name}/#{Dbt::Config.default_fixture_dir_name}/#{module_name}.foo.yml" => "1:\n  ID: 1\n",
+                         psn("#{module_name}", 'a') => ct('a'),
+                         psn("#{module_name}", 'b') => ct('b'),
+                         psn("#{module_name}/Dir1", 'd') => ct('d'),
+                         psn("#{module_name}/Dir1", 'c') => ct('c'),
+                         psn("#{module_name}/Dir2", 'e') => ct('e'),
+                         psn("#{module_name}/Dir2", 'f') => ct('f'),
+                         psn("#{module_name}/Dir3", 'g') => ct('g'),
+                         psn("#{module_name}/Dir4", 'h') => ct('h'),
+                         psn("db-post-create", 'postCreate') => ct('postCreate') )
+    definition = Dbt::RepositoryDefinition.new(:modules => [], :table_map => {})
+    File.open("#{db_scripts}/repository.yml","w") do |f|
+      f.write definition.to_yaml
+    end
+    database = Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.post_db_artifacts << zipfile
+      db.search_dirs = [db_scripts]
+    end
+    Dbt.runtime.send(:perform_load_database_config, database)
 
     mock.expects(:open).with(config, true).in_sequence(@s)
     mock.expects(:drop).with(database, config).in_sequence(@s)
@@ -800,7 +992,7 @@ class TestRuntimeBasic < Dbt::TestCase
                                     'MyOtherModule' => ['[MyOtherModule].[baz]', '[MyOtherModule].[bark]'],
                                     'MyThirdModule' => ['[MyThirdModule].[biz]'])
     module_group = database.add_module_group('zz', :modules => ['MyOtherModule', 'MyThirdModule'])
-    database.schema_overrides['MyThirdModule'] = 'My3rdSchema'
+    database.repository.schema_overrides['MyThirdModule'] = 'My3rdSchema'
     assert_equal module_group.modules, ['MyOtherModule', 'MyThirdModule']
 
     Dbt::Config.default_up_dirs = ['.']
@@ -914,7 +1106,11 @@ class TestRuntimeBasic < Dbt::TestCase
   end
 
   def create_table_sql(dir, table_name)
-    create_file("databases/#{dir}/#{table_name}.sql", "CREATE TABLE [#{table_name}]")
+    create_file("databases/#{dir}/#{table_name}.sql", ct(table_name))
+  end
+
+  def ct(table_name)
+    "CREATE TABLE [#{table_name}]"
   end
 
   def create_fixture(module_name, table_name)
@@ -975,8 +1171,8 @@ class TestRuntimeBasic < Dbt::TestCase
   def create_simple_db_definition(db_scripts, module_name, table_names)
     Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = [module_name]
-      db.table_map = {module_name => table_names}
+      db.repository.modules = [module_name]
+      db.repository.table_map = {module_name => table_names}
       db.search_dirs = [db_scripts]
     end
   end
@@ -984,8 +1180,8 @@ class TestRuntimeBasic < Dbt::TestCase
   def create_db_definition(db_scripts, table_map)
     Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = table_map.keys
-      db.table_map = table_map
+      db.repository.modules = table_map.keys
+      db.repository.table_map = table_map
       db.search_dirs = [db_scripts]
     end
   end

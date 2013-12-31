@@ -14,7 +14,8 @@ class TestDatabaseDefinition < Dbt::TestCase
     assert_equal definition.enable_import_task_as_part_of_create?, false
     assert_equal definition.backup?, false
     assert_equal definition.restore?, false
-    assert_equal definition.schema_overrides, {}
+    assert_equal definition.pre_db_artifacts, []
+    assert_equal definition.post_db_artifacts, []
 
     assert_equal definition.load_from_classloader?, false
     assert_equal definition.datasets, []
@@ -43,17 +44,6 @@ class TestDatabaseDefinition < Dbt::TestCase
     assert_equal definition.dirs_for_database('triggers'), ['a/triggers', 'b/triggers']
   end
 
-  def test_modules
-    definition = Dbt::DatabaseDefinition.new(:default, {})
-    modules = ['a', 'b']
-    definition.modules = modules
-    assert_equal definition.modules, modules
-
-    modules = ['a', 'b', 'c']
-    definition.modules = Proc.new { modules }
-    assert_equal definition.modules, modules
-  end
-
   def test_task_prefix
     assert_equal Dbt::DatabaseDefinition.new(:default, :rake_integration => true).task_prefix,
                  'dbt'
@@ -61,22 +51,6 @@ class TestDatabaseDefinition < Dbt::TestCase
                  'dbt:core'
     assert_raises(RuntimeError) do
       Dbt::DatabaseDefinition.new(:default, :rake_integration => false).task_prefix
-    end
-  end
-
-  def test_schema_name_for_module
-    definition = Dbt::DatabaseDefinition.new(:default, {})
-    definition.schema_overrides = {'bar' => 'baz'}
-    assert_equal definition.schema_name_for_module('foo'), 'foo'
-    assert_equal definition.schema_name_for_module('bar'), 'baz'
-  end
-
-  def test_table_ordering
-    definition = Dbt::DatabaseDefinition.new(:default, {})
-    definition.table_map = {'mySchema' => ['tblOne', 'tblTwo']}
-    assert_equal definition.table_ordering('mySchema'), ['tblOne', 'tblTwo']
-    assert_raises(RuntimeError) do
-      definition.table_ordering('NoSchemaHere')
     end
   end
 
@@ -108,47 +82,16 @@ class TestDatabaseDefinition < Dbt::TestCase
   def test_validate
     definition = Dbt::DatabaseDefinition.new(:default,
                                              :imports => {:default => {:modules => [:CodeMetrics]}}) do |db|
-      db.modules = ['CodeMetrics', 'Foo']
+      db.repository.modules = ['CodeMetrics', 'Foo']
     end
     definition.validate
 
     definition2 = Dbt::DatabaseDefinition.new(:default,
                                               :imports => {:default => {:modules => [:CodeMetrics]}}) do |db|
-      db.modules = ['Foo']
+      db.repository.modules = ['Foo']
     end
     assert_raises(RuntimeError) do
       definition2.validate
     end
-  end
-
-  def test_parse_repository_config
-    definition = Dbt::DatabaseDefinition.new(:default, {})
-    definition.parse_repository_config(<<-CONFIG)
----
-modules: !omap
-- CodeMetrics:
-    schema: CodeMetrics
-    tables:
-    - "[CodeMetrics].[tblCollection]"
-    - "[CodeMetrics].[tblMethodMetric]"
-- Geo:
-    schema: Geo
-    tables:
-    - "[Geo].[tblMobilePOI]"
-    - "[Geo].[tblPOITrack]"
-    - "[Geo].[tblSector]"
-    - "[Geo].[tblOtherGeom]"
-- TestModule:
-    schema: TM
-    tables:
-    - "[TM].[tblBaseX]"
-    - "[TM].[tblFoo]"
-    - "[TM].[tblBar]"
-    CONFIG
-
-    assert_equal definition.modules, ['CodeMetrics', 'Geo', 'TestModule']
-    assert_equal definition.schema_overrides.size, 1
-    assert_equal definition.schema_name_for_module('TestModule'), 'TM'
-    assert_equal definition.table_ordering('Geo'), ["[Geo].[tblMobilePOI]","[Geo].[tblPOITrack]","[Geo].[tblSector]","[Geo].[tblOtherGeom]"]
   end
 end

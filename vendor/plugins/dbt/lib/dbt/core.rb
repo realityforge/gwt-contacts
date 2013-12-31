@@ -12,24 +12,15 @@
 # limitations under the License.
 #
 
-# Note the following terminology is used throughout the plugin
-# * database_key: a symbolic name of database. i.e. "central", "master", "core",
-#   "ifis", "msdb" etc
-# * env: a development environment. i.e. "test", "development", "production"
-# * module_name: the name of the database directory in which sets of related database
-#   files are stored. i.e. "Audit", "Auth", "Interpretation", ...
-# * config_key: the name of entry in YAML file to look up configuration. Typically
-#   constructed by database_key and env separated by an underscore. i.e.
-#   "central_development", "master_test" etc.
-
-# It should also be noted that the in some cases there is a database_key and
-# module_key with the same name. This was due to legacy reasons and should be avoided
-# in the future as it is confusing
-
 class Dbt
 
+  @@cache = Cache.new
   @@repository = Repository.new
   @@runtime = Runtime.new
+
+  def self.cache
+    @@cache
+  end
 
   def self.repository
     @@repository
@@ -43,8 +34,8 @@ class Dbt
     self.repository.database_for_key(database_key)
   end
 
-  def self.configuration_for_key(database_key)
-    self.runtime.configuration_for_database(database_for_key(database_key))
+  def self.configuration_for_key(database_key, env = Dbt::Config.environment)
+    self.runtime.configuration_for_database(database_for_key(database_key), env)
   end
 
   def self.database_keys

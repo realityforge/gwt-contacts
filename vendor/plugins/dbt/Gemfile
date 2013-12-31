@@ -4,3 +4,4 @@ gemspec
 
 gem 'rake'
 gem 'pg', '= 0.15.1' unless RUBY_PLATFORM[/java/]
+gem 'rubyzip', '= 0.9.9'

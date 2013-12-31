@@ -4,12 +4,16 @@ require 'minitest/autorun'
 require 'test/unit/assertions'
 require 'mocha/setup'
 require 'dbt'
-require 'tmpdir'
+require 'securerandom'
+require 'zip/zip'
+require 'zip/zipfilesystem'
+require 'fileutils'
 
 class Dbt::TestCase < Minitest::Test
   include Test::Unit::Assertions
 
   def setup
+    Dbt.cache.reset
     Dbt::Config.default_search_dirs = nil
     Dbt::Config.default_no_create = nil
     Dbt::Config.config_filename = nil
@@ -67,6 +71,10 @@ class Dbt::TestCase < Minitest::Test
     expanded_filename
   end
 
+  def create_filename
+    "#{working_dir}/#{SecureRandom.hex}"
+  end
+
   def working_dir
     @temp_dir
   end
@@ -77,5 +85,16 @@ class Dbt::TestCase < Minitest::Test
 
   def assert_file_not_exist(filename)
     assert !File.exist?(filename), "!File.exist?(#{filename})"
+  end
+
+  def create_zip(contents = {})
+    zip_filename = create_filename
+    Zip::ZipOutputStream.open(zip_filename) do |zip|
+      contents.each_pair do |filename, file_content|
+        zip.put_next_entry(filename)
+        zip << file_content
+      end
+    end
+    zip_filename
   end
 end

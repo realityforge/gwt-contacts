@@ -55,11 +55,15 @@ class Dbt #nodoc
       return existing if existing
       c = @configuration_data[config_key.to_s]
       raise "Missing config for #{config_key}" unless c
-      configuration = Dbt::Config.driver_config_class.new(c)
+      configuration = Dbt::Config.driver_config_class.new(config_key, c)
       @configurations[config_key.to_s] = configuration
     end
 
-    def load_configuration_data(filename)
+    def is_configuration_data_loaded?
+      !@configuration_data.empty?
+    end
+
+    def load_configuration_data(filename = Dbt::Config.config_filename)
       require 'yaml'
       require 'erb'
       self.configuration_data = YAML::load(ERB.new(IO.read(filename)).result)

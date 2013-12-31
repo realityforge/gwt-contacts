@@ -91,7 +91,7 @@ TXT
     def up_module_group(module_group)
       database = module_group.database
       init_database(database.key) do
-        database.modules.each do |module_name|
+        database.repository.modules.each do |module_name|
           next unless module_group.modules.include?(module_name)
           create_module(database, module_name, :up)
           create_module(database, module_name, :finalize)
@@ -102,11 +102,11 @@ TXT
     def down_module_group(module_group)
       database = module_group.database
       init_database(database.key) do
-        database.modules.reverse.each do |module_name|
+        database.repository.modules.reverse.each do |module_name|
           next unless module_group.modules.include?(module_name)
           process_module(database, module_name, :down)
-          tables = database.table_ordering(module_name).reverse
-          schema_name = database.schema_name_for_module(module_name)
+          tables = database.repository.table_ordering(module_name).reverse
+          schema_name = database.repository.schema_name_for_module(module_name)
           db.drop_schema(schema_name, tables)
         end
       end
@@ -116,14 +116,14 @@ TXT
       init_database(database.key) do
         subdir = "#{database.datasets_dir_name}/#{dataset_name}"
         fixtures = {}
-        database.modules.each do |module_name|
+        database.repository.modules.each do |module_name|
           collect_fixtures_from_dirs(database, module_name, subdir, fixtures)
         end
 
-        database.modules.reverse.each do |module_name|
+        database.repository.modules.reverse.each do |module_name|
           down_fixtures(database, module_name, fixtures)
         end
-        database.modules.each do |module_name|
+        database.repository.modules.each do |module_name|
           up_fixtures(database, module_name, fixtures)
         end
       end
@@ -147,8 +147,8 @@ TXT
       filter = options[:filter]
       data_set = options[:data_set]
       init_database(database.key) do
-        database.modules.each do |module_name|
-          database.table_ordering(module_name).select{|t| filter ? filter.call(t) : true}.each do |table_name|
+        database.repository.modules.each do |module_name|
+          database.repository.table_ordering(module_name).select{|t| filter ? filter.call(t) : true}.each do |table_name|
             info("Dumping #{table_name}")
             records = load_query_into_yaml(dump_table_sql(table_name))
 
@@ -170,8 +170,8 @@ TXT
       @db = nil
     end
 
-    def configuration_for_database(database)
-      configuration_for_key(config_key(database.key))
+    def configuration_for_database(database, env = Dbt::Config.environment)
+      configuration_for_key(config_key(database.key, env))
     end
 
     private
@@ -209,27 +209,55 @@ TXT
     end
 
     def perform_load_database_config(database)
-      unless database.modules
+      unless database.repository.modules && database.repository.modules.size > 0
         if database.load_from_classloader?
           content = load_resource(database, Dbt::Config.repository_config_file)
-          database.parse_repository_config(content)
+          database.repository.from_yaml(content)
         else
+          definition = RepositoryDefinition.new
+
+          database.pre_db_artifacts.each do |artifact|
+            content = read_repository_xml_from_artifact(artifact)
+            definition.merge!(RepositoryDefinition.new.from_yaml(content))
+          end
+
+          processed_config_file = false
           database.dirs_for_database('.').each do |dir|
             repository_config_file = "#{dir}/#{Dbt::Config.repository_config_file}"
             if File.exist?(repository_config_file)
-              if database.modules
+              if processed_config_file
                 raise "Duplicate copies of #{Dbt::Config.repository_config_file} found in database search path"
               else
-                File.open(repository_config_file, 'r') do |f|
-                  database.parse_repository_config(f)
+                processed_config_file = true
+                File.open(repository_config_file, 'r') do |input|
+                  definition.merge!(RepositoryDefinition.new.from_yaml(input.read))
                 end
               end
             end
           end
-          raise "#{Dbt::Config.repository_config_file} not located in base directory of database search path and no modules defined" if database.modules.nil?
+
+          database.post_db_artifacts.each do |artifact|
+            content = read_repository_xml_from_artifact(artifact)
+            definition.merge!(RepositoryDefinition.new.from_yaml(content))
+          end
+
+          raise "#{Dbt::Config.repository_config_file} not located in base directory of database search path and no modules defined" unless processed_config_file
+
+          database.repository.merge!(definition)
         end
       end
       database.validate
+    end
+
+    def read_repository_xml_from_artifact(artifact)
+      raise "Unable to locate database artifact #{artifact}" unless File.exist?(artifact)
+      Zip::ZipFile.open(artifact) do |zip|
+        filename = 'data/repository.yml'
+        unless zip.file.exist?(filename)
+          raise "Database artifact #{artifact} does not contain a #{filename} and thus is not in the correct format."
+        end
+        return zip.file.read(filename)
+      end
     end
 
     def config_key(database_key, env = Dbt::Config.environment)
@@ -273,7 +301,7 @@ TXT
         if database.load_from_classloader?
           collect_resources(database, database.migrations_dir_name)
         else
-          collect_files(database.dirs_for_database(database.migrations_dir_name))
+          collect_files(database, database.migrations_dir_name)
         end
       version_index = nil
       if database.version
@@ -312,7 +340,7 @@ TXT
     end
 
     def import(imp, module_name, should_perform_delete)
-      ordered_tables = imp.database.table_ordering(module_name)
+      ordered_tables = imp.database.repository.table_ordering(module_name)
 
       # check the import configuration is set
       configuration_for_key(config_key(imp.database.key, "import"))
@@ -361,13 +389,13 @@ TXT
     end
 
     def create_module(database, module_name, mode)
-      schema_name = database.schema_name_for_module(module_name)
+      schema_name = database.repository.schema_name_for_module(module_name)
       db.create_schema(schema_name) if :up == mode
       process_module(database, module_name, mode)
     end
 
     def perform_create_action(database, mode)
-      database.modules.each do |module_name|
+      database.repository.modules.each do |module_name|
         create_module(database, module_name, mode)
       end
     end
@@ -382,13 +410,13 @@ TXT
       value.gsub(/\/\.\//, '/')
     end
 
-    def collect_files(directories)
+    def collect_files(database, relative_dir, extension = 'sql')
+      directories = database.dirs_for_database(relative_dir)
 
       index = []
       files = []
 
       directories.each do |dir|
-
         index_file = File.join(dir, Dbt::Config.index_file_name)
         index_entries =
           File.exists?(index_file) ? File.new(index_file).readlines.collect { |filename| filename.strip } : []
@@ -406,9 +434,40 @@ TXT
         index += index_entries
 
         if File.exists?(dir)
-          files += Dir["#{dir}/*.sql"]
+          files += Dir["#{dir}/*.#{extension}"]
         end
+      end
 
+      prefix = relative_dir.gsub("/./","").gsub(/\/\.$/,"")
+      matcher = /^#{prefix}\/[^\/]*\.#{extension}$/
+      index_filename = "#{prefix}#{Dbt::Config.index_file_name}"
+      database.post_db_artifacts.each do |artifact|
+        pkg = Dbt.cache.package(artifact)
+        if pkg.files.include?(index_filename)
+          content = pkg.contents(index_filename)
+          index += content.readlines.collect { |filename| filename.strip }
+        end
+        file_additions = pkg.files.select { |f| f =~ matcher }.collect { |f| "zip:#{artifact}:#{f}" }
+        file_additions.each do |f|
+          b = File.basename(f)
+          unless files.any? {|other| b == File.basename(other)}
+            files << f
+          end
+        end
+      end
+      database.pre_db_artifacts.each do |artifact|
+        pkg = Dbt.cache.package(artifact)
+        if pkg.files.include?(index_filename)
+          content = pkg.contents(index_filename)
+          index += content.split.collect { |filename| filename.strip }
+        end
+        file_additions = pkg.files.select { |f| f =~ matcher }.collect { |f| "zip:#{artifact}:#{f}" }
+        file_additions.each do |f|
+          b = File.basename(f)
+          unless files.any? {|other| b == File.basename(other)}
+            files << f
+          end
+        end
       end
 
       file_map = {}
@@ -424,10 +483,12 @@ TXT
       end
 
       files.sort! do |x, y|
-        x_index = index.index(File.basename(x))
-        y_index = index.index(File.basename(y))
+        x_basename = File.basename(x)
+        y_basename = File.basename(y)
+        x_index = index.index(x_basename)
+        y_index = index.index(y_basename)
         if x_index.nil? && y_index.nil?
-          File.basename(x) <=> File.basename(y)
+          x_basename <=> y_basename
         elsif x_index.nil? && !y_index.nil?
           1
         elsif y_index.nil? && !x_index.nil?
@@ -467,7 +528,7 @@ TXT
         if database.load_from_classloader?
           collect_resources(database, dir)
         else
-          collect_files(database.dirs_for_database(dir))
+          collect_files(database, dir)
         end
       run_sql_files(database, label, files, is_import)
     end
@@ -478,34 +539,32 @@ TXT
       import_dirs = database.imports.values.collect { |i| i.dir }.sort.uniq
       dataset_dirs = database.datasets.collect { |dataset| "#{database.datasets_dir_name}/#{dataset}" }
       dirs = database.up_dirs + database.down_dirs + database.finalize_dirs + [database.fixture_dir_name] + import_dirs + dataset_dirs
-      database.modules.each do |module_name|
+      database.repository.modules.each do |module_name|
         dirs.each do |relative_dir_name|
           relative_module_dir = "#{module_name}/#{relative_dir_name}"
           target_dir = "#{package_dir}/#{module_name}/#{relative_dir_name}"
-          actual_dirs = database.dirs_for_database(relative_module_dir)
 
           is_fixture_style_dir =
             database.fixture_dir_name == relative_dir_name || dataset_dirs.include?(relative_dir_name)
           is_import_dir = import_dirs.include?(relative_dir_name)
 
-          if !is_fixture_style_dir && !is_import_dir
-            files = collect_files(actual_dirs)
+          if is_fixture_style_dir
+            files = collect_files(database, relative_module_dir, 'yml')
+            tables = database.repository.table_ordering(module_name).collect{|table_name| clean_table_name(table_name)}
+            files.delete_if {|fixture| !tables.include?(File.basename(fixture,'.yml'))}
+            cp_files_to_dir(files, target_dir)
+          elsif is_import_dir
+            files = collect_files(database, relative_module_dir, 'yml') + collect_files(database, relative_module_dir, 'sql')
+            tables = database.repository.table_ordering(module_name).collect{|table_name| clean_table_name(table_name)}
+            files.delete_if do |fixture|
+              !(tables.include?(File.basename(fixture, '.yml')) ||
+                tables.include?(File.basename(fixture, '.sql')))
+            end
+            cp_files_to_dir(files, target_dir)
+          else
+            files = collect_files(database, relative_module_dir)
             cp_files_to_dir(files, target_dir)
             generate_index(target_dir, files)
-          end
-          actual_dirs.each do |dir|
-            if File.exist?(dir)
-              if is_fixture_style_dir
-                database.table_ordering(module_name).each do |table_name|
-                  cp_files_to_dir(Dir.glob("#{dir}/#{clean_table_name(table_name)}.yml"), target_dir)
-                end
-              elsif is_import_dir
-                database.table_ordering(module_name).each do |table_name|
-                  cp_files_to_dir(Dir.glob("#{dir}/#{clean_table_name(table_name)}.yml"), target_dir)
-                  cp_files_to_dir(Dir.glob("#{dir}/#{clean_table_name(table_name)}.sql"), target_dir)
-                end
-              end
-            end
           end
         end
       end
@@ -514,19 +573,16 @@ TXT
       database_wide_dirs = create_hooks + import_hooks
       database_wide_dirs.flatten.compact.each do |relative_dir_name|
         target_dir = "#{package_dir}/#{relative_dir_name}"
-        actual_dirs = database.dirs_for_database(relative_dir_name)
-        files = collect_files(actual_dirs)
+        files = collect_files(database, relative_dir_name)
         cp_files_to_dir(files, target_dir)
         generate_index(target_dir, files)
       end
-      database.dirs_for_database('.').each do |dir|
-        repository_file = "#{dir}/#{Dbt::Config.repository_config_file}"
-        cp repository_file, package_dir if File.exist?(repository_file)
+      File.open("#{package_dir}/#{Dbt::Config.repository_config_file}","w") do |f|
+        f.write database.repository.to_yaml
       end
       if database.enable_migrations?
         target_dir = "#{package_dir}/#{database.migrations_dir_name}"
-        actual_dirs = database.dirs_for_database(database.migrations_dir_name)
-        files = collect_files(actual_dirs)
+        files = collect_files(database, database.migrations_dir_name)
         cp_files_to_dir(files, target_dir)
         generate_index(target_dir, files)
       end
@@ -535,7 +591,13 @@ TXT
     def cp_files_to_dir(files, target_dir)
       return if files.empty?
       FileUtils.mkdir_p target_dir
-      FileUtils.cp_r files, target_dir
+      FileUtils.cp_r files.select{|f| !(f =~ /^zip:/)}, target_dir
+      files.select{|f| (f =~ /^zip:/)}.each do |f|
+        parts = f.split(':')
+        File.open("#{target_dir}/#{File.basename(parts[2])}","w") do |out|
+          out.write Dbt.cache.package(parts[1]).contents(parts[2])
+        end
+      end
     end
 
     def generate_index(target_dir, files)
@@ -618,13 +680,13 @@ TXT
     end
 
     def down_fixtures(database, module_name, fixtures)
-      database.table_ordering(module_name).reverse.select {|table_name| !!fixtures[table_name] }.each do |table_name|
+      database.repository.table_ordering(module_name).reverse.select {|table_name| !!fixtures[table_name] }.each do |table_name|
         run_sql_batch("DELETE FROM #{table_name}")
       end
     end
 
     def up_fixtures(database, module_name, fixtures)
-      database.table_ordering(module_name).each do |table_name|
+      database.repository.table_ordering(module_name).each do |table_name|
         filename = fixtures[table_name]
         next unless filename
         info("#{'%-15s' % 'Fixture'}: #{clean_table_name(table_name)}")
@@ -646,7 +708,7 @@ TXT
         filesystem_files = dirs.collect { |d| Dir["#{d}/*.yml"] }.flatten.compact
         filesystem_sql_files = dirs.collect { |d| Dir["#{d}/*.sql"] }.flatten.compact
       end
-      database.table_ordering(module_name).each do |table_name|
+      database.repository.table_ordering(module_name).each do |table_name|
         if database.load_from_classloader?
           filename = module_filename(module_name, subdir, table_name, 'yml')
           if resource_present?(database, filename)
@@ -661,6 +723,17 @@ TXT
               fixtures[table_name] = filename
             end
           end
+          filename = module_filename(module_name, subdir, table_name, 'yml')
+          database.post_db_artifacts.each do |artifact|
+            if Dbt.cache.package(artifact).files.include?(filename)
+              fixtures[table_name] = "zip:#{artifact}:#{filename}"
+            end
+          end unless fixtures[table_name]
+          database.pre_db_artifacts.each do |artifact|
+            if Dbt.cache.package(artifact).files.include?(filename)
+              fixtures[table_name] = "zip:#{artifact}:#{filename}"
+            end
+          end unless fixtures[table_name]
         end
       end
 
@@ -729,7 +802,12 @@ TXT
       if database.load_from_classloader?
         load_resource(database, filename)
       else
-        IO.readlines(filename).join
+        if /^zip:.*/ =~ filename
+          parts = filename.split(':')
+          Dbt.cache.package(parts[1]).contents(parts[2])
+        else
+          IO.readlines(filename).join
+        end
       end
     end
 
@@ -788,6 +866,12 @@ TXT
         database.search_dirs.map do |d|
           file = "#{d}/#{filename}"
           return file if File.exist?(file)
+        end
+        database.post_db_artifacts.each do |artifact|
+          return "zip:#{artifact}:#{filename}" if Dbt.cache.package(artifact).files.include?(filename)
+        end
+        database.pre_db_artifacts.each do |artifact|
+          return "zip:#{artifact}:#{filename}" if Dbt.cache.package(artifact).files.include?(filename)
         end
         return nil
       end

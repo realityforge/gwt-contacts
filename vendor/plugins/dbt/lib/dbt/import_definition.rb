@@ -30,27 +30,13 @@ class Dbt #nodoc
     attr_writer :modules
 
     def modules
-      @modules || database.modules
+      @modules || database.repository.modules
     end
 
     attr_writer :dir
 
     def dir
       @dir || Dbt::Config.default_import_dir
-    end
-
-    # TODO: Move to specific DbConfig
-    attr_writer :reindex
-
-    def reindex?
-      @reindex.nil? ? true : @reindex
-    end
-
-    # TODO: Move to specific DbConfig
-    attr_writer :shrink
-
-    def shrink?
-      @shrink.nil? ? false : @shrink
     end
 
     attr_writer :pre_import_dirs
@@ -67,8 +53,8 @@ class Dbt #nodoc
 
     def validate
       self.modules.each do |module_key|
-        if !database.modules.include?(module_key.to_s)
-          raise "Module #{module_key} in import #{self.key} does not exist in database module list #{self.database.modules.inspect}"
+        if !database.repository.modules.include?(module_key.to_s)
+          raise "Module #{module_key} in import #{self.key} does not exist in database module list #{self.database.repository.modules.inspect}"
         end
       end
     end

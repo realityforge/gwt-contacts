@@ -24,12 +24,6 @@ class Dbt
       'org.postgresql.Driver'
     end
 
-    def jdbc_url(use_control_catalog)
-      url = "jdbc:postgresql://#{host}:#{port}/"
-      url += use_control_catalog ? control_catalog_name : catalog_name
-      url
-    end
-
     def jdbc_info
       info = java.util.Properties.new
       info.put('user', username) if username

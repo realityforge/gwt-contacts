@@ -18,7 +18,7 @@ class Dbt
       raise NotImplementedError
     end
 
-    def jdbc_url(use_control_catalog)
+    def build_jdbc_url(options = {})
       raise NotImplementedError
     end
 
@@ -91,7 +91,7 @@ class Dbt
 
       require 'java'
       java.lang.Class.forName(config.jdbc_driver, true, java.lang.Thread.currentThread.getContextClassLoader) if config.jdbc_driver
-      @connection = java.sql.DriverManager.getConnection(config.jdbc_url(use_control_database), config.jdbc_info)
+      @connection = java.sql.DriverManager.getConnection(config.build_jdbc_url(:use_control_catalog => use_control_database), config.jdbc_info)
     end
 
     def close

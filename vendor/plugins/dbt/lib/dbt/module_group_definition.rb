@@ -36,8 +36,8 @@ class Dbt #nodoc
 
     def validate
       self.modules.each do |module_key|
-        unless database.modules.include?(module_key.to_s)
-          raise "Module #{module_key} in module group #{self.key} does not exist in database module list #{self.database.modules.inspect}"
+        unless database.repository.modules.include?(module_key.to_s)
+          raise "Module #{module_key} in module group #{self.key} does not exist in database module list #{self.database.repository.modules.inspect}"
         end
       end
     end

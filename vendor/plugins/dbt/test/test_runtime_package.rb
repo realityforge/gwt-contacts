@@ -19,8 +19,8 @@ class TestRuntimePackage < Dbt::TestCase
 
     database = Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = ['MyModule']
-      db.table_map = {'MyModule' => ['foo', 'bar', 'baz']}
+      db.repository.modules = ['MyModule']
+      db.repository.table_map = {'MyModule' => ['foo', 'bar', 'baz']}
       db.search_dirs = [db_scripts]
     end
 
@@ -48,8 +48,8 @@ class TestRuntimePackage < Dbt::TestCase
 
     database = Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = ['MyModule', 'MyOtherModule']
-      db.table_map = {'MyModule' => [], 'MyOtherModule' => []}
+      db.repository.modules = ['MyModule', 'MyOtherModule']
+      db.repository.table_map = {'MyModule' => [], 'MyOtherModule' => []}
       db.search_dirs = [db_scripts]
     end
 
@@ -60,14 +60,102 @@ class TestRuntimePackage < Dbt::TestCase
     assert_file_exist("#{output_dir}/MyOtherModule/base.sql")
   end
 
+  def test_package_through_pre_import
+    db_scripts = create_dir("databases/generated")
+    packaged_definition = Dbt::RepositoryDefinition.new(:modules => ['MyModule'], :table_map => {'MyModule' => ['foo', 'bar', 'baz']})
+    zipfile = create_zip("data/repository.yml" => packaged_definition.to_yaml,
+                         "data/MyModule/base.sql" => "",
+                         "data/MyModule/types/typeA.sql" => "",
+                         "data/MyModule/views/viewA.sql" => "",
+                         "data/MyModule/functions/functionA.sql" => "",
+                         "data/MyModule/stored-procedures/spA.sql" => "",
+                         "data/MyModule/misc/spA.sql" => "",
+                         "data/MyModule/fixtures/foo.yml" => "",
+                         "data/MyModule/fixtures/bar.sql" => "",
+                         "data/MyModule/fixtures/fooShouldNotCopy.yml" => "",
+                         "data/MyModule/triggers/trgA.sql" => "",
+                         "data/MyModule/finalize/finA.sql" => "",
+                         "data/MyModule/down/downA.sql" => "")
+    definition = Dbt::RepositoryDefinition.new(:modules => [], :table_map => {})
+    File.open("#{db_scripts}/repository.yml","w") do |f|
+      f.write definition.to_yaml
+    end
+    database = Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.pre_db_artifacts << zipfile
+      db.search_dirs = [db_scripts]
+    end
+    Dbt.runtime.send(:perform_load_database_config, database)
+
+    output_dir = create_dir("pkg/out")
+    Dbt.runtime.package_database_data(database, output_dir)
+
+    assert_file_exist("#{output_dir}/MyModule/base.sql")
+    assert_file_exist("#{output_dir}/MyModule/types/typeA.sql")
+    assert_file_exist("#{output_dir}/MyModule/views/viewA.sql")
+    assert_file_exist("#{output_dir}/MyModule/functions/functionA.sql")
+    assert_file_exist("#{output_dir}/MyModule/stored-procedures/spA.sql")
+    assert_file_exist("#{output_dir}/MyModule/misc/spA.sql")
+    assert_file_exist("#{output_dir}/MyModule/fixtures/foo.yml")
+    assert_file_not_exist("#{output_dir}/MyModule/fixtures/fooShouldNotCopy.yml")
+    assert_file_not_exist("#{output_dir}/MyModule/fixtures/bar.sql")
+    assert_file_exist("#{output_dir}/MyModule/triggers/trgA.sql")
+    assert_file_exist("#{output_dir}/MyModule/finalize/finA.sql")
+    assert_file_exist("#{output_dir}/MyModule/down/downA.sql")
+  end
+
+  def test_package_through_post_import
+    db_scripts = create_dir("databases/generated")
+    packaged_definition = Dbt::RepositoryDefinition.new(:modules => ['MyModule'], :table_map => {'MyModule' => ['foo', 'bar', 'baz']})
+    zipfile = create_zip("data/repository.yml" => packaged_definition.to_yaml,
+                         "data/MyModule/base.sql" => "",
+                         "data/MyModule/types/typeA.sql" => "",
+                         "data/MyModule/views/viewA.sql" => "",
+                         "data/MyModule/functions/functionA.sql" => "",
+                         "data/MyModule/stored-procedures/spA.sql" => "",
+                         "data/MyModule/misc/spA.sql" => "",
+                         "data/MyModule/fixtures/foo.yml" => "",
+                         "data/MyModule/fixtures/bar.sql" => "",
+                         "data/MyModule/fixtures/fooShouldNotCopy.yml" => "",
+                         "data/MyModule/triggers/trgA.sql" => "",
+                         "data/MyModule/finalize/finA.sql" => "",
+                         "data/MyModule/down/downA.sql" => "")
+    definition = Dbt::RepositoryDefinition.new(:modules => [], :table_map => {})
+    File.open("#{db_scripts}/repository.yml","w") do |f|
+      f.write definition.to_yaml
+    end
+    database = Dbt.add_database(:default) do |db|
+      db.rake_integration = false
+      db.post_db_artifacts << zipfile
+      db.search_dirs = [db_scripts]
+    end
+    Dbt.runtime.send(:perform_load_database_config, database)
+
+    output_dir = create_dir("pkg/out")
+    Dbt.runtime.package_database_data(database, output_dir)
+
+    assert_file_exist("#{output_dir}/MyModule/base.sql")
+    assert_file_exist("#{output_dir}/MyModule/types/typeA.sql")
+    assert_file_exist("#{output_dir}/MyModule/views/viewA.sql")
+    assert_file_exist("#{output_dir}/MyModule/functions/functionA.sql")
+    assert_file_exist("#{output_dir}/MyModule/stored-procedures/spA.sql")
+    assert_file_exist("#{output_dir}/MyModule/misc/spA.sql")
+    assert_file_exist("#{output_dir}/MyModule/fixtures/foo.yml")
+    assert_file_not_exist("#{output_dir}/MyModule/fixtures/fooShouldNotCopy.yml")
+    assert_file_not_exist("#{output_dir}/MyModule/fixtures/bar.sql")
+    assert_file_exist("#{output_dir}/MyModule/triggers/trgA.sql")
+    assert_file_exist("#{output_dir}/MyModule/finalize/finA.sql")
+    assert_file_exist("#{output_dir}/MyModule/down/downA.sql")
+  end
+
   def test_multiple_search_dirs
     create_file("databases/MyModule/base.sql", "")
     create_file("databases/generated/MyModule/base2.sql", "")
 
     database = Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = ['MyModule']
-      db.table_map = {'MyModule' => ['foo', 'bar', 'baz']}
+      db.repository.modules = ['MyModule']
+      db.repository.table_map = {'MyModule' => ['foo', 'bar', 'baz']}
       db.search_dirs = [create_dir("databases"), create_dir("databases/generated")]
     end
 
@@ -85,8 +173,8 @@ class TestRuntimePackage < Dbt::TestCase
 
     database = Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = ['MyModule']
-      db.table_map = {'MyModule' => []}
+      db.repository.modules = ['MyModule']
+      db.repository.table_map = {'MyModule' => []}
       db.search_dirs = [create_dir("databases")]
     end
 
@@ -118,8 +206,8 @@ class TestRuntimePackage < Dbt::TestCase
 
     database = Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = ['MyModule']
-      db.table_map = {'MyModule' => []}
+      db.repository.modules = ['MyModule']
+      db.repository.table_map = {'MyModule' => []}
       db.search_dirs = [create_dir("databases")]
     end
 
@@ -150,8 +238,8 @@ class TestRuntimePackage < Dbt::TestCase
 
     database = Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = ['MyModule']
-      db.table_map = {'MyModule' => []}
+      db.repository.modules = ['MyModule']
+      db.repository.table_map = {'MyModule' => []}
       db.search_dirs = [create_dir("databases")]
     end
 
@@ -176,8 +264,8 @@ class TestRuntimePackage < Dbt::TestCase
 
     database = Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = ['MyModule']
-      db.table_map = {'MyModule' => ['foo', 'bar', 'baz']}
+      db.repository.modules = ['MyModule']
+      db.repository.table_map = {'MyModule' => ['foo', 'bar', 'baz']}
       db.search_dirs = [db_scripts]
       db.datasets = ['bing']
     end
@@ -196,8 +284,8 @@ class TestRuntimePackage < Dbt::TestCase
 
     database = Dbt.add_database(:default) do |db|
       db.rake_integration = false
-      db.modules = ['MyModule']
-      db.table_map = {'MyModule' => ['foo', 'bar', 'baz']}
+      db.repository.modules = ['MyModule']
+      db.repository.table_map = {'MyModule' => ['foo', 'bar', 'baz']}
       db.search_dirs = [db_scripts]
       db.add_import(:default, {})
     end

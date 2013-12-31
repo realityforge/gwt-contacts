@@ -5,7 +5,7 @@ class TestModuleGroupDefinition < Dbt::TestCase
   def test_defaults
     definition = Dbt::DatabaseDefinition.new(:default,
                                              :module_groups => {:foo => {:modules => [:Bar]}}) do |d|
-      d.modules = ['Bar', 'Baz']
+      d.repository.modules = ['Bar', 'Baz']
     end
     module_groups = definition.module_groups
     assert_equal module_groups.size, 1
@@ -23,7 +23,7 @@ class TestModuleGroupDefinition < Dbt::TestCase
   def test_invalid
     definition = Dbt::DatabaseDefinition.new(:default,
                                              :module_groups => {:foo => {:modules => [:Bar]}}) do |db|
-      db.modules = []
+      db.repository.modules = []
     end
 
     assert_raises RuntimeError, "Module Bar in module group foo does not exist in database module list []" do

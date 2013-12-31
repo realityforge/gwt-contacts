@@ -18,7 +18,7 @@ class Dbt #nodoc
     include FilterContainer
 
     def initialize(key, options, &block)
-      @key = key
+      @repository = RepositoryDefinition.new
       options = options.dup
       imports_config = options.delete(:imports)
       module_groups_config = options.delete(:module_groups)
@@ -32,15 +32,15 @@ class Dbt #nodoc
         add_module_group(module_group_key, module_groups_config[module_group_key])
       end if module_groups_config
 
-      @migrations = @backup = @modules = @restore = @datasets = @resource_prefix =
+      @migrations = @backup = @restore = @datasets = @resource_prefix =
         @up_dirs = @down_dirs = @finalize_dirs = @pre_create_dirs = @post_create_dirs =
           @search_dirs = @migrations_dir_name = @migrations_applied_at_create =
             @rake_integration = @separate_import_task = @import_task_as_part_of_create =
-              @schema_overrides = @datasets_dir_name = @fixture_dir_name =
+              @datasets_dir_name = @fixture_dir_name =
                 @database_environment_filter = @import_assert_filters = nil
 
-      raise "schema_overrides should be derived from repository.yml and not directly specified." if options[:schema_overrides]
-      raise "modules should be derived from repository.yml and not directly specified." if options[:modules]
+      @pre_db_artifacts = []
+      @post_db_artifacts = []
 
       super(key, options, &block)
     end
@@ -58,8 +58,7 @@ class Dbt #nodoc
       @module_groups.values.each { |d| d.validate }
     end
 
-    # symbolic name of database
-    attr_reader :key
+    attr_reader :repository
 
     # List of modules to import
     attr_reader :imports
@@ -102,14 +101,6 @@ class Dbt #nodoc
       "#{Dbt::Config.task_prefix}#{Dbt::Config.default_database?(self.key) ? '' : ":#{self.key}"}"
     end
 
-    attr_writer :modules
-
-    # List of modules to process for database
-    def modules
-      @modules = @modules.call if !@modules.nil? && @modules.is_a?(Proc)
-      @modules
-    end
-
     # Database version. Stuffed as an extended property and used when creating filename.
     attr_accessor :version
 
@@ -123,6 +114,14 @@ class Dbt #nodoc
 
     def fixture_dir_name
       @fixture_dir_name || Dbt::Config.default_fixture_dir_name
+    end
+
+    def pre_db_artifacts
+      @pre_db_artifacts
+    end
+
+    def post_db_artifacts
+      @post_db_artifacts
     end
 
     attr_writer :pre_create_dirs
@@ -215,47 +214,6 @@ class Dbt #nodoc
     # Should the a restore task be defined for database?
     def restore?
       @restore.nil? ? false : @restore
-    end
-
-    attr_writer :schema_overrides
-
-    # Map of module => schema overrides
-    # i.e. What database schema is created for a specific module
-    def schema_overrides
-      @schema_overrides ||= {}
-    end
-
-    attr_writer :table_map
-
-    def table_map
-      @table_map || {}
-    end
-
-    def schema_name_for_module(module_name)
-      schema_overrides[module_name] || module_name
-    end
-
-    def table_ordering(module_name)
-      tables = table_map[module_name.to_s]
-      raise "No tables defined for module #{module_name}" unless tables
-      tables
-    end
-
-    def parse_repository_config(content)
-      require 'yaml'
-      repository_config = YAML::load(content)
-      self.modules = repository_config['modules'].collect { |m| m[0] }
-      schema_overrides = {}
-      table_map = {}
-      repository_config['modules'].each do |module_config|
-        name = module_config[0]
-        schema = module_config[1]['schema']
-        tables = module_config[1]['tables']
-        table_map[name] = tables
-        schema_overrides[name] = schema if name != schema
-      end
-      self.schema_overrides = schema_overrides
-      self.table_map = table_map
     end
   end
 end
