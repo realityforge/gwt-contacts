@@ -1,6 +1,8 @@
 gwt-contacts
 ============
 
+[![Build Status](https://secure.travis-ci.org/realityforge/gwt-contacts.png?branch=master)](http://travis-ci.org/realityforge/gwt-contacts)
+
 This is the gwt "contacts" tutorial application from google. The following
 enhancements have been made;
 
