@@ -58,6 +58,10 @@ module Domgen
         parameters << "unique = #{attribute.unique?}"
         parameters << "insertable = #{!attribute.generated_value? || attribute.primary_key?}"
 
+        if attribute.reference?
+          parameters << "referencedColumnName = \"#{attribute.referenced_entity.primary_key.sql.column_name}\""
+        end
+
         if !attribute.reference? && attribute.has_non_max_length?
           parameters << "length = #{attribute.length}"
         end
@@ -78,11 +82,13 @@ module Domgen
 
         if declaring_relationship
           parameters << "optional = #{attribute.nullable?}"
+          parameters << "targetEntity = #{attribute.referenced_entity.jpa.qualified_name}.class"
         end
 
         if !declaring_relationship
           parameters << "orphanRemoval = #{attribute.inverse.jpa.orphan_removal?}"
           parameters << "mappedBy = \"#{attribute.jpa.field_name}\""
+          parameters << "targetEntity = #{attribute.entity.jpa.qualified_name}.class"
         end
 
         #noinspection RubyUnusedLocalVariable
@@ -145,7 +151,7 @@ JAVA
       def j_declared_attribute_and_relation_accessors(entity)
         relation_methods = entity.referencing_attributes.collect do |attribute|
 
-          if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.traversable? || attribute.referenced_entity != entity
+          if attribute.abstract? || attribute.inherited? || !attribute.entity.jpa? || !attribute.jpa.persistent? || !attribute.inverse.jpa.java_traversable? || attribute.referenced_entity != entity
             # Ignore abstract attributes as will appear in child classes
             # Ignore inherited attributes as appear in parent class
             # Ignore attributes that have no inverse relationship
@@ -281,7 +287,7 @@ JAVA
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.jpa.traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(attribute.nullable?, field_name) { "this.#{field_name}.add#{inverse_name}( this );" }
@@ -292,7 +298,7 @@ JAVA
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
         inverse_name = attribute.inverse.relationship_name
-        if !attribute.inverse.jpa.traversable?
+        if !attribute.inverse.jpa.java_traversable?
           ''
         else
           null_guard(true, field_name) { "#{field_name}.remove#{inverse_name}( this );" }
@@ -527,6 +533,35 @@ JAVADOC
 
       def validation_name(constraint_name)
         "Validate#{constraint_name}"
+      end
+
+      def jpa_validation_in_jpa?(constraint)
+        entity = constraint.entity
+        if constraint.is_a?(CodependentConstraint) || constraint.is_a?(IncompatibleConstraint)
+          return constraint.attribute_names.all? { |attribute_name| a = entity.attribute_by_name(attribute_name); a.jpa? && a.jpa.persistent? }
+        elsif constraint.is_a?(RelationshipConstraint)
+          lhs = entity.attribute_by_name(constraint.lhs_operand)
+          rhs = entity.attribute_by_name(constraint.rhs_operand)
+          return lhs.jpa? && lhs.jpa.persistent? && rhs.jpa? && rhs.jpa.persistent?
+        elsif constraint.is_a?(CycleConstraint)
+          target_attribute = entity.attribute_by_name(constraint.attribute_name)
+          scoping_attribute = target_attribute.referenced_entity.attribute_by_name(constraint.scoping_attribute)
+
+          current_entity = entity
+          elements = constraint.attribute_name_path.collect do |element_name|
+            new_attr = current_entity.attribute_by_name(element_name)
+            current_entity = new_attr.referenced_entity
+            new_attr
+          end + [target_attribute, scoping_attribute]
+          return elements.all? { |attribute| attribute.jpa? && attribute.jpa.persistent? }
+        elsif constraint.is_a?(DependencyConstraint)
+          target_attribute = entity.attribute_by_name(constraint.attribute_name)
+
+          return target_attribute.jpa? &&
+            constraint.dependent_attribute_names.all? { |attribute_name| a = entity.attribute_by_name(attribute_name); a.jpa? && a.jpa.persistent? }
+        else
+          return false
+        end
       end
 
       def validation_prefix(constraint_name, entity)

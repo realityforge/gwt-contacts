@@ -29,7 +29,7 @@ module Domgen
       attr_writer :facade_service_name
 
       def facade_service_name
-        @facade_service_name || service.name
+        @facade_service_name || service.imit? ? "GwtRpc#{service.name}" : service.name
       end
 
       def qualified_facade_service_name
@@ -90,7 +90,6 @@ module Domgen
 
       def server_servlet_package
         @server_servlet_package || "#{data_module.repository.gwt_rpc.server_servlet_package}.#{package_key}"
-        #@server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
       end
 
       protected
