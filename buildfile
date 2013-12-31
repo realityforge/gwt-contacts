@@ -24,34 +24,32 @@ define 'gwt-contacts' do
 
   desc "GWT Contacts: Client-side component"
   define 'client' do
-    iml.add_gwt_facet({'com.google.gwt.sample.contacts.ContactsDev' => true,
-                       'com.google.gwt.sample.contacts.Contacts' => false},
-                      :settings => {:compilerMaxHeapSize => "1024"},
-                      :gwt_dev_artifact => :gwt_dev)
-
-    compile.with GWT_JARS
-
-    test.with :easymock, :mockito, :json
-
     Domgen::GenerateTask.new(:Contacts,
                              "client",
                              [:gwt_client, :gwt_rpc_shared, :gwt_rpc_client, :gwt_client_jso],
                              _(:target, :generated, 'domgen'))
 
+    compile.with GWT_JARS
+
+    test.with :easymock, :mockito, :json
+
     package(:jar)
     package(:sources)
+
+    iml.add_gwt_facet({'com.google.gwt.sample.contacts.ContactsDev' => true,
+                       'com.google.gwt.sample.contacts.Contacts' => false},
+                      :settings => {:compilerMaxHeapSize => "1024"},
+                      :gwt_dev_artifact => :gwt_dev)
   end
 
   desc "GWT Contacts: Server-side component"
   define 'server' do
-    compile.with PROVIDED_DEPS + INCLUDED_DEPENDENCIES
-    iml.add_jpa_facet
-    iml.add_ejb_facet
-
     Domgen::GenerateTask.new(:Contacts,
                              "server",
                              [:ee_data_types, :ee, :gwt_rpc_shared, :gwt_rpc_server, :jpa_test_module],
                              _(:target, :generated, 'domgen'))
+
+    compile.with PROVIDED_DEPS + INCLUDED_DEPENDENCIES
 
     test.compile.with :guiceyloops,
                       :google_guice,
@@ -61,6 +59,9 @@ define 'gwt-contacts' do
                       :javax_persistence,
                       :eclipselink
     package(:jar)
+
+    iml.add_jpa_facet
+    iml.add_ejb_facet
   end
 
   desc "GWT Contacts: Web component"
