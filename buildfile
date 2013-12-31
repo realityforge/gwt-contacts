@@ -73,7 +73,6 @@ define 'gwt-contacts' do
                  :javax_inject,
                  :javax_servlet,
                  :javax_ejb,
-                 :replicant,
                  :javax_persistence,
                  project('shared').package(:jar),
                  :javax_annotation,
