@@ -18,6 +18,7 @@ define 'gwt-contacts' do
     compile.with :javax_annotation,
                  :javax_inject,
                  :gwt_user
+    compile.using :javac
 
     iml.add_gwt_facet({}, :gwt_dev_artifact => :gwt_dev)
 
