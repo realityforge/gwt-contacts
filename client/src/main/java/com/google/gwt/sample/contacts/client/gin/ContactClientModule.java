@@ -43,7 +43,7 @@ public class ContactClientModule
                                                 final EventBus eventBus )
   {
     final PlaceHistoryHandler historyHandler = new PlaceHistoryHandler( historyMapper );
-    historyHandler.register( placeController, eventBus, new ListContactsPlace() );
+    historyHandler.register( placeController, (com.google.web.bindery.event.shared.EventBus) eventBus, new ListContactsPlace() );
     return historyHandler;
   }
 
@@ -51,7 +51,7 @@ public class ContactClientModule
   @Singleton
   public PlaceController getPlaceController( final EventBus eventBus )
   {
-    return new PlaceController( eventBus );
+    return new PlaceController( (com.google.web.bindery.event.shared.EventBus) eventBus );
   }
 
   private <T> void bindNamedService( final String name,
