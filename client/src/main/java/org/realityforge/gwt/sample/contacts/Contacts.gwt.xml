@@ -15,7 +15,7 @@
     var ua = window.navigator.userAgent.toLowerCase();
     if ( ua.indexOf('android') != -1 ) { return 'phone'; }
     if ( ua.indexOf('iphone') != -1 ) { return 'phone'; }
-    if ( ua.indexOf('iPad') != -1 ) { return 'tablet'; }
+    if ( ua.indexOf('ipad') != -1 ) { return 'tablet'; }
     return 'desktop';
   }
 ]]></property-provider>
