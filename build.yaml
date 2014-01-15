@@ -42,6 +42,6 @@ artifacts:
 
   gwt_cache_filter: org.realityforge.gwt.cache-filter:gwt-cache-filter:jar:0.3
 
-  gwt_appcache_client: org.realityforge.gwt.appcache:gwt-appcache-client:jar:1.0
-  gwt_appcache_linker: org.realityforge.gwt.appcache:gwt-appcache-linker:jar:1.0
-  gwt_appcache_server: org.realityforge.gwt.appcache:gwt-appcache-server:jar:1.0
+  gwt_appcache_client: org.realityforge.gwt.appcache:gwt-appcache-client:jar:1.0.2
+  gwt_appcache_linker: org.realityforge.gwt.appcache:gwt-appcache-linker:jar:1.0.2
+  gwt_appcache_server: org.realityforge.gwt.appcache:gwt-appcache-server:jar:1.0.2
