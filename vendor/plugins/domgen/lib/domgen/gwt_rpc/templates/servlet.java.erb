@@ -1,12 +1,12 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= service.data_module.gwt_rpc.server_servlet_package %>;
+package <%= to_package(service.gwt_rpc.qualified_servlet_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_service_name %>.PATH } )
+@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_rpc_service_name %>.PATH } )
 public class <%= service.gwt_rpc.servlet_name %>
   extends com.google.gwt.user.server.rpc.<%= service.gwt_rpc.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
-  implements <%= service.gwt_rpc.qualified_service_name %>
+  implements <%= service.gwt_rpc.qualified_rpc_service_name %>
 {
   public static final long serialVersionUID = 1;
 
@@ -16,16 +16,23 @@ public class <%= service.gwt_rpc.servlet_name %>
   private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
-%>  public <%= annotated_type(method.return_value, :gwt_rpc, :transport) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
+%>  <%= annotated_type(method.return_value, :gwt_rpc, :transport, :public => true) %> <%= method.gwt_rpc.name %>(<%= method.parameters.select{|parameter| !parameter.gwt_rpc.environmental?}.collect{|p| "#{annotated_type(p, :gwt_rpc, :transport)} #{p.gwt_rpc.name}" }.join(', ') %>)<%=
     method.exceptions.empty? ? '' : "\n    throws #{method.exceptions.collect{|e| e.gwt_rpc.qualified_name}.join(', ')}"
 %>
   {
+<% if method.imit? -%>
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put(org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_HEADER ));
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put(org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_HEADER ));
+<% end -%>
+
 <% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| %>
     final <%= parameter.referenced_struct.ee.qualified_name %> $<%= parameter.name %>;
 <% end %>
 <% method.parameters.select{|p|p.collection? && (p.date? || p.enumeration?|| p.struct?)}.each do |parameter| %>
-    final <%= annotated_type(parameter, :ejb, :boundary) %> $<%= parameter.name %>;
+    <%= annotated_type(parameter, :ejb, :boundary, :final => true) %> $<%= parameter.name %>;
 <% end %>
+    try
+  {
 <% if method.parameters.any?{|p| p.struct?}
 %>  try
   {
@@ -34,10 +41,10 @@ public class <%= service.gwt_rpc.servlet_name %>
    return_prefix = ''
    return_postfix = ''
    if method.return_value.return_type != :void
-     return_prefix = "final #{annotated_type(method.return_value, :ejb, :boundary)} returnValue = "
+     return_prefix = "#{annotated_type(method.return_value, :ejb, :boundary, :final => true)} returnValue = "
      transform = nil
      if method.return_value.date?
-       transform = "org.realityforge.replicant.client.RDate.fromDate( returnValue )"
+       transform = "org.realityforge.gwt.datatypes.client.date.RDate.fromDate( returnValue )"
      elsif method.return_value.enumeration?
        if method.return_value.enumeration.numeric_values?
          transform = "returnValue.ordinal()"
@@ -55,7 +62,7 @@ public class <%= service.gwt_rpc.servlet_name %>
        return_postfix = "return #{transform || "returnValue"};"
      elsif method.return_value.date? || method.return_value.enumeration? || method.return_value.struct?
        return_postfix = ""
-       return_postfix << "final #{annotated_type(method.return_value, :ejb, :transport)} $returnValue = #{method.return_value.nullable? ? "null == returnValue ? null : " : '' }new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:transport) }>();\n"
+       return_postfix << "#{annotated_type(method.return_value, :ejb, :transport, :final => true)} $returnValue = #{method.return_value.nullable? ? "null == returnValue ? null : " : '' }new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:transport) }>();\n"
        return_postfix << "  if( null != returnValue )\n    {\n" if method.return_value.nullable?
        return_postfix << <<LOOP
     for( final #{method.return_value.ejb.java_component_type(:boundary) } k: returnValue )
@@ -63,7 +70,7 @@ public class <%= service.gwt_rpc.servlet_name %>
       $returnValue.add(
 LOOP
          if method.return_value.date?
-           return_postfix << "org.realityforge.replicant.client.RDate.fromDate( k )"
+           return_postfix << "org.realityforge.gwt.datatypes.client.date.RDate.fromDate( k )"
          elsif method.return_value.struct?
            return_postfix << "_jsonMapper.writeValueAsString( k )"
          elsif method.return_value.enumeration.numeric_values?
@@ -93,7 +100,7 @@ LOOP
     <%
        param_value =
          if parameter.date?
-           "org.realityforge.replicant.client.RDate.toDate( k )"
+           "org.realityforge.gwt.datatypes.client.date.RDate.toDate( k )"
          elsif parameter.enumeration?
            parameter.enumeration.numeric_values? ?
              "#{parameter.enumeration.ee.qualified_name}.values()[ k ]" :
@@ -113,10 +120,6 @@ LOOP
       throw new IllegalArgumentException( ioe.getMessage(), ioe );
     }
 <% end %>
-<% if !method.exceptions.empty?
-%>    try
-    {
-<% end %>
     <%= return_prefix %>_service.<%= method.gwt_rpc.name %>(<%= method.parameters.collect do |p|
   if p.gwt_rpc.environmental?
     value = p.gwt_rpc.environment_value
@@ -125,7 +128,7 @@ LOOP
   else
     transform = nil
     if p.date?
-      transform = "org.realityforge.replicant.client.RDate.toDate( #{p.gwt_rpc.name} )"
+      transform = "org.realityforge.gwt.datatypes.client.date.RDate.toDate( #{p.gwt_rpc.name} )"
     elsif p.enumeration?
       if p.enumeration.numeric_values?
         transform = "#{p.enumeration.ee.qualified_name}.values()[ #{p.gwt_rpc.name} ]"
@@ -141,14 +144,48 @@ LOOP
   value
 end.join(', ') %>);
   <%= return_postfix %>
-<% if !method.exceptions.empty?
-%>    }
-<% end %>
+    }
 <% method.exceptions.each do |exception| %>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
         throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
     }
 <% end %>
+    finally
+    {
+<% if method.imit? -%>
+      final String complete = (String) org.realityforge.replicant.server.ee.ReplicantContextHolder.get( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
+      if( null != complete )
+      {
+        getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, complete );
+        org.realityforge.replicant.server.ee.ReplicantContextHolder.remove( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_KEY );
+      }
+<% end -%>
+    }
   }
-<% end %>}
+<% end %>
+<%
+has_cookie = false
+ service.methods.select{|method| method.gwt_rpc?}.each do |method|
+   has_cookie = method.parameters.any?{|p| p.gwt_rpc.environmental? && p.gwt_rpc.environment_key_is_cookie?}
+ end
+if has_cookie
+%>
+  @javax.annotation.Nullable
+  private static String findCookie( final javax.servlet.http.HttpServletRequest request, final String cookieName )
+  {
+    final javax.servlet.http.Cookie[] cookies = request.getCookies();
+    if ( null != cookies )
+    {
+      for ( final javax.servlet.http.Cookie cookie : cookies )
+      {
+        if ( cookie.getName().equals( cookieName ) )
+        {
+          return cookie.getValue();
+        }
+      }
+    }
+    return null;
+  }
+<% end %>
+}

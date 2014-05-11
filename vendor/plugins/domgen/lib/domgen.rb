@@ -52,6 +52,7 @@ require 'domgen/sql/generator'
 # JAXB
 require 'domgen/jaxb/model'
 require 'domgen/jaxb/helper'
+require 'domgen/jaxb/generator'
 
 # Jackson (JSon deserialization)
 require 'domgen/jackson/model'
@@ -85,7 +86,7 @@ require 'domgen/ejb/generator'
 
 # JWS
 require 'domgen/jws/model'
-require 'domgen/jws/helper'
+require 'domgen/jws/wsimport_template'
 require 'domgen/jws/generator'
 
 # JMX

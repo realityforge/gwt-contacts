@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- DO NOT EDIT: File is auto-generated -->
 <% if repository.jpa.version == '2.1' %>
 <persistence version="2.1"
              xmlns="http://xmlns.jcp.org/xml/ns/persistence"
@@ -16,14 +17,31 @@
 <% end %>
     <jta-data-source><%= repository.jpa.data_source %></jta-data-source>
 
+    <!-- entities -->
 <%
+converters = []
 repository.data_modules.select{|data_module| data_module.jpa?}.each do |data_module|
   data_module.entities.select{|entity| entity.jpa?}.each do |entity|
 %>    <class><%= entity.jpa.qualified_name %></class>
 <%
+    entity.attributes.select{|attribute| attribute.jpa?}.each do |attribute|
+      converters << attribute.jpa.converter
+    end
   end
 end
-%>
+-%>
+<%
+  converters = converters.compact.sort.uniq
+  if converters.size > 0
+%>    <!-- converters -->
+<%
+    converters.each do |converter|
+%>    <class><%= converter %></class>
+<%
+    end
+  end
+-%>
+
     <exclude-unlisted-classes><%= repository.jpa.exclude_unlisted_classes? %></exclude-unlisted-classes>
     <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
     <validation-mode>AUTO</validation-mode>

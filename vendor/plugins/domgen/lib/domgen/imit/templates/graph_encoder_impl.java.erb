@@ -1,0 +1,94 @@
+/* DO NOT EDIT: File is auto-generated */
+package <%= to_package(repository.imit.qualified_graph_encoder_impl_name) %>;
+
+/**
+ * Utility class that encodes a graph of entities as a set of messages for "<%= repository.name %>" repository.
+ */
+@javax.annotation.Generated( "Domgen" )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@javax.enterprise.context.ApplicationScoped
+public class <%= repository.imit.graph_encoder_impl_name %>
+  implements <%= repository.imit.qualified_graph_encoder_name %>
+{
+  @javax.inject.Inject
+  private org.realityforge.replicant.server.EntityMessageGenerator _messageGenerator;
+
+  @javax.inject.Inject
+  private <%= repository.imit.qualified_server_session_context_name %> _context;
+
+<%
+  repository.imit.graphs.select{|graph| graph.instance_root? }.each do |graph|
+    entity = repository.entity_by_name(graph.instance_root)
+    filter_param = nil
+    if graph.filter_parameter
+      p = graph.filter_parameter
+      java_type = "#{nullability_annotation(p.nullable?)} #{Domgen::Java.java_type(p, :ee, :default)}"
+      filter_param = "#{java_type} filter"
+    end
+
+%>
+  @Override
+  public void encode<%= graph.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", final #{filter_param}" %> )
+  {
+    _encode<%= graph.name %>_<%= entity.name %>( messages, object<%= filter_param.nil? ? '' : ", filter" %> );
+  }
+
+<%
+  graph.reachable_entities.collect{|n|repository.entity_by_name(n)}.select { |entity| entity.imit? && !entity.abstract? }.each do |entity|
+    outgoing_links = entity.referencing_attributes.select{|a| a.imit? && a.imit.client_side? && a.inverse.imit.traversable? && a.inverse.imit.replication_edges.include?(graph.name)}
+-%>
+  private void _encode<%= graph.name %>_<%= entity.name %>( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final <%= entity.jpa.qualified_name %> object<%= filter_param.nil? ? '' : ", final #{filter_param}" %> )
+  {
+    encodeObject( messages, object );
+<%
+    outgoing_links.each do |a|
+      if a.inverse.multiplicity == :many
+-%>
+    for ( final <%= a.entity.jpa.qualified_name %> o : <% if filter_param %>_context.get<%= Domgen::Naming.pluralize(a.inverse.name) %>In<%= graph.name %>Graph( object, filter )<% else %>object.get<%= Domgen::Naming.pluralize(a.inverse.name) %>()<% end %> )
+    {
+      if( !messages.containsEntityMessage( <%= repository.imit.message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(a.entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(a.entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
+      {
+        _encode<%= graph.name %>_<%= a.entity.name %>( messages, o<%= filter_param.nil? ? '' : ", filter" %> );
+      }
+    }
+<%
+      elsif a.inverse.multiplicity == :one || a.inverse.multiplicity == :zero_or_one
+-%>
+      {
+        final <%= a.entity.jpa.qualified_name %> o = <% if filter_param %>_context.get<%= a.inverse.name %>In<%= graph.name %>Graph( object, filter )<% else %>object.get<%= a.inverse.name %>()<% end %>;
+        <% if a.inverse.multiplicity == :zero_or_one %>if( null != o )<% end %>
+        {
+          if( !messages.containsEntityMessage( <%= repository.imit.message_constants_name %>.<%= Domgen::Naming.uppercase_constantize(a.entity.data_module.name.to_s) %>_<%= Domgen::Naming.uppercase_constantize(a.entity.name.to_s) %>, o.get<%= a.referenced_entity.primary_key.name %>() ) )
+          {
+            _encode<%= graph.name %>_<%= a.entity.name %>( messages, o<%= filter_param.nil? ? '' : ", filter" %> );
+          }
+        }
+      }
+<%
+      end
+    end
+%>
+  }
+<% end -%>
+<% end %>
+
+  public void encodeObjects( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nonnull final java.util.List<?> objects )
+  {
+    for ( final Object object : objects )
+    {
+      encodeObject( messages, object );
+    }
+  }
+
+  private void encodeObject( @javax.annotation.Nonnull final org.realityforge.replicant.server.EntityMessageSet messages, @javax.annotation.Nullable final Object object )
+  {
+    if ( null != object )
+    {
+      final org.realityforge.replicant.server.EntityMessage message = _messageGenerator.convertToEntityMessage( object, true );
+      if ( null != message )
+      {
+        messages.merge( message, true );
+      }
+    }
+  }
+}

@@ -40,23 +40,17 @@ Domgen.template_set(:jpa_model) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :data_module,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/entity_package_info.java.erb",
-                        'main/java/#{data_module.jpa.entity_package.gsub(".","/")}/package-info.java',
-                        [],
-                        'data_module.entities.any?{|e|e.jpa?}')
-end
-
-Domgen.template_set(:jpa_model_catalog) do |template_set|
-  template_set.template(Domgen::Generator::JPA::FACETS,
-                        :data_module,
-                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/catalog.java.erb",
-                        'main/java/#{data_module.jpa.qualified_catalog_name.gsub(".","/")}.java')
+                        'main/java/#{data_module.jpa.server_entity_package.gsub(".","/")}/package-info.java',
+                        Domgen::Generator::JPA::HELPERS,
+                        :guard => 'data_module.entities.any?{|e|e.jpa?}')
 end
 
 Domgen.template_set(:jpa_test_module) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :repository,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_module.java.erb",
-                        'test/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java')
+                        'test/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS)
 end
 
 # This is the same as the test module but it appears in the main tree.
@@ -65,7 +59,8 @@ Domgen.template_set(:jpa_module) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :repository,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_module.java.erb",
-                        'main/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java')
+                        'main/java/#{repository.jpa.qualified_ejb_module_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS)
 end
 
 Domgen.template_set(:jpa_ejb_dao) do |template_set|
@@ -82,9 +77,9 @@ Domgen.template_set(:jpa_ejb_dao) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :data_module,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_package_info.java.erb",
-                        'main/java/#{data_module.jpa.dao_package.gsub(".","/")}/package-info.java',
-                        [],
-                        'data_module.entities.any?{|e|e.jpa?}')
+                        'main/java/#{data_module.jpa.server_dao_entity_package.gsub(".","/")}/package-info.java',
+                        Domgen::Generator::JPA::HELPERS,
+                        :guard => 'data_module.entities.any?{|e|e.jpa?}')
 end
 
 Domgen.template_set(:jpa_persistence_xml) do |template_set|

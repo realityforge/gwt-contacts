@@ -1,9 +1,9 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= struct.data_module.auto_bean.data_type_package %>;
+package <%= to_package(struct.auto_bean.qualified_name) %>;
 
 <%= description_javadoc_for(struct, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public interface <%= struct.name %>
+public interface <%= struct.auto_bean.name %>
   extends com.google.web.bindery.requestfactory.shared.ValueProxy
 {
 <% struct.fields.each do |field| %>

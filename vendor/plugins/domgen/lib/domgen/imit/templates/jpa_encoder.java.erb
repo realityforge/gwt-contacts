@@ -1,18 +1,19 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= data_module.imit.encoder_package %>;
+package <%= to_package(repository.imit.qualified_jpa_encoder_name) %>;
 
 /**
- * Utility class that encodes payloads from JPA entities for the data module "<%= data_module.name %>".
+ * Utility class that encodes payloads from JPA entities for the repository "<%= repository.name %>".
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
-public class <%= data_module.imit.jpa_encoder_name %>
+public class <%= repository.imit.jpa_encoder_name %>
 {
-  private <%= data_module.imit.jpa_encoder_name %>()
+  private <%= repository.imit.jpa_encoder_name %>()
   {
   }
 
-<% data_module.imit.client_side_entities.each do |entity| %>
+<% repository.data_modules.select { |data_module| data_module.imit? }.each do |data_module| -%>
+<% data_module.entities.select { |entity| entity.imit?  }.each do |entity| -%>
 <% if !entity.abstract? %>
   public static java.util.Map<String, java.io.Serializable> encode<%= entity.name %>( final <%= entity.jpa.qualified_name %> entity )
   {
@@ -34,7 +35,7 @@ public class <%= data_module.imit.jpa_encoder_name %>
         if attribute.imit.transport_characteristic_type_key == :datetime
           "( ( null == value ) ? null : value.getTime() )"
         elsif attribute.imit.transport_characteristic_type_key == :date
-          "( ( null == value ) ? null : org.realityforge.replicant.client.RDate.fromDate( value ).toString() )"
+          "( ( null == value ) ? null : org.realityforge.gwt.datatypes.client.date.RDate.fromDate( value ).toString() )"
         elsif [:integer, :real, :boolean, :text].include?(attribute.imit.transport_characteristic_type_key)
           if attribute.nullable?
             "( ( null == value ) ? null : value#{value_suffix} )"
@@ -55,5 +56,6 @@ public class <%= data_module.imit.jpa_encoder_name %>
     }
 <% end %>
   }
-<% end %>
+<% end -%>
+<% end -%>
 }

@@ -1,19 +1,20 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= repository.imit.ioc_package %>;
+package <%= to_package(repository.imit.qualified_services_module_name) %>;
 
 <%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.services_module_name %>
-  extends com.google.gwt.inject.client.AbstractGinModule
+  extends org.realityforge.replicant.client.json.gwt.ReplicantGinModule
 {
   @Override
   protected void configure()
   {
+    super.configure();
+    bind( org.realityforge.replicant.client.ChangeMapper.class ).to( <%= repository.imit.qualified_change_mapper_name %>.class );
 <%
   repository.data_modules.select{|data_module| data_module.imit? && data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.imit? && service.gwt_rpc?}.each do |service|
-%>
-    bind( <%= service.imit.qualified_name %>.class ).to( <%= service.imit.qualified_proxy_name %>.class );
+%>    bind( <%= service.imit.qualified_name %>.class ).to( <%= service.imit.qualified_proxy_name %>.class );
 <%
     end
   end

@@ -1,14 +1,14 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= service.data_module.ejb.service_package %>;
+package <%= to_package(service.ejb.qualified_boundary_implementation_name) %>;
 
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @javax.ejb.TransactionAttribute( javax.ejb.TransactionAttributeType.REQUIRES_NEW )
 @javax.ejb.Startup
-@javax.ejb.Singleton( name = <%= service.ejb.boundary_interface_name %>.EJB_NAME )
+@javax.ejb.Singleton( name = <%= service.ejb.qualified_boundary_interface_name %>.EJB_NAME )
 @javax.ejb.ConcurrencyManagement( javax.ejb.ConcurrencyManagementType.BEAN )
 public class <%= service.ejb.boundary_implementation_name %>
 <%= service.ejb.boundary_extends ? "  extends #{service.ejb.boundary_extends}" : "" %>
-  implements <%= service.ejb.boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
+  implements <%= service.ejb.qualified_boundary_interface_name %><% if service.ejb.remote? %>, <%= service.ejb.qualified_remote_service_name %><% end %><% if service.jmx? %>, <%= service.jmx.qualified_service_name %><% end %>
 {
 <% if service.jmx? %>
   private javax.management.ObjectName _objectName;
@@ -47,7 +47,7 @@ public class <%= service.ejb.boundary_implementation_name %>
   private <%= entity.jpa.qualified_dao_service_name %> _<%= entity.qualified_name.gsub('.','') %>DAO;
 <% end %>
   @javax.ejb.EJB
-  private <%= service.ejb.service_name %> _service;
+  private <%= service.ejb.qualified_service_name %> _service;
 
 <% service.methods.each do |method|
 %>  @Override
@@ -67,7 +67,7 @@ public class <%= service.ejb.boundary_implementation_name %>
          return_prefix = "#{annotated_type(method.return_value, :ejb)} result = "
          transform = method.return_value.nullable? ? "if ( null == result ) { return null; }\n" : ''
          transform = transform + <<-JAVA
-        final #{annotated_type(method.return_value, :ejb, :boundary)} $result = new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:boundary)}>();
+        #{annotated_type(method.return_value, :ejb, :boundary, :final => true)} $result = new java.util.#{method.return_value.collection_type == :set ? "HashSet" : "ArrayList" }<#{method.return_value.ejb.java_component_type(:boundary)}>();
         for( final #{method.return_value.ejb.java_component_type} k: result )
         {
           $result.add( #{
@@ -83,7 +83,7 @@ JAVA
 %>
   {
 <% method.parameters.select{|parameter| parameter.reference? && parameter.collection?}.each do |parameter| %>
-    final <%= annotated_type(parameter, :ejb) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type %>>();
+    <%= annotated_type(parameter, :ejb, :default, :final => true) %> $<%= parameter.name %> = new java.util.<%=  parameter.collection_type == :set ? "HashSet" : "ArrayList" %><<%= parameter.ejb.java_component_type %>>();
     for( final <%= parameter.ejb.java_component_type(:boundary) %> id: <%= parameter.name %> )
     {
     $<%= parameter.name %>.add( _<%= parameter.referenced_entity.qualified_name.gsub('.','') %>DAO.getBy<%= parameter.referenced_entity.primary_key.name %>( id ) );

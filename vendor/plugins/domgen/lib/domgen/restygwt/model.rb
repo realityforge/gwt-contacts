@@ -13,51 +13,24 @@
 #
 
 module Domgen
-  module RestGWT
-    class RestGwtService < Domgen.ParentedElement(:service)
-      attr_writer :facade_service_name
+  FacetManager.facet(:restygwt => [:gwt, :jaxrs]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
 
-      def facade_service_name
-        @facade_service_name || service.name
+      attr_writer :module_name
+
+      def module_name
+        @module_name || Domgen::Naming.underscore(repository.name)
       end
 
-      def qualified_facade_service_name
-        "#{service.data_module.gwt.client_service_package}.#{facade_service_name}"
+      attr_writer :client_ioc_package
+
+      def client_ioc_package
+        @client_ioc_package || "#{client_package}.ioc"
       end
 
-      def proxy_name
-        "#{facade_service_name}Proxy"
-      end
-
-      def qualified_proxy_name
-        "#{qualified_facade_service_name}Proxy"
-      end
-
-      attr_writer :service_name
-
-      def service_name
-        @service_name || "RestGwt#{service.name}"
-      end
-
-      def qualified_service_name
-        "#{service.data_module.gwt.client_service_package}.#{service_name}"
-      end
-    end
-
-    class RestGwtMethod < Domgen.ParentedElement(:method)
-      def name
-        Domgen::Naming.camelize(method.name)
-      end
-    end
-
-    class RestGwtModule < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::ClientServerJavaPackage
-
-      attr_writer :server_servlet_package
-
-      def server_servlet_package
-        @server_servlet_package || "#{parent_facet.server_servlet_package}.#{package_key}"
-      end
+      java_artifact :services_module, :ioc, :client, :gwt, '#{repository.name}RestyGwtServicesModule'
 
       protected
 
@@ -66,18 +39,31 @@ module Domgen
       end
     end
 
-    class RestGwtReturn < Domgen.ParentedElement(:result)
-
-      include Domgen::Java::ImitJavaCharacteristic
+    facet.enhance(DataModule) do
+      include Domgen::Java::ClientServerJavaPackage
 
       protected
 
-      def characteristic
-        result
+      def facet_key
+        :gwt
       end
     end
 
-    class RestGwtParameter < Domgen.ParentedElement(:parameter)
+    facet.enhance(Exception) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :name, :data_type, :client, :gwt, '#{exception.name}Exception'
+    end
+
+    facet.enhance(Service) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :facade_service, :service, :client, :gwt, '#{service.name}'
+      java_artifact :proxy, :service, :client, :gwt, '#{facade_service}Proxy'
+      java_artifact :service, :service, :client, :gwt, 'RestGwt#{service.name}'
+    end
+
+    facet.enhance(Parameter) do
       include Domgen::Java::ImitJavaCharacteristic
 
       # Does the parameter come from the environment?
@@ -108,6 +94,7 @@ module Domgen
           "request:remote-user" => 'getThreadLocalRequest().getRemoteUser()',
         }
       end
+
       protected
 
       def characteristic
@@ -115,57 +102,14 @@ module Domgen
       end
     end
 
-    class RestGwtException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
-
-      def qualified_name
-        "#{exception.data_module.gwt.client_data_type_package}.#{name}"
-      end
-    end
-
-    class RestGwtApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::JavaClientServerApplication
-
-      attr_writer :module_name
-
-      def module_name
-        @module_name || Domgen::Naming.underscore(repository.name)
-      end
-
-      attr_writer :client_ioc_package
-
-      def client_ioc_package
-        @client_ioc_package || "#{client_package}.ioc"
-      end
-
-      attr_writer :services_module_name
-
-      def services_module_name
-        @services_module_name || "#{repository.name}RestyGwtServicesModule"
-      end
-
-      def qualified_services_module_name
-        "#{client_ioc_package}.#{services_module_name}"
-      end
+    facet.enhance(Result) do
+      include Domgen::Java::ImitJavaCharacteristic
 
       protected
 
-      def facet_key
-        :gwt
+      def characteristic
+        result
       end
     end
   end
-
-  FacetManager.define_facet(:restygwt,
-                            {
-                              Service => Domgen::RestGWT::RestGwtService,
-                              Method => Domgen::RestGWT::RestGwtMethod,
-                              Parameter => Domgen::RestGWT::RestGwtParameter,
-                              Exception => Domgen::RestGWT::RestGwtException,
-                              Result => Domgen::RestGWT::RestGwtReturn,
-                              DataModule => Domgen::RestGWT::RestGwtModule,
-                              Repository => Domgen::RestGWT::RestGwtApplication
-                            }, [:gwt, :jaxrs])
 end

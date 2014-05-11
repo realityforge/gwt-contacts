@@ -13,8 +13,10 @@
 #
 
 module Domgen
-  module JMS
-    class JmsMethod < Domgen.ParentedElement(:method)
+  FacetManager.facet(:jms => [:ejb, :jaxb, :ee]) do |facet|
+    facet.enhance(Method) do
+      include Domgen::Java::BaseJavaGenerator
+
       attr_writer :mdb
 
       def mdb?
@@ -25,17 +27,11 @@ module Domgen
         "mdb/#{mdb_name}"
       end
 
+      java_artifact :mdb, :service, :server, :ee, '#{method.name}#{method.service.name}MDB'
+
       def mdb_name=(mdb_name)
         self.mdb = true
-        @mdb_name =mdb_name
-      end
-
-      def mdb_name
-        @mdb_name || "#{method.name}#{method.service.name}MDB"
-      end
-
-      def qualified_mdb_name
-        "#{method.service.data_module.jms.service_package}.#{mdb_name}"
+        @mdb_name = mdb_name
       end
 
       def destination_resource_name=(destination_resource_name)
@@ -44,7 +40,7 @@ module Domgen
       end
 
       def destination_resource_name
-        @destination_resource_name || "jms/#{method.qualified_name.gsub('#','.')}"
+        @destination_resource_name || "jms/#{method.qualified_name.gsub('#', '.')}"
       end
 
       def destination_type=(destination_type)
@@ -81,25 +77,5 @@ module Domgen
 
       #TODO: Validate that at max one parameter and no return
     end
-
-    class JmsClass < Domgen.ParentedElement(:service)
-    end
-
-    class JmsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
-    end
-
-    class JmsApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ServerJavaApplication
-    end
   end
-
-  FacetManager.define_facet(:jms,
-                            {
-                              Method => Domgen::JMS::JmsMethod,
-                              Service => Domgen::JMS::JmsClass,
-                              DataModule => Domgen::JMS::JmsPackage,
-                              Repository => Domgen::JMS::JmsApplication
-                            },
-                            [:ejb, :jaxb, :ee])
 end

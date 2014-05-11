@@ -188,13 +188,13 @@ module Domgen
       @traversable.nil? ? false : @traversable
     end
 
-    def relationship_name=(relationship_name)
-      @relationship_name = relationship_name
+    def name=(name)
+      @name = name
       self.traversable = true
     end
 
-    def relationship_name
-      @relationship_name || attribute.entity.name
+    def name
+      @name || attribute.entity.name
     end
 
     def relationship_kind
@@ -347,7 +347,7 @@ module Domgen
 
     attr_reader :name
 
-    def initialize(entity, base_name, options = {}, & block)
+    def initialize(entity, base_name, options = {}, &block)
       super(entity, options) do
         @name = local_name(base_name)
         yield self if block_given?
@@ -464,6 +464,8 @@ module Domgen
   end
 
   class Attribute < self.FacetedElement(:entity)
+    include GenerateFacet
+
     include InheritableCharacteristic
 
     attr_reader :attribute_type
@@ -1520,6 +1522,36 @@ module Domgen
       Domgen::ModelCheck.new(self, name, options, &block)
     end
 
+    def enumeration_by_name(name, optional = false)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional)
+    end
+
+    def exception_by_name(name, optional = false)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional)
+    end
+
+    def entity_by_name(name, optional = false)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional)
+    end
+
+    def service_by_name(name, optional = false)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional)
+    end
+
+    def struct_by_name(name, optional = false)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional)
+    end
+
+    def message_by_name(name, optional = false)
+      name_parts = split_name(name)
+      data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional)
+    end
+
     include GenerateFacet
     include Faceted
 
@@ -1530,6 +1562,12 @@ module Domgen
     end
 
     private
+
+    def split_name(name)
+      name_parts = name.to_s.split('.')
+      Domgen.error("Name should have 1 '.' separator") if 2 != name_parts.size
+      name_parts
+    end
 
     def register_data_module(name, data_module)
       @data_modules[name.to_s] = data_module

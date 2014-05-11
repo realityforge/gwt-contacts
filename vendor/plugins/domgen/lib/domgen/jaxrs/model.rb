@@ -15,7 +15,9 @@
 module Domgen
   module JaxRS
     module MediaTypeEnabled
-      attr_reader :consumes
+      def consumes
+        @consumes || [:json, :xml]
+      end
 
       def consumes=(consumes)
         consumes = [consumes] unless consumes.is_a?(Array)
@@ -25,7 +27,9 @@ module Domgen
         @consumes = consumes
       end
 
-      attr_reader :produces
+      def produces
+        @produces || [:json, :xml]
+      end
 
       def produces=(produces)
         produces = [produces] unless produces.is_a?(Array)
@@ -39,34 +43,31 @@ module Domgen
         [:json, :xml, :plain].include?(media_type)
       end
     end
+  end
 
-    class JaxRsClass < Domgen.ParentedElement(:service, <<-INIT)
-      @produces = [:json, :xml]
-      @consumes = [:json, :xml]
-      INIT
-      include MediaTypeEnabled
+  FacetManager.facet(:jaxrs => [:ee]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
 
-      attr_writer :service_name
+      attr_writer :path
 
-      def service_name
-        @service_name || "#{short_service_name}RestService"
+      def path
+        @path || 'api'
       end
+
+      java_artifact :abstract_application, :service, :server, :ee, '#{repository.name}JaxRsApplication'
+    end
+
+    facet.enhance(Service) do
+      include Domgen::JaxRS::MediaTypeEnabled
+      include Domgen::Java::BaseJavaGenerator
 
       def short_service_name
         service.name.to_s =~ /^(.*)Service/ ? service.name.to_s[0..-7] : service.name
       end
 
-      def qualified_service_name
-        "#{service.data_module.jaxrs.service_package}.#{service_name}"
-      end
-
-      def boundary_name
-        "#{service_name}Impl"
-      end
-
-      def qualified_boundary_name
-        "#{service.data_module.jaxrs.service_package}.#{boundary_name}"
-      end
+      java_artifact :service, :service, :server, :ee, '#{short_service_name}RestService'
+      java_artifact :boundary, :service, :server, :ee, '#{service_name}Impl'
 
       attr_accessor :boundary_extends
 
@@ -76,44 +77,10 @@ module Domgen
         return @path unless @path.nil?
         return "/#{Domgen::Naming.underscore(short_service_name)}"
       end
-
     end
 
-    class JaxRsParameter < Domgen.ParentedElement(:parameter)
-
-      include Domgen::Java::EEJavaCharacteristic
-
-      attr_writer :param_key
-
-      def param_key
-        @param_key || Domgen::Naming.camelize(characteristic.name)
-      end
-
-      attr_accessor :default_value
-
-      def param_type
-        @param_type || :query
-      end
-
-      def param_type=(param_type)
-        raise "Unknown param_type #{param_type}" unless valid_param_type?(param_type)
-        @param_type = param_type
-      end
-
-      protected
-
-      def valid_param_type?(param_type)
-        [:query, :cookie, :path, :form, :header].include?(param_type)
-      end
-
-      def characteristic
-        parameter
-      end
-    end
-
-    class JaxRsMethod < Domgen.ParentedElement(:method)
-
-      include MediaTypeEnabled
+    facet.enhance(Method) do
+      include Domgen::JaxRS::MediaTypeEnabled
 
       attr_writer :path
 
@@ -149,7 +116,38 @@ module Domgen
       end
     end
 
-    class JaxRsReturn < Domgen.ParentedElement(:result)
+    facet.enhance(Parameter) do
+      include Domgen::Java::EEJavaCharacteristic
+
+      attr_writer :param_key
+
+      def param_key
+        @param_key || Domgen::Naming.camelize(characteristic.name)
+      end
+
+      attr_accessor :default_value
+
+      def param_type
+        @param_type || :query
+      end
+
+      def param_type=(param_type)
+        raise "Unknown param_type #{param_type}" unless valid_param_type?(param_type)
+        @param_type = param_type
+      end
+
+      protected
+
+      def valid_param_type?(param_type)
+        [:query, :cookie, :path, :form, :header].include?(param_type)
+      end
+
+      def characteristic
+        parameter
+      end
+    end
+
+    facet.enhance(Result) do
       include Domgen::Java::EEJavaCharacteristic
 
       protected
@@ -158,46 +156,5 @@ module Domgen
         result
       end
     end
-
-    class JaxRsException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
-      end
-
-      def qualified_name
-        "#{exception.data_module.jaxrs.data_type_package}.#{name}"
-      end
-    end
-
-    class JaxRsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
-    end
-
-    class JaxRsApplication < Domgen.ParentedElement(:repository)
-      include Domgen::Java::ServerJavaApplication
-
-      attr_writer :path
-
-      def path
-        @path || 'api'
-      end
-
-      def abstract_application_name
-        "#{repository.name}JaxRsApplication"
-      end
-
-      def qualified_abstract_application_name
-        "#{repository.jaxrs.service_package}.#{abstract_application_name}"
-      end
-    end
   end
-
-  FacetManager.define_facet(:jaxrs,
-                            Service => Domgen::JaxRS::JaxRsClass,
-                            Method => Domgen::JaxRS::JaxRsMethod,
-                            Parameter => Domgen::JaxRS::JaxRsParameter,
-                            Exception => Domgen::JaxRS::JaxRsException,
-                            Result => Domgen::JaxRS::JaxRsReturn,
-                            DataModule => Domgen::JaxRS::JaxRsPackage,
-                            Repository => Domgen::JaxRS::JaxRsApplication)
 end

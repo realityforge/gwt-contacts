@@ -1,11 +1,10 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= data_module.imit.entity_package %>;
-
-import org.realityforge.replicant.client.EntityChangeBroker;
-import org.realityforge.replicant.client.EntityRepository;
+package <%= to_package(data_module.imit.qualified_mapper_name) %>;
 
 /**
  * Utility class to map a change to an entity ensuring that the repository is updated as required.
+ *
+ * NOTE: This must be in the same package as the entities otherwise you will not be able to access the setters.
  */
 @javax.annotation.Generated( "Domgen" )
 @SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
@@ -13,17 +12,19 @@ public class <%= data_module.imit.mapper_name %>
 {
   private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger( <%= data_module.imit.mapper_name %>.class.getName() );
 
-  private final EntityRepository _repository;
-  private final EntityChangeBroker _broker;
+  private final org.realityforge.replicant.client.EntityRepository _repository;
+  private final org.realityforge.replicant.client.EntityChangeBroker _broker;
+  private final org.realityforge.replicant.client.EntitySubscriptionManager _subscriptionManager;
 
   @javax.inject.Inject
-  public <%= data_module.imit.mapper_name %>( final @javax.annotation.Nonnull EntityRepository repository, final @javax.annotation.Nonnull EntityChangeBroker broker )
+  public <%= data_module.imit.mapper_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker broker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager )
   {
     _repository = repository;
     _broker = broker;
+    _subscriptionManager =subscriptionManager;
   }
 
-<% data_module.imit.client_side_entities.each do |entity| %>
+<% data_module.entities.select { |entity| entity.imit? }.each do |entity| %>
 <% if !entity.abstract? %>
   public Object applyChangeTo<%= entity.name %>( final org.realityforge.replicant.client.Change change )
   {
@@ -50,6 +51,7 @@ public class <%= data_module.imit.mapper_name %>
         }
         // It is in the local repository so we need to delete it
         _repository.deregisterEntity( <%= entity.imit.name %>.class, designator );
+        _subscriptionManager.removeEntity( <%= entity.imit.name %>.class, designator );
       }
     }
     else
@@ -73,6 +75,14 @@ public class <%= data_module.imit.mapper_name %>
         }
       }
       updateAttributes<%= entity.name %>( entity, change, fullUpdate );
+      final int channelCount = change.getChannelCount();
+      final org.realityforge.replicant.client.GraphDescriptor[] descriptors = new org.realityforge.replicant.client.GraphDescriptor[ change.getChannelCount() ];
+      for ( int i = 0; i < descriptors.length; i++ )
+      {
+        descriptors[i] = new org.realityforge.replicant.client.GraphDescriptor( <%= data_module.repository.imit.qualified_graph_enum_name %>.values()[change.getChannelID( i )], change.getSubChannelID( i ) );
+      }
+      _subscriptionManager.updateEntity( <%= entity.imit.name %>.class, designator, descriptors );
+
     }
     return entity;
   }
@@ -88,7 +98,9 @@ public class <%= data_module.imit.mapper_name %>
     key = "#{entity.name}.#{Domgen::Naming.uppercase_constantize(attribute.name)}"
     value_converter =
         if attribute.imit.transport_characteristic_type_key == :date
-          "org.realityforge.replicant.client.RDate.parse( change.getStringValue( #{key} ) )"
+          "org.realityforge.gwt.datatypes.client.date.RDate.parse( change.getStringValue( #{key} ) )"
+        elsif attribute.imit.transport_characteristic_type_key == :datetime
+          "new java.util.Date( new java.math.BigDecimal( change.getStringValue( #{key} ) ).longValueExact() )"
         elsif attribute.imit.transport_characteristic_type_key == :integer
           "change.getIntegerValue( #{key} )"
         elsif attribute.imit.transport_characteristic_type_key == :real
@@ -121,7 +133,7 @@ public class <%= data_module.imit.mapper_name %>
   private void set<%= attribute.imit.name(:transport) %>_On_<%= entity.name %>( @javax.annotation.Nonnull final <%= entity.imit.name %> entity, <%= nullability_annotation(attribute.nullable?) %> final <%= attribute.imit.java_type(:transport) %> value )
   {
 <%
-   getter_text = "entity.get#{attribute.imit.name(:transport)}()"
+   getter_text = "entity.#{getter_prefix(attribute)}#{attribute.imit.name(:transport)}()"
    equal_check =
        if attribute.primary_key?
          "true"

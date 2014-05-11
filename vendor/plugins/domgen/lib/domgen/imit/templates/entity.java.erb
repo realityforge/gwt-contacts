@@ -1,5 +1,5 @@
 /* DO NOT EDIT: File is auto-generated */
-package <%= entity.data_module.imit.entity_package %>;
+package <%= to_package(entity.imit.qualified_name) %>;
 
 import org.realityforge.replicant.client.EntityChangeBroker;
 import org.realityforge.replicant.client.EntityRepository;
@@ -9,7 +9,7 @@ import org.realityforge.replicant.client.EntityRepository;
 public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <%= entity.extends ?
   "    extends #{entity.data_module.entity_by_name(entity.extends).imit.qualified_name}\n" :
-  "    implements org.realityforge.replicant.client.Linkable" %>
+  "    implements org.realityforge.replicant.client.Linkable, org.realityforge.replicant.client.Verifiable" %>
 {
   public static final String TYPE_KEY = "<%= entity.qualified_name %>";
 <% if !entity.abstract? %>
@@ -18,15 +18,15 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 <% entity.declared_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? }.each do |attribute|
 %>  public static final String <%= Domgen::Naming.uppercase_constantize( attribute.name ) %> = "<%= attribute.name %>";
 <% end %>
-<% entity.referencing_attributes.select{ |attribute| attribute.entity.imit? && attribute.imit.client_side? && !attribute.abstract? && attribute.inverse.imit? && attribute.inverse.imit.traversable?}.each do |attribute|
-%>  public static final String <%= Domgen::Naming.uppercase_constantize(attribute.inverse.relationship_name) %> = "<%= attribute.inverse.relationship_name %>";
+<% entity.referencing_attributes.select{ |attribute| attribute.imit? && attribute.imit.client_side? && !attribute.abstract? && attribute.inverse.imit? && attribute.inverse.imit.traversable?}.each do |attribute|
+%>  public static final String <%= Domgen::Naming.uppercase_constantize(attribute.inverse.name) %> = "<%= attribute.inverse.name %>";
 <% end %>
 <%= entity.extends.nil? ? "  protected EntityRepository _repository;\n" : ""
 %><%= entity.extends.nil? ? "  protected EntityChangeBroker _broker;\n" : ""
 %><% entity.declared_attributes.select{ |attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side? }.each do |attribute|
   if !attribute.reference?
 %>
-  private <%= annotated_type(attribute, :imit) %> _<%= attribute.imit.name %>;
+  <%= annotated_type(attribute, :imit, :default, :private => true) %> _<%= attribute.imit.name %>;
 <% else
 %>  private <%= attribute.imit.java_type %> _<%= attribute.imit.name %>;
   private <%= "#{nullability_annotation(attribute.nullable?)} #{attribute.imit.java_type(:transport)}" %> _<%= attribute.imit.name(:transport) %>;
@@ -35,12 +35,13 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
    end
 %>
 <% entity.imit.referencing_client_side_attributes.each do |attribute| %><%= if attribute.inverse.multiplicity == :many
-          "  private java.util.List<#{attribute.entity.imit.qualified_name}> #{Domgen::Naming.pluralize(attribute.inverse.relationship_name)};\n"
+          "  private java.util.List<#{attribute.entity.imit.qualified_name}> #{Domgen::Naming.pluralize(attribute.inverse.name)};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          "  private #{attribute.entity.imit.qualified_name} #{attribute.inverse.relationship_name};\n"
+          "  private #{attribute.entity.imit.qualified_name} #{attribute.inverse.name};\n"
         end %>
 <% end %>
 <% if entity.extends.nil? %>
+  private boolean _created;
   private boolean _linking;
   private boolean _delinking;
   private boolean _linked;
@@ -50,26 +51,26 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     <%= entity.extends.nil? ? "_repository = repository;\n    _broker = broker" : "super( repository, broker )" %>;
   }
 <% entity.declared_attributes.select{|attribute| attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
-%>  public abstract <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>();
+%>  <%= annotated_type(attribute, :imit, :default, :public => true, :abstract => true) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>();
 <% if attribute.attribute_type == :reference
-  %>  abstract <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>();
+  %>  abstract <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>();
 <% end %>
     abstract void set<%= attribute.imit.name(:transport) %>( <%= attribute.imit.java_type(:transport) %> value );
 <% end %>
 <% entity.declared_attributes.select{|attribute| !attribute.abstract? && attribute.imit? && attribute.imit.client_side?}.each do |attribute|
-%>  public <%= annotated_type(attribute, :imit) %> get<%= attribute.imit.name %>()
+%>  <%= annotated_type(attribute, :imit, :default, :public => true) %> <%= getter_prefix(attribute) %><%= attribute.imit.name %>()
   {
     <% if !attribute.primary_key? %>check<%= attribute.reference? ? "Linked" : "Validity" %>();<% end %>
     return _<%= attribute.imit.name %>;
   }
 <% if attribute.attribute_type == :reference
 %>
-  final <%= attribute.imit.java_type(:transport) %> get<%= attribute.imit.name(:transport) %>()
+  protected final <%= attribute.imit.java_type(:transport) %> <%= getter_prefix(attribute) %><%= attribute.imit.name(:transport) %>()
   {
     return _<%= attribute.referencing_link_name %>;
   }
 <% end %>
-  final void set<%= attribute.imit.name(:transport) %>( final <%= annotated_type(attribute, :imit, :transport) %> value )
+  final void set<%= attribute.imit.name(:transport) %>( <%= annotated_type(attribute, :imit, :transport, :final => true) %> value )
   {
     checkValidity();
 <% if attribute.reference?
@@ -90,21 +91,21 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
       _<%= attribute.imit.name %> = null;
     }
 <% end %>
-    if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
+    if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
 <% else
 %>    _<%= attribute.imit.name %> = value;
-    if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
+    if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, value );
 <% end %>  }
 <% end %>
 <% entity.imit.referencing_client_side_attributes.each do |attribute|
-        name = attribute.inverse.relationship_name
+        name = attribute.inverse.name
         type = attribute.entity.imit.qualified_name
         if attribute.inverse.multiplicity == :many
           plural_name = Domgen::Naming.pluralize(name)
 %>
   <%= description_javadoc_for(attribute) %>
   @javax.annotation.Nonnull
-  public final java.util.List<<%= type %>> get<%= plural_name %>()
+  public final java.util.List<<%= type %>> <%= getter_prefix(attribute) %><%= plural_name %>()
   {
     return java.util.Collections.unmodifiableList( safeGet<%= plural_name %>() );
   }
@@ -118,7 +119,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   public <% end %>final void add<%= name %>( final <%= type %> value )
   {
     safeGet<%= plural_name %>().add( value );
-    if( null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, value );
+    if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.name ) %>, value );
   }
 
   <% if attribute.entity.data_module.name != entity.data_module.name %>/**
@@ -129,7 +130,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   @Deprecated
   public <% end %>final void remove<%= name %>( final <%= type %> value )
   {
-    if( null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, value );
+    if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.name ) %>, value );
     safeGet<%= plural_name %>().remove( value );
   }
 
@@ -142,7 +143,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     return <%= plural_name %>;
   }
 <% else %>
-  public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> get<%= name %>()
+  public final <%= nullability_annotation(attribute.inverse.multiplicity != :one)  %> <%= type %> <%= getter_prefix(attribute) %><%= name %>()
   {
     return <%= name %>;
   }
@@ -155,12 +156,62 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
   @Deprecated
   protected <% end %>final void set<%= name %>( final <%= type %> value )
   {
-    if( null != <%= name %> && null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
+    if( null != <%= name %> && isCreated() && null != _broker && _broker.isEnabled() ) _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.name ) %>, <%= name %> );
     <%= name %> = value;
-    if( null != <%= name %> && null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, <%= name %> );
+    if( null != <%= name %> && isCreated() && null != _broker && _broker.isEnabled() ) _broker.relatedAdded( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.name ) %>, <%= name %> );
   }
 <% end %>
 <% end %>
+
+  public void verifySelf()
+    throws Exception
+  {
+    checkValidity();
+    final <%= entity.imit.name %> r = _repository.findByID( <%= entity.imit.name %>.class, <%= getter_prefix(entity.primary_key) %><%= entity.primary_key.name %>() );
+    if( r != this )
+    {
+      throw new IllegalStateException( "Registered entity does not match current entity Registered: " + r + " Current: " + this );
+    }
+<% entity.declared_attributes.select{ |a| a.imit? && a.reference? && a.imit.client_side? && a.inverse.traversable? }.
+      each do |attribute| %>
+    if( null != _<%= attribute.imit.name %> )
+    {
+      _<%= attribute.imit.name %>.verifySelf();
+    }
+<% end %>
+  }
+
+  @Override
+  public void verify()
+    throws Exception
+  {
+<% if entity.extends.nil? %>
+    verifySelf();
+<% else %>
+    super.verify();
+<% end -%>
+<%
+entity.imit.referencing_client_side_attributes.each do |attribute|
+  if attribute.inverse.multiplicity == :many
+%>
+    if( null != <%= Domgen::Naming.pluralize(attribute.inverse.name) %> )
+    {
+      for( final <%= attribute.entity.imit.qualified_name %> o : <%= Domgen::Naming.pluralize(attribute.inverse.name) %> )
+      {
+        o.verify();
+      }
+    }
+<% else %>
+    if( null != <%= attribute.inverse.name %> )
+    {
+      <%= attribute.inverse.name %>.verify();
+    }
+<%
+  end
+ end
+%>
+  }
+
   public void invalidate()
   {
 <% if entity.extends.nil?
@@ -169,11 +220,12 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
 %>    {
       if( null != _<%= attribute.imit.name %> )
       {
-        _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.relationship_name ) %>, _<%= attribute.imit.name %> );
+        _broker.relatedRemoved( this, <%= attribute.referenced_entity.imit.qualified_name %>.<%= Domgen::Naming.uppercase_constantize( attribute.inverse.name ) %>, _<%= attribute.imit.name %> );
       }
     }
 <% end
 %>    _broker.entityRemoved( this );
+    delink();
     _repository = null;
     _broker = null;
 <% else
@@ -209,8 +261,8 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     {
       if( null != _<%= attribute.imit.name %> )
       {
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.remove<%= attribute.inverse.relationship_name %>( this );<% end %>
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.relationship_name %>( null );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.remove<%= attribute.inverse.name %>( this );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.name %>( null );<% end %>
         _<%= attribute.imit.name %> = null;
       }
     }
@@ -220,16 +272,26 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     {
       if( null == _<%= attribute.imit.name %> <%= attribute.nullable? ? "&& null != _#{attribute.referencing_link_name}" : "" %> )
       {
-        _<%= attribute.imit.name %> = _repository.getByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
-        if( null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, _<%= attribute.imit.name %> );
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.add<%= attribute.inverse.relationship_name %>( this );<% end %>
-<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.relationship_name %>( this );<% end %>
+        _<%= attribute.imit.name %> = _repository.findByID( <%= attribute.referenced_entity.imit.qualified_name %>.class, _<%= attribute.referencing_link_name %> );
+        if( null == _<%= attribute.imit.name %> )
+        {
+          throw new IllegalStateException( "Unable to locate entity of type '<%= attribute.referenced_entity.imit.qualified_name %>' and id = '" + _<%= attribute.referencing_link_name %> + "' via '<%= attribute.imit.name %>' attribute on " + this );
+        }
+        if( isCreated() && null != _broker && _broker.isEnabled() ) _broker.attributeChanged( this, <%= entity.imit.name %>.<%= Domgen::Naming.uppercase_constantize( attribute.name ) %>, _<%= attribute.imit.name %> );
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity == :many %>        _<%= attribute.imit.name %>.add<%= attribute.inverse.name %>( this );<% end %>
+<% if attribute.inverse.imit.traversable? && attribute.inverse.multiplicity != :many%>        _<%= attribute.imit.name %>.set<%= attribute.inverse.name %>( this );<% end %>
       }
     }
 <% end %>
 
 
 <% if entity.extends.nil? %>
+  protected final boolean isCreated()
+  {
+    return _created;
+  }
+
+  @Override
   public final boolean isValid()
   {
     return null != _repository;
@@ -252,6 +314,7 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     }
   }
 
+  @Override
   public final void link()
   {
     checkValidity();
@@ -265,9 +328,14 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     {
       _linking = false;
     }
+    if( !_created )
+    {
+      _broker.entityAdded( this );
+      _created = true;
+    }
   }
 
-  public final void delink()
+  private void delink()
   {
     checkValidity();
     _delinking = true;
@@ -280,6 +348,12 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     {
       _delinking = false;
     }
+  }
+
+  @Override
+  public final boolean isLinked()
+  {
+    return _linked;
   }
 <% end %>
 
@@ -297,15 +371,27 @@ public <%= entity.abstract? ? "abstract " : "" %>class <%= entity.imit.name %>
     }
     else
     {
-      final <%= entity.jpa.name%> that = (<%= entity.jpa.name %>) o;
-      return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name}() && get#{entity.primary_key.imit.name}().equals( that.get#{entity.primary_key.imit.name}() )" : "get#{entity.primary_key.imit.name }() == that.get#{entity.primary_key.imit.name }()" %>;
+      final <%= entity.imit.name %> that = (<%= entity.imit.name %>) o;
+      return <%=  !entity.primary_key.imit.primitive? ? "null != #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name}() && #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name}().equals( that.get#{entity.primary_key.imit.name}() )" : "#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }() == that.#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }()" %>;
     }
   }
 
   @Override
   public int hashCode()
   {
-    return <%=  !entity.primary_key.imit.primitive? ? "null != get#{entity.primary_key.imit.name }() ? get#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "get#{entity.primary_key.imit.name }()" %>;
+    return <%=  !entity.primary_key.imit.primitive? ? "null != #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name }() ? #{getter_prefix(entity.primary_key)}#{entity.primary_key.imit.name }().hashCode() : System.identityHashCode( this )" : "#{getter_prefix(entity.primary_key)}#{entity.primary_key.name }()" %>;
   }
-<% end %>
+
+  @Override
+  public String toString()
+  {
+    return "<%= entity.qualified_name %>[" + <%=
+      entity.attributes.select{ |a| a.imit? && a.imit.client_side? }.collect do |a|
+      value = "#{getter_prefix(a)}#{a.imit.name(:transport).to_s}()"
+      output = "\"#{a.name}=\" + #{value}"
+      entity.primary_key == a ? output : "(isValid() ? #{output} : \"\")"
+      end.join(" + \", \" + ")
+    %> + "]" + (!isValid() ? "(Invalid)" : !isLinked() ? "(Unlinked)" : !isCreated() ? "(Creating)" : "");
+  }
+<% end -%>
 }

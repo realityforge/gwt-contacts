@@ -25,6 +25,9 @@ module Domgen
         s << "  @javax.persistence.Enumerated( javax.persistence.EnumType.#{ attribute.enumeration.numeric_values? ? "ORDINAL" : "STRING"} )\n" if attribute.enumeration?
         s << "  @javax.persistence.Temporal( javax.persistence.TemporalType.#{attribute.datetime? ? "TIMESTAMP" : "DATE"} )\n" if attribute.datetime? || attribute.date?
         s << "  @javax.validation.constraints.NotNull\n" if !attribute.nullable? && !attribute.generated_value?
+        converter = attribute.jpa.converter
+        s << "  @javax.persistence.Convert( converter = #{converter}.class )\n" if converter
+
         s << nullable_annotate(attribute, '', true)
         if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?
@@ -43,9 +46,9 @@ module Domgen
         s << gen_relation_annotation(attribute, false)
         s << gen_fetch_mode_if_specified(attribute)
         if attribute.inverse.multiplicity == :many
-          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name))};\n"
+          s << "  private java.util.List<#{attribute.entity.jpa.qualified_name}> #{Domgen::Naming.pluralize(Domgen::Naming.camelize(attribute.inverse.name))};\n"
         else # attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-          s << "  private #{attribute.entity.jpa.qualified_name} #{attribute.entity.jpa.to_field_name(attribute.inverse.relationship_name)};\n"
+          s << "  private #{attribute.entity.jpa.qualified_name} #{Domgen::Naming.camelize(attribute.inverse.name)};\n"
         end
         s
       end
@@ -159,8 +162,8 @@ JAVA
           elsif attribute.inverse.multiplicity == :many
             j_has_many_attribute(attribute)
           else #attribute.inverse.multiplicity == :one || attribute.inverse.multiplicity == :zero_or_one
-            name = attribute.inverse.relationship_name
-            field_name = entity.jpa.to_field_name( name )
+            name = attribute.inverse.name
+            field_name = Domgen::Naming.camelize( name )
             type = nullable_annotate(attribute, attribute.entity.jpa.qualified_name, false, true)
 
             java = description_javadoc_for attribute
@@ -174,26 +177,26 @@ JAVA
   #{j_deprecation_warning(attribute)}final void add#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{field_name} )
+    if( null != this.#{field_name} )
     {
       throw new IllegalStateException("Attempted to add value when non null value exists.");
     }
-    if( value != #{field_name} )
+    if( value != this.#{field_name} )
     {
-      #{field_name} = value;
+      this.#{field_name} = value;
     }
   }
 
   public final void remove#{name}( final #{type} value )
   {
      #{attribute.primary_key? ? "":"verifyNotRemoved();"}
-    if( null != #{field_name} && value != #{field_name} )
+    if( null != this.#{field_name} && value != this.#{field_name} )
     {
       throw new IllegalStateException("Attempted to remove value that was not the same.");
     }
-    if( null != #{field_name} )
+    if( null != this.#{field_name} )
     {
-      #{field_name} = null;
+      this.#{field_name} = null;
     }
   }
 JAVA
@@ -219,22 +222,22 @@ JAVA
        throw new NullPointerException( "#{name} parameter is not nullable" );
      }
 
-     if( value.equals( #{name} ) )
+     if( value.equals( this.#{name} ) )
      {
        return;
      }
 JAVA
         else
           return <<JAVA
-     if( null != #{name} && #{name}.equals( value ) )
+     if( null != this.#{name} && this.#{name}.equals( value ) )
      {
        return;
      }
-     else if( null != value && value.equals( #{name} ) )
+     else if( null != value && value.equals( this.#{name} ) )
      {
        return;
      }
-     else if( null == #{name} && null == value )
+     else if( null == this.#{name} && null == value )
      {
        return;
      }
@@ -254,7 +257,7 @@ JAVA
 JAVA
         if attribute.generated_value? && !attribute.nullable?
           java << <<JAVA
-      if( null == #{field_name} )
+      if( null == this.#{field_name} )
       {
         throw new IllegalStateException("Attempting to access generated value #{name} before it has been flushed to the database.");
       }
@@ -276,7 +279,7 @@ JAVA
   public void set#{name}( final #{type} value )
   {
 #{j_return_if_value_same(field_name, attribute.jpa.primitive?, attribute.nullable?)}
-        #{field_name} = value;
+        this.#{field_name} = value;
   }
 JAVA
         end
@@ -286,7 +289,7 @@ JAVA
       def j_add_to_inverse(attribute)
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
-        inverse_name = attribute.inverse.relationship_name
+        inverse_name = attribute.inverse.name
         if !attribute.inverse.jpa.java_traversable?
           ''
         else
@@ -297,7 +300,7 @@ JAVA
       def j_remove_from_inverse(attribute)
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
-        inverse_name = attribute.inverse.relationship_name
+        inverse_name = attribute.inverse.name
         if !attribute.inverse.jpa.java_traversable?
           ''
         else
@@ -330,7 +333,7 @@ JAVA
   {
  #{j_return_if_value_same(field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
         #{j_remove_from_inverse(attribute)}
-        #{field_name} = value;
+        this.#{field_name} = value;
  #{j_add_to_inverse(attribute)}
   }
 JAVA
@@ -359,9 +362,9 @@ STR
       end
 
       def j_has_many_attribute(attribute)
-        name = attribute.inverse.relationship_name
+        name = attribute.inverse.name
         plural_name = Domgen::Naming.pluralize(name)
-        field_name = attribute.entity.jpa.to_field_name(plural_name)
+        field_name = Domgen::Naming.camelize(plural_name)
         type = attribute.entity.jpa.qualified_name
         java = description_javadoc_for attribute
         java << <<STR
@@ -381,19 +384,19 @@ STR
 
   public final void remove#{name}( final #{type} value )
   {
-    if ( null != #{field_name} && #{field_name}.contains( value ) )
+    if ( null != this.#{field_name} && this.#{field_name}.contains( value ) )
     {
-      #{field_name}.remove( value );
+      this.#{field_name}.remove( value );
     }
   }
 
   private java.util.List<#{type}> safeGet#{plural_name}()
   {
-    if( null == #{field_name} )
+    if( null == this.#{field_name} )
     {
-      #{field_name} = new java.util.LinkedList<#{type}>();
+      this.#{field_name} = new java.util.LinkedList<#{type}>();
     }
-    return #{field_name};
+    return this.#{field_name};
   }
 STR
         java

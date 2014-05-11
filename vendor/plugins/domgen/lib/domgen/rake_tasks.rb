@@ -44,7 +44,7 @@ module Domgen
         file(File.expand_path(target_dir) => [task_name])
 
         # Is there java source generated in project?
-        if templates.any?{|template| template.output_filename_pattern =~ /^main\/java\/.*/}
+        if templates.any?{|template| template.output_path =~ /^main\/java\/.*/}
           main_java_dir = "#{target_dir}/main/java"
           file(main_java_dir => [task_name]) do
             mkdir_p main_java_dir
@@ -55,7 +55,7 @@ module Domgen
         end
 
         # Is there resources generated in project?
-        if templates.any?{|template| template.output_filename_pattern =~ /^main\/resources\/.*/}
+        if templates.any?{|template| template.output_path =~ /^main\/resources\/.*/}
           main_resources_dir = "#{target_dir}/main/resources"
           file(main_resources_dir => [task_name]) do
             mkdir_p main_resources_dir
@@ -74,7 +74,7 @@ module Domgen
         end
 
         # Is there assets generated in project?
-        if templates.any?{|template| template.output_filename_pattern =~ /^main\/webapp\/.*/}
+        if templates.any?{|template| template.output_path =~ /^main\/webapp\/.*/}
           webapp_dir = File.expand_path("#{target_dir}/main/webapp")
           buildr_project.assets.enhance([task_name])
           buildr_project.assets.paths << file(webapp_dir => [task_name]) do
@@ -83,7 +83,7 @@ module Domgen
         end
 
         # Is there test java source generated in project?
-        if templates.any?{|template| template.output_filename_pattern =~ /^test\/java\/.*/}
+        if templates.any?{|template| template.output_path =~ /^test\/java\/.*/}
           test_java_dir = "#{target_dir}/test/java"
           file(test_java_dir => [task_name]) do
             mkdir_p test_java_dir
@@ -94,7 +94,7 @@ module Domgen
         end
 
         # Is there resources generated in project?
-        if templates.any?{|template| template.output_filename_pattern =~ /^test\/resources\/.*/}
+        if templates.any?{|template| template.output_path =~ /^test\/resources\/.*/}
           test_resources_dir = "#{target_dir}/test/resources"
           file(test_resources_dir => [task_name]) do
             mkdir_p test_resources_dir
@@ -150,8 +150,10 @@ module Domgen
                                         self.filter)
           rescue Domgen::Generator::GeneratorError => e
             puts e.message
-            puts e.cause.class.name.to_s
-            puts e.cause.backtrace.join("\n")
+            if e.cause
+              puts e.cause.class.name.to_s
+              puts e.cause.backtrace.join("\n")
+            end
             raise e.message
           ensure
             Domgen::Logger.level = old_level

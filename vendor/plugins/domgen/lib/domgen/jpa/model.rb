@@ -12,19 +12,275 @@
 # limitations under the License.
 #
 
+Domgen::TypeDB.config_element(:'jpa.mssql') do
+  attr_accessor :converter
+end
+
+Domgen::TypeDB.config_element(:'jpa.pgsql') do
+  attr_accessor :converter
+end
+
+Domgen::TypeDB.config_element(:'jpa') do
+  attr_accessor :converter
+end
+
+[:point, :multipoint, :linestring, :multilinestring, :polygon, :multipolygon, :geometry,
+ :pointm, :multipointm, :linestringm, :multilinestringm, :polygonm, :multipolygonm].each do |type_key|
+  Domgen::TypeDB.enhance(type_key,
+                         'jpa.pgsql.converter' => 'org.realityforge.jeo.geolatte.jpa.PostgisConverter',
+                         'jpa.mssql.converter' => 'org.realityforge.jeo.geolatte.jpa.SqlServerConverter')
+end
+
 module Domgen
   module JPA
-    class JPAQueryParameter < Domgen.ParentedElement(:parameter)
+    module BaseJpaField
+      def cascade
+        @cascade || []
+      end
+
+      def cascade=(value)
+        value = value.is_a?(Array) ? value : [value]
+        invalid_cascades = value.select { |v| !self.class.cascade_types.include?(v) }
+        unless invalid_cascades.empty?
+          Domgen.error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
+        end
+        @cascade = value
+      end
+
+      def self.cascade_types
+        [:all, :persist, :merge, :remove, :refresh, :detach]
+      end
+
+      def fetch_type
+        @fetch_type || :lazy
+      end
+
+      def fetch_type=(fetch_type)
+        Domgen.error("fetch_type #{fetch_type} is not recognized") unless self.class.fetch_types.include?(fetch_type)
+        @fetch_type = fetch_type
+      end
+
+      def self.fetch_types
+        [:eager, :lazy]
+      end
+
+      attr_reader :fetch_mode
+
+      def fetch_mode=(fetch_mode)
+        Domgen.error("fetch_mode #{fetch_mode} is not recognized") unless self.class.fetch_modes.include?(fetch_mode)
+        @fetch_mode = fetch_mode
+      end
+
+      def self.fetch_modes
+        [:select, :join, :subselect]
+      end
+    end
+  end
+
+  FacetManager.facet(:jpa => [:sql, :ee]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+      include Domgen::Java::JavaClientServerApplication
+
+      def version
+        @version || (repository.ee.version == '6' ? '2.0' : '2.1')
+      end
+
+      def version=(version)
+        raise "Unknown version '#{version}'" unless ['2.0', '2.1'].include?(version)
+        @version = version
+      end
+
+      attr_writer :unit_name
+
+      def unit_name
+        @unit_name || repository.name
+      end
+
+      attr_writer :properties
+
+      def properties
+        @properties ||= {
+          "eclipselink.logging.logger" => "JavaLogger",
+          "eclipselink.session-name" => repository.name,
+          #"eclipselink.logging.level" => "FINE",
+          "eclipselink.temporal.mutable" => "false"
+        }
+      end
+
+      java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
+      java_artifact :ejb_module, nil, :server, :jpa, '#{repository.name}RepositoryModule'
+
+      attr_writer :data_source
+
+      def data_source
+        @data_source || "jdbc/#{repository.name}"
+      end
+
+      attr_writer :exclude_unlisted_classes
+
+      def exclude_unlisted_classes?
+        @exclude_unlisted_classes.nil? ? true : @exclude_unlisted_classes
+      end
+
+      attr_accessor :provider
+
+      def provider_class
+        return "org.eclipse.persistence.jpa.PersistenceProvider" if provider == :eclipselink
+        return "org.hibernate.ejb.HibernatePersistence" if provider == :hibernate
+        return nil if provider.nil?
+      end
+
+      def persistence_file_fragments
+        @persistence_file_fragments ||= []
+      end
+    end
+
+    facet.enhance(DataModule) do
+      include Domgen::Java::EEClientServerJavaPackage
+
+      def server_dao_entity_package
+        "#{server_entity_package}.dao"
+      end
+    end
+
+    facet.enhance(Entity) do
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :table_name
+
+      def table_name
+        @table_name || entity.sql.table_name
+      end
+
+      attr_writer :jpql_name
+
+      def jpql_name
+        @jpql_name || entity.qualified_name.gsub('.', '_')
+      end
+
+      java_artifact :name, :entity, :server, :jpa, '#{entity.name}'
+      java_artifact :metamodel, :entity, :server, :jpa, '#{name}_'
+      java_artifact :dao_service, :entity, :server, :jpa, '#{name}Repository', :sub_package => 'dao'
+      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao'
+
+      attr_writer :cacheable
+
+      def cacheable?
+        @cacheable.nil? ? false : @cacheable
+      end
+
+      attr_writer :detachable
+
+      def detachable?
+        @detachable.nil? ? false : @detachable
+      end
+
+      def entity_listeners
+        @entity_listeners ||= []
+      end
+
+      def pre_verify
+        entity.query(:FindAll)
+        entity.query(:"FindBy#{entity.primary_key.name}")
+        entity.query(:"GetBy#{entity.primary_key.name}")
+        entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
+          jpql = ''
+          query_text = nil
+          query_text = $1 if query.name =~ /^[fF]indAllBy(.+)$/
+          query_text = $1 if query.name =~ /^[fF]indBy(.+)$/
+          query_text = $1 if query.name =~ /^[gG]etBy(.+)$/
+          next unless query_text
+
+          entity_prefix = "O."
+
+          while true
+            if query_text =~ /(.+)(And|Or)(.+)/
+              parameter_name = $1
+              query_text = $3
+              if !entity.attribute_exists?(parameter_name)
+                jpql = nil
+                break
+              end
+              operation = $2.upcase
+              jpql = "#{jpql}#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{operation} "
+            else
+              parameter_name = query_text
+              if !entity.attribute_exists?(parameter_name)
+                jpql = nil
+                break
+              end
+              jpql = "#{jpql}#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name}"
+              break
+            end
+          end
+          query.jpa.jpql = jpql if jpql
+        end
+      end
+    end
+
+    facet.enhance(Attribute) do
+      include Domgen::JPA::BaseJpaField
+
+      attr_writer :persistent
+
+      def persistent?
+        @persistent.nil? ? !attribute.abstract? : @persistent
+      end
+
       include Domgen::Java::EEJavaCharacteristic
+
+      attr_writer :converter
+
+      def converter
+        return nil if attribute.reference?
+        return nil if attribute.enumeration?
+        @converter ||
+          attribute.characteristic_type.jpa.converter ||
+          (Domgen::Sql.dialect.is_a?(Domgen::Sql::MssqlDialect) ?
+            attribute.characteristic_type.jpa.mssql.converter :
+            attribute.characteristic_type.jpa.pgsql.converter)
+      end
+
+      def field_name
+        Domgen::Naming.camelize(name)
+      end
 
       protected
 
       def characteristic
-        parameter
+        attribute
       end
     end
 
-    class JPAQuery < Domgen.ParentedElement(:query)
+    facet.enhance(InverseElement) do
+      include Domgen::JPA::BaseJpaField
+
+      attr_writer :orphan_removal
+
+      def orphan_removal?
+        !!@orphan_removal
+      end
+
+      def traversable=(traversable)
+        Domgen.error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
+        @traversable = traversable
+      end
+
+      def traversable?
+        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa?) : @traversable
+      end
+
+      def java_traversable=(java_traversable)
+        @java_traversable = java_traversable
+      end
+
+      def java_traversable?
+        @java_traversable.nil? ? traversable? : @java_traversable
+      end
+    end
+
+    facet.enhance(Query) do
       def post_verify
         query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
 
@@ -39,7 +295,7 @@ module Domgen
           end
         end
 
-        actual_parameters = query.parameters.collect{|p|p.name.to_s}
+        actual_parameters = query.parameters.collect { |p| p.name.to_s }
         if expected_parameters.sort != actual_parameters.sort
           Domgen.error("Actual parameters for query #{query.qualified_name} (#{actual_parameters.inspect}) do not match expected parameters #{expected_parameters.inspect}")
         end
@@ -140,7 +396,7 @@ module Domgen
         else
           Domgen.error("Unknown query spec #{self.query_spec}")
         end
-        q = q.gsub(/:[^\W]+/,'?') if self.native?
+        q = q.gsub(/:[^\W]+/, '?') if self.native?
         q.gsub(/[\s]+/, ' ').strip
       end
 
@@ -152,317 +408,14 @@ module Domgen
       end
     end
 
-    class BaseJpaField < Domgen.ParentedElement(:parent)
-      def cascade
-        @cascade || []
-      end
-
-      def cascade=(value)
-        value = value.is_a?(Array) ? value : [value]
-        invalid_cascades = value.select { |v| !self.class.cascade_types.include?(v) }
-        unless invalid_cascades.empty?
-          Domgen.error("cascade_type must be one of #{self.class.cascade_types.join(", ")}, not #{invalid_cascades.join(", ")}")
-        end
-        @cascade = value
-      end
-
-      def self.cascade_types
-        [:all, :persist, :merge, :remove, :refresh, :detach]
-      end
-
-      def fetch_type
-        @fetch_type || :lazy
-      end
-
-      def fetch_type=(fetch_type)
-        Domgen.error("fetch_type #{fetch_type} is not recognized") unless self.class.fetch_types.include?(fetch_type)
-        @fetch_type = fetch_type
-      end
-
-      def self.fetch_types
-        [:eager, :lazy]
-      end
-
-      attr_reader :fetch_mode
-
-      def fetch_mode=(fetch_mode)
-        Domgen.error("fetch_mode #{fetch_mode} is not recognized") unless self.class.fetch_modes.include?(fetch_mode)
-        @fetch_mode = fetch_mode
-      end
-
-      def self.fetch_modes
-        [:select, :join, :subselect]
-      end
-    end
-
-    class JpaFieldInverse < BaseJpaField
-      attr_writer :orphan_removal
-
-      def orphan_removal?
-        !!@orphan_removal
-      end
-
-      def inverse
-        self.parent
-      end
-
-      def traversable=(traversable)
-        Domgen.error("traversable #{traversable} is invalid") unless inverse.class.inverse_traversable_types.include?(traversable)
-        @traversable = traversable
-      end
-
-      def traversable?
-        @traversable.nil? ? (self.inverse.traversable? && self.inverse.attribute.referenced_entity.jpa?) : @traversable
-      end
-
-      def java_traversable=(java_traversable)
-        @java_traversable = java_traversable
-      end
-
-      def java_traversable?
-        @java_traversable.nil? ? traversable? : @java_traversable
-      end
-    end
-
-    class JpaField < BaseJpaField
-      attr_writer :persistent
-
-      def persistent?
-        @persistent.nil? ? !attribute.abstract? : @persistent
-      end
-
-      def attribute
-        self.parent
-      end
-
+    facet.enhance(QueryParameter) do
       include Domgen::Java::EEJavaCharacteristic
-
-      def field_name
-        attribute.entity.jpa.to_field_name( name )
-      end
 
       protected
 
       def characteristic
-        attribute
-      end
-    end
-
-    class JpaClass < Domgen.ParentedElement(:entity)
-      def to_field_name( name )
-        field_naming =  entity.data_module.repository.jpa.field_naming
-
-        if field_naming
-          Domgen::Naming.send( field_naming, name)
-        else
-          name
-        end
-      end
-
-      attr_writer :table_name
-
-      def table_name
-        @table_name || entity.sql.table_name
-      end
-
-      attr_writer :jpql_name
-
-      def jpql_name
-        @jpql_name || entity.qualified_name.gsub('.','_')
-      end
-
-      attr_writer :name
-
-      def name
-        @name || entity.name
-      end
-
-      def qualified_name
-        "#{entity.data_module.jpa.entity_package}.#{name}"
-      end
-
-      def metamodel_name
-        "#{name}_"
-      end
-
-      def qualified_metamodel_name
-        "#{entity.data_module.jpa.entity_package}.#{metamodel_name}"
-      end
-
-      attr_writer :dao_service_name
-
-      def dao_service_name
-        @dao_service_name || "#{entity.name}Repository"
-      end
-
-      def qualified_dao_service_name
-        "#{entity.data_module.jpa.dao_package}.#{dao_service_name}"
-      end
-
-      attr_writer :dao_name
-
-      def dao_name
-        @dao_name || "#{dao_service_name}EJB"
-      end
-
-      def qualified_dao_name
-        "#{entity.data_module.jpa.dao_package}.#{dao_name}"
-      end
-
-      attr_writer :cacheable
-
-      def cacheable?
-        @cacheable.nil? ? false : @cacheable
-      end
-
-      attr_writer :detachable
-
-      def detachable?
-        @detachable.nil? ? false : @detachable
-      end
-
-      def pre_verify
-        entity.query(:FindAll)
-        entity.query(:"FindBy#{entity.primary_key.name}")
-        entity.query(:"GetBy#{entity.primary_key.name}")
-        entity.queries.select { |query| query.jpa? && query.jpa.no_ql? }.each do |query|
-          jpql = ''
-          query_text = nil
-          query_text = $1 if query.name =~ /^[fF]indAllBy(.+)$/
-          query_text = $1 if query.name =~ /^[fF]indBy(.+)$/
-          query_text = $1 if query.name =~ /^[gG]etBy(.+)$/
-          next unless query_text
-
-          entity_prefix = "O."
-
-          while true
-            if query_text =~ /(.+)(And|Or)(.+)/
-              parameter_name = $1
-              query_text = $3
-              if !entity.attribute_exists?(parameter_name)
-                jpql = nil
-                break
-              end
-              operation = $2.upcase
-              jpql = "#{jpql}#{entity_prefix}#{to_field_name(parameter_name)} = :#{parameter_name} #{operation} "
-            else
-              parameter_name = query_text
-              if !entity.attribute_exists?(parameter_name)
-                jpql = nil
-                break
-              end
-              jpql = "#{jpql}#{entity_prefix}#{to_field_name(parameter_name)} = :#{parameter_name}"
-              break
-            end
-          end
-          query.jpa.jpql = jpql if jpql
-        end
-      end
-    end
-
-    class JpaPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
-
-      attr_writer :catalog_name
-
-      def catalog_name
-        @catalog_name || "#{data_module.name}Catalog"
-      end
-
-      def qualified_catalog_name
-        "#{entity_package}.#{catalog_name}"
-      end
-
-      attr_writer :dao_package
-
-      def dao_package
-        @dao_package || "#{entity_package}.dao"
-      end
-    end
-
-    class PersistenceUnit < Domgen.ParentedElement(:repository)
-
-      def version
-        @version || (repository.ee.version == '6' ? '2.0' : '2.1')
-      end
-
-      def version=(version)
-        raise "Unknown version '#{version}'" unless ['2.0','2.1'].include?(version)
-        @version = version
-      end
-
-      attr_writer :unit_name
-
-      def unit_name
-        @unit_name || repository.name
-      end
-
-      include Domgen::Java::ServerJavaApplication
-
-      attr_writer :properties
-
-      def properties
-        @properties ||= {"eclipselink.logging.logger" => "JavaLogger",
-                         #"eclipselink.logging.level" => "FINE",
-                         "eclipselink.temporal.mutable" => "false"}
-      end
-
-      def unit_descriptor_name
-        @eunit_descriptor_name || "#{repository.name}PersistenceUnit"
-      end
-
-      def qualified_unit_descriptor_name
-        "#{entity_package}.#{unit_descriptor_name}"
-      end
-
-      attr_writer :ejb_module_name
-
-      def ejb_module_name
-        @ejb_module_name || "#{repository.name}RepositoryModule"
-      end
-
-      def qualified_ejb_module_name
-        "#{package}.#{ejb_module_name}"
-      end
-
-      attr_writer :data_source
-
-      def data_source
-        @data_source || "jdbc/#{repository.name}"
-      end
-
-      attr_writer :exclude_unlisted_classes
-
-      def exclude_unlisted_classes?
-        @exclude_unlisted_classes.nil? ? true : @exclude_unlisted_classes
-      end
-
-      attr_accessor :provider
-
-      def provider_class
-        return "org.eclipse.persistence.jpa.PersistenceProvider" if provider == :eclipselink
-        return "org.hibernate.ejb.HibernatePersistence" if provider == :hibernate
-        return nil if provider.nil?
-
-      end
-
-      attr_accessor :field_naming
-
-      def persistence_file_fragments
-        @persistence_file_fragments ||= []
+        parameter
       end
     end
   end
-
-  FacetManager.define_facet(:jpa,
-                            {
-                              QueryParameter => Domgen::JPA::JPAQueryParameter,
-                              Query => Domgen::JPA::JPAQuery,
-                              Attribute => Domgen::JPA::JpaField,
-                              InverseElement => Domgen::JPA::JpaFieldInverse,
-                              Entity => Domgen::JPA::JpaClass,
-                              DataModule => Domgen::JPA::JpaPackage,
-                              Repository => Domgen::JPA::PersistenceUnit
-                            },
-                            [:sql, :ee])
 end

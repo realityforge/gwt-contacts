@@ -13,8 +13,97 @@
 #
 
 module Domgen
-  module JWS
-    class JwsClass < Domgen.ParentedElement(:service)
+  FacetManager.facet(:jws => [:jaxb]) do |facet|
+    facet.enhance(Repository) do
+      include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :api_package
+
+      def api_package
+        @api_package || "#{repository.java.base_package}.api"
+      end
+
+      attr_writer :fake_service_package
+
+      def fake_service_package
+        @fake_service_package || "#{repository.java.base_package}.fake"
+      end
+
+      java_artifact :fake_server, :service, :fake, :jws, 'Fake#{repository.name}Server'
+      java_artifact :abstract_fake_server_test, :service, :fake, :jws, 'AbstractFake#{repository.name}ServerTest'
+      java_artifact :client_integration_test, :service, :fake, :jws, '#{repository.name}ClientIntegrationTest'
+
+      attr_writer :service_name
+
+      # The name of the service under which web services will be anchored
+      def service_name
+        @service_name || repository.name
+      end
+
+      attr_writer :namespace
+
+      def namespace
+        @namespace || "#{repository.xml.base_namespace}/#{service_name}"
+      end
+
+      attr_writer :url
+
+      def url
+        @url || "/api/soap"
+      end
+    end
+
+    facet.enhance(DataModule) do
+      include Domgen::Java::EEClientServerJavaPackage
+
+      def namespace
+        @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
+      end
+
+      attr_writer :api_package
+
+      def api_package
+        @api_package || resolve_package(:api_package, data_module.repository.jws)
+      end
+
+      attr_writer :fake_service_package
+
+      def fake_service_package
+        @fake_service_package || resolve_package(:fake_service_package, data_module.repository.jws)
+      end
+
+      attr_writer :url
+
+      def url
+        @url || "#{data_module.repository.jws.url}/#{data_module.name}"
+      end
+    end
+
+    facet.enhance(Service) do
+      include Domgen::Java::BaseJavaGenerator
+
+      def qualified_api_interface_name
+        "#{api_package}.#{web_service_name}"
+      end
+
+      def qualified_api_endpoint_name
+        "#{qualified_api_interface_name}Service"
+      end
+
+      def api_package
+        "#{service.data_module.jws.api_package}.#{Domgen::Naming.underscore(web_service_name.gsub(/Service$/, ''))}"
+      end
+
+      def boundary_ejb_name
+        "#{service.data_module.repository.name}.#{service.data_module.name}.#{service.jws.java_service_name}"
+      end
+
+      attr_writer :url
+
+      def url
+        @url || "#{service.data_module.jws.url}/#{web_service_name}"
+      end
+
       attr_writer :port_type_name
 
       def port_type_name
@@ -42,41 +131,34 @@ module Domgen
       attr_writer :system_id
 
       def system_id
-        @system_id || "#{service.data_module.jws.namespace}/#{web_service_name}.wsdl"
+        @system_id || "#{namespace}.wsdl"
       end
 
       def namespace
-        @namespace || service.data_module.repository.jws.namespace
+        @namespace || "#{service.data_module.jws.namespace}/#{web_service_name}"
       end
 
-      attr_writer :service_name
+      java_artifact :service, :service, :server, :ee, '#{service.name}Service'
+      java_artifact :java_service, :service, :server, :ee, '#{web_service_name}WS'
+      java_artifact :boundary_implementation, :service, :server, :ee, '#{web_service_name}WSBoundaryEJB'
+      java_artifact :fake_implementation, :service, :fake, :jws, 'Fake#{web_service_name}'
+    end
 
-      def service_name
-        @service_name || "#{service.name}Service"
+    facet.enhance(Method) do
+      def name
+        Domgen::Naming.camelize(method.name)
       end
 
-      def qualified_service_name
-        "#{service.data_module.jws.service_package}.#{service_name}"
+      def input_action
+        "#{method.service.jws.namespace}/#{method.service.jws.web_service_name}/#{method.name}Request"
       end
 
-      def java_service_name
-        "#{web_service_name}WS"
-      end
-
-      def qualified_java_service_name
-        "#{service.data_module.jws.service_package}.#{java_service_name}"
-      end
-
-      def boundary_implementation_name
-        "#{web_service_name}WSBoundaryEJB"
-      end
-
-      def qualified_boundary_implementation_name
-        "#{service.data_module.jws.service_package}.#{boundary_implementation_name}"
+      def output_action
+        "#{method.service.jws.namespace}/#{method.service.jws.web_service_name}/#{method.name}Response"
       end
     end
 
-    class JwsParameter < Domgen.ParentedElement(:parameter)
+    facet.enhance(Parameter) do
       def name
         Domgen::Naming.camelize(parameter.name)
       end
@@ -90,43 +172,7 @@ module Domgen
       end
     end
 
-    class JwsMethod < Domgen.ParentedElement(:service)
-      def name
-        Domgen::Naming.camelize(service.name)
-      end
-    end
-
-    class JwsPackage < Domgen.ParentedElement(:data_module)
-      include Domgen::Java::EEJavaPackage
-
-      def namespace
-        @namespace || "#{data_module.repository.jws.namespace}/#{data_module.name}"
-      end
-    end
-
-    class JwsApplication < Domgen.ParentedElement(:repository)
-      attr_writer :service_name
-
-      # The name of the service under which web services will be anchored
-      def service_name
-        @service_name || repository.name
-      end
-
-      attr_writer :namespace
-
-      def namespace
-        @namespace || "#{base_namespace}/#{service_name}"
-      end
-
-      attr_writer :base_namespace
-
-      def base_namespace
-        @base_namespace || "http://example.com"
-      end
-    end
-
-    class JwsReturn < Domgen.ParentedElement(:result)
-
+    facet.enhance(Result) do
       include Domgen::Java::EEJavaCharacteristic
 
       protected
@@ -136,28 +182,21 @@ module Domgen
       end
     end
 
-    class JwsException < Domgen.ParentedElement(:exception)
-      def name
-        exception.name.to_s =~ /Exception$/ ? exception.name.to_s : "#{exception.name}Exception"
+    facet.enhance(Exception) do
+      include Domgen::Java::BaseJavaGenerator
+
+      java_artifact :fault_info, :service, :server, :ee, '#{exception.name}ExceptionInfo'
+      java_artifact :name, :service, :server, :ee, '#{exception.name}_Exception'
+
+      attr_writer :namespace
+
+      def namespace
+        @namespace || exception.data_module.jws.namespace
       end
 
-      def qualified_name
-        "#{exception.data_module.jws.data_type_package}.#{name}"
+      def fault_action(method)
+        "#{method.service.jws.namespace}/#{method.service.jws.web_service_name}/#{method.name}/Fault/#{exception.jws.name}"
       end
     end
   end
-
-  FacetManager.define_facet(:jws,
-                            {
-                              Service => Domgen::JWS::JwsClass,
-                              Method => Domgen::JWS::JwsMethod,
-                              Parameter => Domgen::JWS::JwsParameter,
-                              Exception => Domgen::JWS::JwsException,
-                              Result => Domgen::JWS::JwsReturn,
-                              DataModule => Domgen::JWS::JwsPackage,
-                              Repository => Domgen::JWS::JwsApplication
-                            },
-                            [
-                              :jaxb
-                            ])
 end
