@@ -56,7 +56,6 @@ define 'gwt-contacts' do
                       :aopalliance,
                       :google_guice_assistedinject,
                       :h2db,
-                      :javax_persistence,
                       :eclipselink
     package(:jar)
 
