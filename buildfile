@@ -51,6 +51,9 @@ define 'gwt-contacts' do
 
     compile.with PROVIDED_DEPS + INCLUDED_DEPENDENCIES
 
+    test.using :testng
+    test.with :mockito
+
     test.compile.with :guiceyloops,
                       :google_guice,
                       :aopalliance,
