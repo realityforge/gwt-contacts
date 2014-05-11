@@ -3,7 +3,6 @@ require 'buildr/top_level_generate_dir'
 require 'buildr/single_intermediate_layout'
 require 'buildr/checkstyle'
 require 'buildr/jacoco'
-require 'buildr/gwt'
 
 JEE_GWT_JARS = [:javax_inject, :javax_annotation, :javax_validation, :javax_validation_sources]
 GIN_JARS = [:gwt_gin, :google_guice, :aopalliance, :google_guice_assistedinject]
