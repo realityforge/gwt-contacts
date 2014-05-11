@@ -5,4 +5,4 @@ jdk:
 install:
   - gem install bundler
   - bundle install
-script: buildr clean package
+script: buildr ci:package
