@@ -28,7 +28,6 @@ Domgen.repository(:Contacts) do |repository|
 
     data_module.service(:ContactsService) do |s|
       s.description("Contacts Service definition")
-      #s.gwt.xsrf_protected = true
 
       s.method(:DeleteContacts) do |m|
         m.text(:ID, :collection_type => :sequence)
