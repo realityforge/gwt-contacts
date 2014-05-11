@@ -7,26 +7,23 @@ repositories:
    - http://github.com/realityforge/repository/raw/master
 
 artifacts:
+  javaee_api: javax:javaee-api:jar:7.0
   easymock: org.easymock:easymock:jar:2.5.2
   gwt_dev: com.google.gwt:gwt-dev:jar:2.5.1 # Due to a bug in 2.3 packaging this is required to be deployed, Fixed in 2.5
   gwt_user: com.google.gwt:gwt-user:jar:2.5.1
+  javax_validation: javax.validation:validation-api:jar:1.0.0.GA
+  javax_validation_sources: javax.validation:validation-api:jar:sources:1.0.0.GA
   google_guice: com.google.inject:guice:jar:3.0
   google_guice_assistedinject: com.google.inject.extensions:guice-assistedinject:jar:3.0
   aopalliance: aopalliance:aopalliance:jar:1.0 # Required for guice
+
   gwt_gin: com.google.gwt.inject:gin:jar:2.0.0
   javax_inject: javax.inject:javax.inject:jar:1
-  javax_validation: javax.validation:validation-api:jar:1.0.0.GA
-  javax_validation_sources: javax.validation:validation-api:jar:sources:1.0.0.GA
-  javax_ejb: org.apache.geronimo.specs:geronimo-ejb_3.1_spec:jar:1.0.2
-  javax_servlet: org.apache.geronimo.specs:geronimo-servlet_3.0_spec:jar:1.0
-  javax_persistence: org.hibernate.javax.persistence:hibernate-jpa-2.0-api:jar:1.0.0.Final
-  javax_annotation: com.google.code.findbugs:jsr305:jar:1.3.9
+  javax_jsr305: com.google.code.findbugs:jsr305:jar:1.3.9
 
-  javax_transaction: javax.transaction:jta:jar:1.1
   eclipselink: org.eclipse.persistence:eclipselink:jar:2.1.0
 
   # HSQL for Tests
-  #hsqldb: org.hsqldb:hsqldb:jar:2.2.4
   hsqldb: org.hsqldb:hsqldb:jar:1.8.0.10
   h2db: com.h2database:h2:jar:1.3.159
 
