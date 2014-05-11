@@ -42,5 +42,3 @@ Getting Started
   artifact when it starts up.
 
 * Learn and perform magic.
-
-
