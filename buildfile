@@ -13,7 +13,7 @@ JACKSON_DEPS = [:jackson_core, :jackson_mapper]
 PROVIDED_DEPS = JACKSON_DEPS + JEE_JARS
 INCLUDED_DEPENDENCIES = [:gwt_user, :gwt_appcache_server, :gwt_cache_filter]
 
-desc "GWT Contacts: Sample application showing off our best practices"
+desc 'GWT Contacts: Sample application showing off our best practices'
 define 'gwt-contacts' do
   project.group = 'org.realityforge.gwt.contacts'
 
@@ -21,10 +21,10 @@ define 'gwt-contacts' do
   compile.options.target = '1.7'
   compile.options.lint = 'all'
 
-  desc "GWT Contacts: Client-side component"
+  desc 'GWT Contacts: Client-side component'
   define 'client' do
     Domgen::GenerateTask.new(:Contacts,
-                             "client",
+                             'client',
                              [:gwt_client, :gwt_rpc_shared, :gwt_rpc_client, :gwt_client_jso],
                              _(:target, :generated, 'domgen'))
 
@@ -38,14 +38,14 @@ define 'gwt-contacts' do
 
     iml.add_gwt_facet({'org.realityforge.gwt.sample.contacts.ContactsDev' => true,
                        'org.realityforge.gwt.sample.contacts.Contacts' => false},
-                      :settings => {:compilerMaxHeapSize => "1024"},
+                      :settings => {:compilerMaxHeapSize => '1024'},
                       :gwt_dev_artifact => :gwt_dev)
   end
 
-  desc "GWT Contacts: Server-side component"
+  desc 'GWT Contacts: Server-side component'
   define 'server' do
     Domgen::GenerateTask.new(:Contacts,
-                             "server",
+                             'server',
                              [:ee_data_types, :ee, :gwt_rpc_shared, :gwt_rpc_server, :jpa_test_module],
                              _(:target, :generated, 'domgen'))
 
@@ -64,18 +64,18 @@ define 'gwt-contacts' do
     iml.add_ejb_facet
   end
 
-  desc "GWT Contacts: Web component"
+  desc 'GWT Contacts: Web component'
   define 'web' do
     iml.add_web_facet
 
-    gwt(["org.realityforge.gwt.sample.contacts.Contacts"],
+    gwt(['org.realityforge.gwt.sample.contacts.Contacts'],
         :dependencies => [project('client').compile.dependencies,
                           # The following picks up both the jar and sources
                           # packages deliberately. It is needed for the
                           # generators to access classes in annotations.
                           project('client')],
-        :java_args => ["-Xms512M", "-Xmx512M", "-XX:PermSize=128M", "-XX:MaxPermSize=256M"],
-        :draft_compile => (ENV["FAST_GWT"] == 'true'))
+        :java_args => ['-Xms512M', '-Xmx512M', '-XX:PermSize=128M', '-XX:MaxPermSize=256M'],
+        :draft_compile => (ENV['FAST_GWT'] == 'true'))
 
     package(:war).tap do |war|
       war.with :libs => [INCLUDED_DEPENDENCIES, project('server')]
@@ -95,7 +95,7 @@ define 'gwt-contacts' do
                                 :ejb_module_names => [project('server').iml.id],
                                 :gwt_module_names => [project('client').iml.id],
                                 :dependencies => [INCLUDED_DEPENDENCIES, projects('server')])
-  ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => "-noserver -port 8080")
+  ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => '-noserver -port 8080')
 
   iml.add_jruby_facet
 
