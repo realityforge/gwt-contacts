@@ -27,8 +27,6 @@ Domgen.repository(:Contacts) do |repository|
     end
 
     data_module.service(:ContactsService) do |s|
-      s.description("Contacts Service definition")
-
       s.method(:DeleteContacts) do |m|
         m.text(:ID, :collection_type => :sequence)
       end
