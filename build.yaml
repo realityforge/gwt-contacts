@@ -35,7 +35,7 @@ artifacts:
   guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.36
 
   # Mocking library used
-  mockito: org.mockito:mockito-all:jar:1.8.5
+  mockito: org.mockito:mockito-all:jar:1.9.5
 
   jackson_core: org.codehaus.jackson:jackson-core-asl:jar:1.9.4
   jackson_mapper: org.codehaus.jackson:jackson-mapper-asl:jar:1.9.4
