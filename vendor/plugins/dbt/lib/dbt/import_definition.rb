@@ -22,7 +22,7 @@ class Dbt #nodoc
     # included as part of create or standalone or both
 
     def initialize(database, key, options, &block)
-      @modules = @dir = @reindex = @shrink = @pre_import_dirs = @post_import_dirs =
+      @modules = @dir = @shrink = @pre_import_dirs = @post_import_dirs =
         @database_environment_filter = @import_assert_filters = nil
       super(database, key, options, &block)
     end

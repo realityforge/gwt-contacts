@@ -50,6 +50,10 @@ class Dbt #nodoc
       !!@configuration_data[config_key.to_s]
     end
 
+    def configuration_keys
+      @configuration_data.keys
+    end
+
     def configuration_for_key(config_key)
       existing = @configurations[config_key.to_s]
       return existing if existing

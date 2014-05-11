@@ -94,4 +94,22 @@ class TestDatabaseDefinition < Dbt::TestCase
       definition2.validate
     end
   end
+
+  def test_version_hash
+    Dbt::Config.default_search_dirs = ['.']
+    definition = Dbt::DatabaseDefinition.new(:default, :module_groups => {:foo => {}})
+
+    assert(Dbt.runtime.respond_to?(:calculate_fileset_hash), "Mocked calculate_fileset_hash, but it doesn't exist!")
+
+    s = sequence('main')
+    mock = Dbt.runtime
+    mock.expects(:calculate_fileset_hash).with(definition).returns('A').in_sequence(s)
+
+    assert_equal( 'A', definition.version_hash )
+
+    definition.version_hash = 'B'
+
+    # Should not trigger another call to calculate the hash
+    assert_equal( 'B', definition.version_hash )
+  end
 end

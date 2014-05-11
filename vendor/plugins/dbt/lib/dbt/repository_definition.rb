@@ -62,7 +62,8 @@ class Dbt #nodoc
     def from_yaml(content)
       require 'yaml'
       repository_config = YAML::load(content)
-      modules = repository_config['modules'].nil? ? [] : repository_config['modules'].keys
+      # keys method only available in ruby 1.9
+      modules = repository_config['modules'].nil? ? [] : (repository_config['modules'].respond_to?(:keys) ? repository_config['modules'].keys : repository_config['modules'].map{|k,v| k})
       schema_overrides = {}
       table_map = {}
       repository_config['modules'].each do |module_config|

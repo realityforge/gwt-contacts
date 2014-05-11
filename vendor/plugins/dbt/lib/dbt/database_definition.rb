@@ -104,6 +104,14 @@ class Dbt #nodoc
     # Database version. Stuffed as an extended property and used when creating filename.
     attr_accessor :version
 
+    # Hash of database version. Stuffed as an extended property and used when determining whether content of version
+    # has changed.
+    attr_accessor :version_hash
+
+    def version_hash
+      @version_hash || cache_version_hash
+    end
+
     attr_writer :datasets_dir_name
 
     def datasets_dir_name
@@ -214,6 +222,11 @@ class Dbt #nodoc
     # Should the a restore task be defined for database?
     def restore?
       @restore.nil? ? false : @restore
+    end
+
+    private
+    def cache_version_hash
+      @version_hash ||= Dbt.runtime.calculate_fileset_hash( self )
     end
   end
 end
