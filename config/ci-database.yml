@@ -1,0 +1,6 @@
+test:
+  database: <%= ENV["USER"] %>_CONTACTS_TEST
+  username: <%= ENV["USER"] %>
+  password: letmein
+  host: 127.0.0.1
+  port: 5432

@@ -57,7 +57,7 @@ define 'gwt-contacts' do
                       :google_guice,
                       :aopalliance,
                       :google_guice_assistedinject,
-                      :h2db,
+                      :postgresql_jdbc,
                       :eclipselink
     package(:jar)
 

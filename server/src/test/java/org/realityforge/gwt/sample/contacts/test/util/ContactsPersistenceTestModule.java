@@ -3,6 +3,7 @@ package org.realityforge.gwt.sample.contacts.test.util;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.postgresql.Driver;
 import org.realityforge.guiceyloops.server.PersistenceTestModule;
 import org.realityforge.gwt.sample.contacts.server.entity.ContactsPersistenceUnit;
 
@@ -12,6 +13,7 @@ public class ContactsPersistenceTestModule
   public ContactsPersistenceTestModule()
   {
     super( true );
+    System.setProperty( "test.db.driver", Driver.class.getName() );
   }
 
   @Override
