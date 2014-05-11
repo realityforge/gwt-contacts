@@ -51,7 +51,7 @@ Domgen.repository(:Contacts) do |repository|
       t.string(:Name, 50)
       t.string(:RenderCode, 50)
 
-      t.query('findByName')
+      t.query(:FindByName)
     end
 
     data_module.entity(:Contact) do |t|
