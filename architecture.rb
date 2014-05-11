@@ -6,7 +6,6 @@ Domgen.repository(:Contacts) do |repository|
   repository.enable_facet(:json)
   repository.enable_facet(:jackson)
 
-  repository.gwt_rpc.module_name = 'contacts'
   repository.java.base_package = 'org.realityforge.gwt.sample.contacts'
 
   repository.data_module(:Contacts) do |data_module|
