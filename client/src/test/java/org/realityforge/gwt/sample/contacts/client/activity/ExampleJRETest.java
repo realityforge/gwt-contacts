@@ -2,16 +2,16 @@ package org.realityforge.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import org.realityforge.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
-import org.realityforge.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTOFactory;
-import org.realityforge.gwt.sample.contacts.client.service.contacts.GwtRpcContactsService;
-import org.realityforge.gwt.sample.contacts.client.view.ListContactsView;
 import java.util.ArrayList;
 import java.util.List;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.realityforge.replicant.client.AsyncCallback;
-import org.realityforge.replicant.client.AsyncErrorCallback;
+import org.realityforge.gwt.sample.contacts.client.data_type.ContactDetailsDTO;
+import org.realityforge.gwt.sample.contacts.client.data_type.ContactDetailsDTOFactory;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsAsyncCallback;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsAsyncErrorCallback;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsService;
+import org.realityforge.gwt.sample.contacts.client.view.ListContactsView;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import static org.mockito.Mockito.*;
@@ -21,7 +21,7 @@ import static org.testng.Assert.*;
 public class ExampleJRETest
 {
   private ListContactsActivity _listContactsActivity;
-  private GwtRpcContactsService _mockRpcService;
+  private ContactsService _mockRpcService;
   private EventBus _mockEventBus;
   private ListContactsView _mockViewList;
   private List<ContactDetailsDTO> _contactDetails;
@@ -29,7 +29,7 @@ public class ExampleJRETest
   @BeforeMethod
   public void setUp()
   {
-    _mockRpcService = mock( GwtRpcContactsService.class );
+    _mockRpcService = mock( ContactsService.class );
     _mockEventBus = new SimpleEventBus();
     _mockViewList = mock( ListContactsView.class );
     _listContactsActivity = new ListContactsActivity( _mockRpcService, _mockEventBus, _mockViewList );
@@ -49,13 +49,13 @@ public class ExampleJRETest
       public Void answer( final InvocationOnMock invocation )
         throws Throwable
       {
-        final AsyncCallback callback = (AsyncCallback) invocation.getArguments()[ 1 ];
+        final ContactsAsyncCallback callback = (ContactsAsyncCallback) invocation.getArguments()[ 1 ];
         callback.onSuccess( null );
         return null;
       }
     } ).when( _mockRpcService ).deleteContacts( anyList(),
-                                                any( AsyncCallback.class ),
-                                                any( AsyncErrorCallback.class ) );
+                                                any( ContactsAsyncCallback.class ),
+                                                any( ContactsAsyncErrorCallback.class ) );
 
     doAnswer( new Answer<Void>()
     {
@@ -65,13 +65,13 @@ public class ExampleJRETest
       {
         final ArrayList<ContactDetailsDTO> results = new ArrayList<ContactDetailsDTO>();
         results.add( newContactDetails( "0", "type1", "1_contact" ) );
-        final AsyncCallback callback = (AsyncCallback) invocation.getArguments()[ 0 ];
+        final ContactsAsyncCallback callback = (ContactsAsyncCallback) invocation.getArguments()[ 0 ];
         callback.onSuccess( results );
         return null;
       }
     } ).
       when( _mockRpcService ).
-      getContactDetails( any( AsyncCallback.class ), any( AsyncErrorCallback.class ) );
+      getContactDetails( any( ContactsAsyncCallback.class ), any( ContactsAsyncErrorCallback.class ) );
 
 
     _listContactsActivity.onDeleteButtonClicked();

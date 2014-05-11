@@ -1,17 +1,16 @@
 package org.realityforge.gwt.sample.contacts.server.service;
 
-import org.realityforge.gwt.sample.contacts.server.data_type.contacts.ContactDTO;
-import org.realityforge.gwt.sample.contacts.server.data_type.contacts.ContactDetailsDTO;
-import org.realityforge.gwt.sample.contacts.server.entity.contacts.Contact;
-import org.realityforge.gwt.sample.contacts.server.entity.contacts.ContactType;
-import org.realityforge.gwt.sample.contacts.server.entity.contacts.dao.ContactRepository;
-import org.realityforge.gwt.sample.contacts.server.entity.contacts.dao.ContactTypeRepository;
-import org.realityforge.gwt.sample.contacts.server.service.contacts.ContactsService;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import org.realityforge.gwt.sample.contacts.server.data_type.ContactDTO;
+import org.realityforge.gwt.sample.contacts.server.data_type.ContactDetailsDTO;
+import org.realityforge.gwt.sample.contacts.server.entity.Contact;
+import org.realityforge.gwt.sample.contacts.server.entity.ContactType;
+import org.realityforge.gwt.sample.contacts.server.entity.dao.ContactRepository;
+import org.realityforge.gwt.sample.contacts.server.entity.dao.ContactTypeRepository;
 
 @Stateless( name = ContactsService.EJB_NAME )
 public class ContactsEJB

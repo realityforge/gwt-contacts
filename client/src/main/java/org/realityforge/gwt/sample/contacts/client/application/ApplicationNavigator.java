@@ -2,25 +2,19 @@ package org.realityforge.gwt.sample.contacts.client.application;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.place.shared.PlaceController;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.AddContactCancelledEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.AddContactCancelledEventHandler;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.AddContactEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.AddContactEventHandler;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.ContactClosedEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.ContactClosedEventHandler;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.ContactUpdatedEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.ContactUpdatedEventHandler;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.EditContactCancelledEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.EditContactCancelledEventHandler;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.EditContactEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.EditContactEventHandler;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.ShowContactEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.ShowContactEventHandler;
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import org.realityforge.gwt.sample.contacts.client.event.AddContactCancelledEvent;
+import org.realityforge.gwt.sample.contacts.client.event.AddContactEvent;
+import org.realityforge.gwt.sample.contacts.client.event.ContactClosedEvent;
+import org.realityforge.gwt.sample.contacts.client.event.ContactUpdatedEvent;
+import org.realityforge.gwt.sample.contacts.client.event.EditContactCancelledEvent;
+import org.realityforge.gwt.sample.contacts.client.event.EditContactEvent;
+import org.realityforge.gwt.sample.contacts.client.event.ShowContactEvent;
 import org.realityforge.gwt.sample.contacts.client.place.AddContactPlace;
 import org.realityforge.gwt.sample.contacts.client.place.EditContactPlace;
 import org.realityforge.gwt.sample.contacts.client.place.ListContactsPlace;
 import org.realityforge.gwt.sample.contacts.client.place.ShowContactPlace;
-import javax.inject.Inject;
 
 /**
  * The class is responsible for listening to application events and navigating to
@@ -41,7 +35,7 @@ public class ApplicationNavigator
 
   public void activate()
   {
-    _eventBus.addHandler( AddContactEvent.TYPE, new AddContactEventHandler()
+    _eventBus.addHandler( AddContactEvent.TYPE, new AddContactEvent.Handler()
     {
       public void onAddContact( final AddContactEvent event )
       {
@@ -49,49 +43,49 @@ public class ApplicationNavigator
       }
     } );
 
-    _eventBus.addHandler( EditContactEvent.TYPE, new EditContactEventHandler()
+    _eventBus.addHandler( EditContactEvent.TYPE, new EditContactEvent.Handler()
     {
-      public void onEditContact( final EditContactEvent event )
+      public void onEditContact( @Nonnull final EditContactEvent event )
       {
         _placeController.goTo( new EditContactPlace( event.getID() ) );
       }
     } );
 
-    _eventBus.addHandler( ShowContactEvent.TYPE, new ShowContactEventHandler()
+    _eventBus.addHandler( ShowContactEvent.TYPE, new ShowContactEvent.Handler()
     {
-      public void onShowContact( final ShowContactEvent event )
+      public void onShowContact( @Nonnull final ShowContactEvent event )
       {
         _placeController.goTo( new ShowContactPlace( event.getID() ) );
       }
     } );
 
-    _eventBus.addHandler( EditContactCancelledEvent.TYPE, new EditContactCancelledEventHandler()
+    _eventBus.addHandler( EditContactCancelledEvent.TYPE, new EditContactCancelledEvent.Handler()
     {
-      public void onEditContactCancelled( final EditContactCancelledEvent event )
+      public void onEditContactCancelled( @Nonnull final EditContactCancelledEvent event )
       {
         _placeController.goTo( new ShowContactPlace( event.getID() ) );
       }
     } );
 
-    _eventBus.addHandler( AddContactCancelledEvent.TYPE, new AddContactCancelledEventHandler()
+    _eventBus.addHandler( AddContactCancelledEvent.TYPE, new AddContactCancelledEvent.Handler()
     {
-      public void onAddContactCancelled( final AddContactCancelledEvent event )
+      public void onAddContactCancelled( @Nonnull final AddContactCancelledEvent event )
       {
         _placeController.goTo( new ListContactsPlace() );
       }
     } );
 
-    _eventBus.addHandler( ContactClosedEvent.TYPE, new ContactClosedEventHandler()
+    _eventBus.addHandler( ContactClosedEvent.TYPE, new ContactClosedEvent.Handler()
     {
-      public void onContactClosed( final ContactClosedEvent event )
+      public void onContactClosed( @Nonnull final ContactClosedEvent event )
       {
         _placeController.goTo( new ListContactsPlace() );
       }
     } );
 
-    _eventBus.addHandler( ContactUpdatedEvent.TYPE, new ContactUpdatedEventHandler()
+    _eventBus.addHandler( ContactUpdatedEvent.TYPE, new ContactUpdatedEvent.Handler()
     {
-      public void onContactUpdated( final ContactUpdatedEvent event )
+      public void onContactUpdated( @Nonnull final ContactUpdatedEvent event )
       {
         _placeController.goTo( new ShowContactPlace( event.getID() ) );
       }

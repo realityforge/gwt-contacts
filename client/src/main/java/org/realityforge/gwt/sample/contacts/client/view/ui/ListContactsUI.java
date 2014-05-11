@@ -2,8 +2,6 @@ package org.realityforge.gwt.sample.contacts.client.view.ui;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import org.realityforge.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
-import org.realityforge.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -15,6 +13,8 @@ import com.google.gwt.user.client.ui.HTMLTable;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.List;
+import org.realityforge.gwt.sample.contacts.client.data_type.ContactDetailsDTO;
+import org.realityforge.gwt.sample.contacts.client.view.ListContactsView;
 
 public class ListContactsUI
     extends Composite

@@ -2,19 +2,19 @@ package org.realityforge.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
-import org.realityforge.gwt.sample.contacts.client.data_type.contacts.ContactDTO;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.ContactClosedEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.EditContactEvent;
-import org.realityforge.gwt.sample.contacts.client.place.ShowContactPlace;
-import org.realityforge.gwt.sample.contacts.client.service.contacts.GwtRpcContactsService;
-import org.realityforge.gwt.sample.contacts.client.view.ShowContactView;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
-import org.realityforge.replicant.client.AsyncCallback;
-import org.realityforge.replicant.client.AsyncErrorCallback;
+import org.realityforge.gwt.sample.contacts.client.data_type.ContactDTO;
+import org.realityforge.gwt.sample.contacts.client.event.ContactClosedEvent;
+import org.realityforge.gwt.sample.contacts.client.event.EditContactEvent;
+import org.realityforge.gwt.sample.contacts.client.place.ShowContactPlace;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsAsyncCallback;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsAsyncErrorCallback;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsService;
+import org.realityforge.gwt.sample.contacts.client.view.ShowContactView;
 
 public class ShowContactActivity
     extends AbstractActivity
@@ -22,14 +22,14 @@ public class ShowContactActivity
 {
   private static final Logger LOG = Logger.getLogger( "ShowContact" );
 
-  private final GwtRpcContactsService _rpcService;
+  private final ContactsService _rpcService;
   private final EventBus _eventBus;
   private final ShowContactView _view;
 
   private String _contactID;
 
   @Inject
-  public ShowContactActivity( final GwtRpcContactsService rpcService,
+  public ShowContactActivity( final ContactsService rpcService,
                               final EventBus eventBus,
                               final ShowContactView view )
   {
@@ -42,14 +42,14 @@ public class ShowContactActivity
   {
     _contactID = place.getId();
     LOG.log( Level.INFO, "Showing contact: " + _contactID );
-    final AsyncCallback<ContactDTO> callback = new AsyncCallback<ContactDTO>()
+    final ContactsAsyncCallback<ContactDTO> callback = new ContactsAsyncCallback<ContactDTO>()
     {
       public void onSuccess( final ContactDTO contact )
       {
         _view.setContact( contact );
       }
     };
-    final AsyncErrorCallback errorCallback = new AsyncErrorCallback()
+    final ContactsAsyncErrorCallback errorCallback = new ContactsAsyncErrorCallback()
     {
       @Override
       public void onFailure( final Throwable caught )

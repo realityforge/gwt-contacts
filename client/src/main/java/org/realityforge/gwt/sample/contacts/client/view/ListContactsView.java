@@ -1,6 +1,6 @@
 package org.realityforge.gwt.sample.contacts.client.view;
 
-import org.realityforge.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
+import org.realityforge.gwt.sample.contacts.client.data_type.ContactDetailsDTO;
 import com.google.gwt.user.client.ui.IsWidget;
 import java.util.List;
 

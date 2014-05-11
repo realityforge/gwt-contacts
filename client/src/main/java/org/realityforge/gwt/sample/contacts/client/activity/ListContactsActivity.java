@@ -2,25 +2,25 @@ package org.realityforge.gwt.sample.contacts.client.activity;
 
 import com.google.gwt.activity.shared.AbstractActivity;
 import com.google.gwt.event.shared.EventBus;
-import org.realityforge.gwt.sample.contacts.client.common.SelectionModel;
-import org.realityforge.gwt.sample.contacts.client.data_type.contacts.ContactDetailsDTO;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.AddContactEvent;
-import org.realityforge.gwt.sample.contacts.client.event.contacts.ShowContactEvent;
-import org.realityforge.gwt.sample.contacts.client.service.contacts.GwtRpcContactsService;
-import org.realityforge.gwt.sample.contacts.client.view.ListContactsView;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AcceptsOneWidget;
 import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
-import org.realityforge.replicant.client.AsyncCallback;
-import org.realityforge.replicant.client.AsyncErrorCallback;
+import org.realityforge.gwt.sample.contacts.client.common.SelectionModel;
+import org.realityforge.gwt.sample.contacts.client.data_type.ContactDetailsDTO;
+import org.realityforge.gwt.sample.contacts.client.event.AddContactEvent;
+import org.realityforge.gwt.sample.contacts.client.event.ShowContactEvent;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsAsyncCallback;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsAsyncErrorCallback;
+import org.realityforge.gwt.sample.contacts.client.service.ContactsService;
+import org.realityforge.gwt.sample.contacts.client.view.ListContactsView;
 
 public class ListContactsActivity
   extends AbstractActivity
   implements ListContactsView.Presenter
 {
-  private final GwtRpcContactsService _rpcService;
+  private final ContactsService _rpcService;
   private final EventBus _eventBus;
   private final ListContactsView _view;
   private final SelectionModel<ContactDetailsDTO> _selectionModel;
@@ -28,7 +28,7 @@ public class ListContactsActivity
   private List<ContactDetailsDTO> _contactDetails;
 
   @Inject
-  public ListContactsActivity( final GwtRpcContactsService rpcService,
+  public ListContactsActivity( final ContactsService rpcService,
                                final EventBus eventBus,
                                final ListContactsView view )
   {
@@ -108,7 +108,7 @@ public class ListContactsActivity
 
   private void fetchContactDetails()
   {
-    final AsyncCallback<List<ContactDetailsDTO>> success = new AsyncCallback<List<ContactDetailsDTO>>()
+    final ContactsAsyncCallback<List<ContactDetailsDTO>> success = new ContactsAsyncCallback<List<ContactDetailsDTO>>()
     {
       public void onSuccess( final List<ContactDetailsDTO> result )
       {
@@ -116,7 +116,7 @@ public class ListContactsActivity
         _view.setRowData( _contactDetails );
       }
     };
-    final AsyncErrorCallback errorCallback = new AsyncErrorCallback()
+    final ContactsAsyncErrorCallback errorCallback = new ContactsAsyncErrorCallback()
     {
       @Override
 
@@ -138,7 +138,7 @@ public class ListContactsActivity
       ids.add( selected.getID() );
     }
 
-    final AsyncCallback<Void> success = new AsyncCallback<Void>()
+    final ContactsAsyncCallback<Void> success = new ContactsAsyncCallback<Void>()
     {
       public void onSuccess( final Void result )
       {
@@ -146,7 +146,7 @@ public class ListContactsActivity
         _selectionModel.clear();
       }
     };
-    final AsyncErrorCallback errorCallback = new AsyncErrorCallback()
+    final ContactsAsyncErrorCallback errorCallback = new ContactsAsyncErrorCallback()
     {
       @Override
       public void onFailure( final Throwable caught )

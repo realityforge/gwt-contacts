@@ -1,11 +1,11 @@
 package org.realityforge.gwt.sample.contacts.client.view.ui;
 
-import org.realityforge.gwt.sample.contacts.client.data_type.contacts.ContactDTO;
-import org.realityforge.gwt.sample.contacts.client.data_type.contacts.ContactDTOFactory;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Widget;
+import org.realityforge.gwt.sample.contacts.client.data_type.ContactDTO;
+import org.realityforge.gwt.sample.contacts.client.data_type.ContactDTOFactory;
 
 public abstract class AbstractContactUI
   extends Composite
