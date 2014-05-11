@@ -80,6 +80,5 @@ Domgen.repository(:Contacts) do |repository|
     data_module.message(:EditContact) do |m|
       m.string(:ID, 50)
     end
-
   end
 end
