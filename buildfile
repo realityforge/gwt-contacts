@@ -1,7 +1,6 @@
 require 'buildr/git_auto_version'
 require 'buildr/top_level_generate_dir'
 require 'buildr/single_intermediate_layout'
-require 'buildr/checkstyle'
 require 'buildr/jacoco'
 
 JEE_GWT_JARS = [:javax_inject, :javax_jsr305, :javax_validation, :javax_validation_sources]
@@ -100,10 +99,4 @@ define 'gwt-contacts' do
   ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => '-noserver -port 8080')
 
   iml.add_jruby_facet
-
-  checkstyle.config_directory = _('etc/checkstyle')
-  checkstyle.source_paths << project('client')._(:source, :main, :java)
-  checkstyle.source_paths << project('server')._(:source, :main, :java)
-  checkstyle.extra_dependencies << PROVIDED_DEPS
-  checkstyle.extra_dependencies << INCLUDED_DEPENDENCIES
 end
