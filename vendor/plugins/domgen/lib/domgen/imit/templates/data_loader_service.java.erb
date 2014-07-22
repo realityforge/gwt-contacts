@@ -4,9 +4,9 @@ package <%= to_package(repository.imit.qualified_data_loader_service_name) %>;
 public abstract class <%= repository.imit.data_loader_service_name %>
   extends org.realityforge.replicant.client.json.gwt.GwtDataLoaderService<<%= repository.imit.qualified_client_session_name %>, <%= repository.imit.qualified_graph_enum_name %>>
 {
-  protected <%= repository.imit.data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChangeMapper changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager )
+  protected <%= repository.imit.data_loader_service_name %>( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChangeMapper changeMapper, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityChangeBroker changeBroker, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntityRepository repository, @javax.annotation.Nonnull final org.realityforge.replicant.client.transport.CacheService cacheService, @javax.annotation.Nonnull final org.realityforge.replicant.client.EntitySubscriptionManager subscriptionManager, @javax.annotation.Nonnull final org.realityforge.replicant.client.json.gwt.ReplicantConfig replicantConfig )
   {
-    super( changeMapper, changeBroker, repository, cacheService, subscriptionManager );
+    super( changeMapper, changeBroker, repository, cacheService, subscriptionManager, replicantConfig );
   }
 
   @javax.annotation.Nonnull
@@ -15,5 +15,37 @@ public abstract class <%= repository.imit.data_loader_service_name %>
     throws IllegalArgumentException
   {
     return <%= repository.imit.qualified_graph_enum_name %>.values()[ channel ];
+  }
+
+  @Override
+  protected int updateSubscriptionForFilteredEntities( @javax.annotation.Nonnull final org.realityforge.replicant.client.ChannelSubscriptionEntry entry, @javax.annotation.Nullable final Object filter )
+  {
+    <% repository.imit.graphs.select{|g| g.filtered? }.each do |graph|
+-%>if( entry.getDescriptor().getGraph() == <%= repository.imit.qualified_graph_enum_name %>.<%= Domgen::Naming.uppercase_constantize(graph.name) %> )
+    {
+      int removedEntities = 0;
+<% graph.reachable_entities.reverse.each do |entity| -%>
+      {
+        final java.util.Map<Object, org.realityforge.replicant.client.EntitySubscriptionEntry> map = entry.getEntities().get( <%= repository.entity_by_name(entity).imit.qualified_name %>.class );
+        if( null != map )
+        {
+          removedEntities += updateSubscriptionForFilteredEntities( entry, filter, map.values() );
+        }
+      }
+<% end -%>
+      return removedEntities;
+    }
+    else <% end
+-%>
+
+    {
+      throw new IllegalStateException();
+    }
+  }
+
+  @Override
+  protected <%= repository.imit.qualified_repository_debugger_name %> getEntityRepositoryDebugger()
+  {
+    return new <%= repository.imit.qualified_repository_debugger_name %>();
   }
 }

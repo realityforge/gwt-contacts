@@ -77,6 +77,10 @@ module Domgen
       self.characteristic_type_key == :integer
     end
 
+    def long?
+      self.characteristic_type_key == :long
+    end
+
     def real?
       self.characteristic_type_key == :real
     end
@@ -132,7 +136,7 @@ module Domgen
 
     def referenced_struct=(referenced_struct)
       Domgen.error("struct on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a struct") unless struct?
-      @referenced_struct = referenced_struct.is_a?(Symbol) ? self.struct_by_name(referenced_struct) : referenced_struct
+      @referenced_struct = (referenced_struct.is_a?(Symbol) || referenced_struct.is_a?(String)) ? self.struct_by_name(referenced_struct) : referenced_struct
     end
 
     def referenced_entity
@@ -142,7 +146,7 @@ module Domgen
 
     def referenced_entity=(referenced_entity)
       Domgen.error("referenced_entity on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a reference") unless reference?
-      @referenced_entity = referenced_entity.is_a?(Symbol) ? self.entity_by_name(referenced_entity) : referenced_entity
+      @referenced_entity = (referenced_entity.is_a?(Symbol) || referenced_entity.is_a?(String)) ? self.entity_by_name(referenced_entity) : referenced_entity
     end
 
     # The name of the local field appended with PK of foreign entity
@@ -223,6 +227,10 @@ module Domgen
 
     def integer(name, options = {}, &block)
       characteristic(name, :integer, options, &block)
+    end
+
+    def long(name, options = {}, &block)
+      characteristic(name, :long, options, &block)
     end
 
     def real(name, options = {}, &block)

@@ -133,7 +133,7 @@ module Domgen
     end
 
     def self.comparable_attribute_types
-      [:integer, :date, :datetime, :real]
+      [:integer, :long, :date, :datetime, :real]
     end
 
     def self.equality_attribute_types
@@ -409,29 +409,29 @@ module Domgen
     def local_name(base_name)
       base_name = base_name.to_s
       if base_name =~ /^[fF]indAll$/
-        self.query_type = :select
-        self.multiplicity = :many
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :many if @multiplicity.nil?
         return base_name
       elsif base_name =~ /^[fF]indAll.+$/
-        self.query_type = :select
-        self.multiplicity = :many
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :many if @multiplicity.nil?
         return base_name
       elsif base_name =~ /^[fF]ind.+$/
-        self.query_type = :select
-        self.multiplicity = :zero_or_one
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :zero_or_one if @multiplicity.nil?
         return base_name
       elsif base_name =~ /^[gG]et.+$/
-        self.query_type = :select
-        self.multiplicity = :one
+        self.query_type = :select if @query_type.nil?
+        self.multiplicity = :one if @multiplicity.nil?
         return base_name
       elsif base_name =~ /^[uU]pdate.+$/
-        self.query_type = :update
+        self.query_type = :update if @query_type.nil?
         return base_name
       elsif base_name =~ /^[dD]elete.+$/
-        self.query_type = :delete
+        self.query_type = :delete if @query_type.nil?
         return base_name
       elsif base_name =~ /^[iI]nsert.+$/
-        self.query_type = :insert
+        self.query_type = :insert if @query_type.nil?
         return base_name
       elsif self.query_type == :select
         if self.multiplicity == :many
@@ -1505,7 +1505,10 @@ module Domgen
     end
 
     def data_module(name, options = {}, &block)
-      Domgen::DataModule.new(self, name, options, &block)
+      pre_data_module_create(name)
+      data_module = Domgen::DataModule.new(self, name, options, &block)
+      post_data_module_create(name)
+      data_module
     end
 
     def data_modules
@@ -1556,6 +1559,15 @@ module Domgen
     include Faceted
 
     protected
+
+    def pre_data_module_create(name)
+      Domgen.error("Attempting to redefine DataModule '#{name}'") if @data_modules[name.to_s]
+      Logger.debug "DataModule '#{name}' definition started"
+    end
+
+    def post_data_module_create(name)
+      Logger.debug "DataModule '#{name}' definition completed"
+    end
 
     def perform_verify
       data_modules.each { |p| p.verify }

@@ -56,7 +56,7 @@ module Domgen
       end
 
       def fetch_type=(fetch_type)
-        Domgen.error("fetch_type #{fetch_type} is not recognized") unless self.class.fetch_types.include?(fetch_type)
+        Domgen.error("fetch_type #{fetch_type} is not recognized") unless BaseJpaField.fetch_types.include?(fetch_type)
         @fetch_type = fetch_type
       end
 
@@ -67,7 +67,7 @@ module Domgen
       attr_reader :fetch_mode
 
       def fetch_mode=(fetch_mode)
-        Domgen.error("fetch_mode #{fetch_mode} is not recognized") unless self.class.fetch_modes.include?(fetch_mode)
+        Domgen.error("fetch_mode #{fetch_mode} is not recognized") unless BaseJpaField.fetch_modes.include?(fetch_mode)
         @fetch_mode = fetch_mode
       end
 
@@ -103,7 +103,6 @@ module Domgen
         @properties ||= {
           "eclipselink.logging.logger" => "JavaLogger",
           "eclipselink.session-name" => repository.name,
-          #"eclipselink.logging.level" => "FINE",
           "eclipselink.temporal.mutable" => "false"
         }
       end
@@ -142,6 +141,10 @@ module Domgen
       def server_dao_entity_package
         "#{server_entity_package}.dao"
       end
+
+      def server_internal_dao_entity_package
+        "#{server_entity_package}.dao.internal"
+      end
     end
 
     facet.enhance(Entity) do
@@ -162,7 +165,7 @@ module Domgen
       java_artifact :name, :entity, :server, :jpa, '#{entity.name}'
       java_artifact :metamodel, :entity, :server, :jpa, '#{name}_'
       java_artifact :dao_service, :entity, :server, :jpa, '#{name}Repository', :sub_package => 'dao'
-      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao'
+      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao.internal'
 
       attr_writer :cacheable
 

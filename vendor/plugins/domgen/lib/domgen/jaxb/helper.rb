@@ -25,7 +25,7 @@ module Domgen
         s << "@javax.xml.bind.annotation.XmlAccessorType( javax.xml.bind.annotation.XmlAccessType.FIELD )\n"
         ns = namespace_annotation_parameter(struct.xml)
         s << "@javax.xml.bind.annotation.XmlRootElement( name = \"#{struct.xml.name}\"#{ns} )\n" if struct.top_level?
-        s << "@javax.xml.bind.annotation.XmlType( name = \"#{struct.name}\", propOrder = {#{struct.fields.collect{|field| "\"#{field.name}\""}.join(", ")}}#{ns} )\n"
+        s << "@javax.xml.bind.annotation.XmlType( name = \"#{struct.name}\", propOrder = {#{struct.fields.collect{|field| "\"#{Domgen::Naming.camelize(field.name)}\""}.join(", ")}}#{ns} )\n"
         s
       end
 
@@ -41,8 +41,8 @@ module Domgen
       def jaxb_field_annotation(field, wrap_collections = true)
         if field.collection?
           s = ''
-          s << "@javax.xml.bind.annotation.XmlElementWrapper( name = \"#{field.xml.name}\", required = #{field.xml.required?}, nillable = false#{namespace_annotation_parameter(field.struct.xml)} )\n" if wrap_collections
-          s << "  @javax.xml.bind.annotation.XmlElement( name = \"#{field.xml.component_name}\"#{namespace_annotation_parameter(field.struct.xml)} )\n"
+          s << "@javax.xml.bind.annotation.XmlElementWrapper( name = \"#{field.xml.name}\", required = #{field.xml.required?}, nillable = false )\n" if wrap_collections
+          s << "  @javax.xml.bind.annotation.XmlElement( name = \"#{field.xml.component_name}\" )\n"
           s
         else
           "@javax.xml.bind.annotation.Xml#{field.xml.element? ? "Element" : "Attribute" }( name = \"#{field.xml.name}\", required = #{field.xml.required?} )\n"

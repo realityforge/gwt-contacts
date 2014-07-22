@@ -89,6 +89,16 @@ module Domgen
         @filter
       end
 
+      def filtered?
+        !unfiltered?
+      end
+
+
+      def unfiltered?
+        @filter.nil?
+      end
+
+
       def post_verify
         if cacheable? && (filter_parameter || instance_root?)
           raise "Cacheable graphs are not supported for instance based or filterable graphs"
@@ -163,9 +173,12 @@ module Domgen
 
       attr_writer :shared_comm_package
 
+      java_artifact :repository_debugger, :comm, :client, :imit, '#{repository.name}RepositoryDebugger'
       java_artifact :change_mapper, :comm, :client, :imit, '#{repository.name}ChangeMapper'
       java_artifact :data_loader_service, :comm, :client, :imit, 'Abstract#{repository.name}DataLoaderService'
       java_artifact :client_session, :comm, :client, :imit, '#{repository.name}ClientSessionImpl'
+      java_artifact :client_router_interface, :comm, :client, :imit, '#{repository.name}ClientRouter'
+      java_artifact :client_router_impl, :comm, :client, :imit, '#{repository.name}ClientRouterImpl'
       java_artifact :client_session_interface, :comm, :client, :imit, '#{repository.name}ClientSession'
       java_artifact :graph_enum, :comm, :shared, :imit, '#{repository.name}ReplicationGraph'
       java_artifact :session, :comm, :server, :imit, '#{repository.name}Session'
@@ -182,6 +195,14 @@ module Domgen
       java_artifact :graph_encoder_impl, :comm, :server, :imit, '#{repository.name}GraphEncoderImpl'
       java_artifact :services_module, :ioc, :client, :imit, '#{repository.name}ImitServicesModule'
       java_artifact :mock_services_module, :ioc, :client, :imit, '#{repository.name}MockImitServicesModule'
+
+      def auto_register_change_recorder=(auto_register_change_recorder)
+        @auto_register_change_recorder = !!auto_register_change_recorder
+      end
+
+      def auto_register_change_recorder?
+        @auto_register_change_recorder.nil? ? true : @auto_register_change_recorder
+      end
 
       def graphs
         graph_map.values
@@ -328,6 +349,21 @@ module Domgen
         graph.type_roots.concat([k.to_s]) if :type == replication_type
       end
 
+      def subgraph_roots
+        @subgraph_roots || []
+      end
+
+      def subgraph_roots=(subgraph_roots)
+        raise "subgraph_roots expected to be an array" unless subgraph_roots.is_a?(Array)
+        subgraph_roots.each do |subgraph_root|
+          graph = entity.data_module.repository.imit.graph_by_name(subgraph_root)
+          raise "subgraph_roots specifies a non graph #{subgraph_root}" unless graph
+          raise "subgraph_roots specifies a non-instance graph #{subgraph_root}" unless graph.instance_root?
+          raise "subgraph_roots specifies a non-filtered graph #{subgraph_root}" unless graph.filtered?
+        end
+        @subgraph_roots = subgraph_roots
+      end
+
       def replication_graphs
         entity.data_module.repository.imit.graphs.select do |graph|
           (graph.instance_root? && graph.reachable_entities.include?(entity.qualified_name.to_s)) ||
@@ -348,7 +384,9 @@ module Domgen
       end
 
       def post_verify
-        entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_recorder_name if entity.jpa?
+        if entity.data_module.repository.imit.auto_register_change_recorder? && entity.jpa?
+          entity.jpa.entity_listeners << entity.data_module.repository.imit.qualified_change_recorder_name
+        end
       end
     end
 
@@ -380,14 +418,26 @@ module Domgen
       protected
 
       def pre_verify
-        self.graph_links.each_pair do |source_graph_key, target_graph_key|
+        self.graph_links.each_pair do |source_graph_key, config|
+          target_graph_key = config[:target_graph]
+          path = config[:path]
           source_graph = attribute.entity.data_module.repository.imit.graph_by_name(source_graph_key)
           target_graph = attribute.entity.data_module.repository.imit.graph_by_name(target_graph_key)
           prefix = "Link #{source_graph_key}=>#{target_graph_key} on #{attribute.qualified_name}"
           raise "#{prefix} must have an instance graph on the LHS" unless source_graph.instance_root?
-          raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.filter_parameter.nil?
+          raise "#{prefix} must have an non filtered graph on the LHS" unless source_graph.unfiltered?
           raise "#{prefix} must have an instance graph on the RHS" unless target_graph.instance_root?
-          raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.filter_parameter.nil?
+          raise "#{prefix} must have an non filtered graph on the RHS" unless target_graph.unfiltered?
+          if path
+            entity = attribute.referenced_entity
+            path.to_s.split.each_with_index do |attribute_name_path_element, i|
+              other = entity.attribute_by_name(attribute_name_path_element)
+              Domgen.error("Graph link element #{attribute_name_path_element} is nullable") if other.nullable? && i != 0
+              Domgen.error("Graph link element #{attribute_name_path_element} is not immutable") if !other.immutable?
+              Domgen.error("Graph link element #{attribute_name_path_element} is not a reference") if !other.reference?
+              entity = other.referenced_entity
+            end
+          end
           source_graph.links[attribute] = target_graph
         end
       end

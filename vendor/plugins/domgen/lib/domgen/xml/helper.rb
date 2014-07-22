@@ -19,7 +19,10 @@ module Domgen
         return ' type="xs:dateTime"' if characteristic.datetime?
         return ' type="xs:date"' if characteristic.date?
         return ' type="xs:boolean"' if characteristic.boolean?
+        # Unclear of real => float or double
+        return ' type="xs:float"' if characteristic.real?
         return ' type="xs:integer"' if characteristic.integer?
+        return ' type="xs:long"' if characteristic.long?
         return ' type="xs:string"' if characteristic.text?
         return xsd_type(characteristic.referenced_entity.primary_key) if characteristic.reference?
         return " type=\"#{characteristic.referenced_struct.data_module.xml.prefix}:#{characteristic.referenced_struct.name}\"" if characteristic.struct?
