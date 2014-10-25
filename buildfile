@@ -4,11 +4,11 @@ require 'buildr/single_intermediate_layout'
 require 'buildr/jacoco'
 require 'buildr/gwt'
 
-JEE_GWT_JARS = [:javax_inject, :javax_jsr305, :javax_validation, :javax_validation_sources]
+JEE_GWT_JARS = [:javax_inject, :javax_jsr305, :findbugs_annotations, :javax_validation, :javax_validation_sources]
 GIN_JARS = [:gwt_gin, :google_guice, :aopalliance, :google_guice_assistedinject]
 APPCACHE_GWT_JARS = [:gwt_appcache_client, :gwt_appcache_linker, :gwt_appcache_server]
 GWT_JARS = JEE_GWT_JARS + GIN_JARS + [:gwt_user] + APPCACHE_GWT_JARS
-JEE_JARS = [:javaee_api, :javax_jsr305]
+JEE_JARS = [:javaee_api, :javax_jsr305, :findbugs_annotations]
 JACKSON_DEPS = [:jackson_core, :jackson_mapper]
 PROVIDED_DEPS = JACKSON_DEPS + JEE_JARS
 INCLUDED_DEPENDENCIES = [:gwt_user, :gwt_appcache_server, :gwt_cache_filter]
