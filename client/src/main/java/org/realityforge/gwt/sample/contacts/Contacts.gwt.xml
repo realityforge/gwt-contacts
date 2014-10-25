@@ -6,7 +6,6 @@
   <inherits name="com.google.gwt.place.Place"/>
   <inherits name="com.google.gwt.inject.Inject"/>
   <inherits name="com.google.gwt.logging.Logging"/>
-  <inherits name="org.realityforge.replicant.Replicant"/>
   <inherits name="org.realityforge.gwt.appcache.linker.Linker"/>
 
   <define-property name="ui.modality" values="phone, tablet, desktop"/>
