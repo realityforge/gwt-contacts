@@ -38,7 +38,7 @@ class Dbt #nodoc
 
     def self.add_idea_data_source(database_key, environment_key, buildr_project = nil)
       unless load_dbt_configuration_data
-        info("Skipping addition of data source #{database_key} to idea due to missing configuration file.")
+        info("Skipping addition of data source '#{database_key}' to idea as unable load database configuration file '#{Dbt::Config.config_filename}'.")
         return
       end
 
@@ -46,8 +46,9 @@ class Dbt #nodoc
         begin
           Dbt.configuration_for_key(database_key, environment_key)
         rescue => e
-          info("Missing configuration #{database_key} in environment #{environment_key}, " +
-                 "skipping addition of data source #{database_key} to idea. Cause: #{e}")
+          info(<<MSG)
+Skipping addition of data source '#{database_key}' (in environment '#{environment_key}') to idea due to database configuration missing from configuration file #{Dbt::Config.config_filename}.
+MSG
           return
         end
 
@@ -56,15 +57,17 @@ class Dbt #nodoc
 
     def self.add_idea_data_source_from_config_key(config_key, buildr_project = nil)
       unless load_dbt_configuration_data
-        info("Skipping addition of data source #{config_key} to idea due to missing configuration file.")
+        info("Skipping addition of data source for config key '#{config_key}' to idea as unable load database configuration file '#{Dbt::Config.config_filename}'.")
         return
       end
 
       config =
         begin
           Dbt.repository.configuration_for_key(config_key)
-        rescue => e
-          info("Missing configuration #{config_key}, skipping addition of data source to idea. Cause: #{e}")
+        rescue Exception
+          info(<<MSG)
+Skipping addition of data source for config key '#{config_key}' to idea due to database configuration missing from configuration file #{Dbt::Config.config_filename}.
+MSG
           return
         end
 
@@ -96,15 +99,7 @@ class Dbt #nodoc
     end
 
     def self.load_dbt_configuration_data
-      unless Dbt.repository.is_configuration_data_loaded?
-        begin
-          Dbt.repository.load_configuration_data
-        rescue Exception => e
-          info("Unable to load database configuration from #{Dbt::Config.config_filename}. Cause: #{e}")
-          return false
-        end
-      end
-      return true
+      Dbt.repository.load_configuration_data
     end
   end
 end

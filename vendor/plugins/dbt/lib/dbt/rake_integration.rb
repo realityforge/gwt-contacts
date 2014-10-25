@@ -58,6 +58,23 @@ class Dbt #nodoc
 
   private
 
+  def self.define_tasks_for_artifact_database(database, artifact, options)
+    %w(create drop).each do |action|
+      desc "#{action} the #{database.key} database"
+      task "dbt:#{database.key}:#{action}" do
+        a = ::Buildr.artifact(artifact)
+        a.invoke
+        Java::Commands.java '-jar',
+                            a.to_s,
+                            '--environment',
+                            Dbt.runtime.config_key_for_database(database),
+                            '--config-file',
+                            Dbt::Config.config_filename,
+                            action
+      end
+    end
+  end
+
   def self.define_tasks_for_database(database)
     self.define_basic_tasks
     task "#{database.task_prefix}:load_config" => ["#{Dbt::Config.task_prefix}:global:load_config"]
@@ -181,7 +198,9 @@ class Dbt #nodoc
   def self.define_basic_tasks
     if !@@defined_init_tasks
       task "#{Dbt::Config.task_prefix}:global:load_config" do
-        @@repository.load_configuration_data unless @@repository.is_configuration_data_loaded?
+        unless @@repository.load_configuration_data
+          raise "unable to load database configuration data."
+        end
       end
 
       task "#{Dbt::Config.task_prefix}:all:pre_build"
@@ -191,6 +210,8 @@ class Dbt #nodoc
   end
 
   def self.banner(message, database_key)
-    @@runtime.info("**** #{message}: (Database: #{database_key}, Environment: #{Dbt::Config.environment}) ****")
+    config_key = Dbt.runtime.config_key_for_database(Dbt.database_for_key(database_key), Dbt::Config.environment)
+    catalog_name = Dbt.repository.configuration_for_key?(config_key) ? Dbt.configuration_for_key(database_key).catalog_name : ''
+    @@runtime.info("**** #{message}: (Database: #{database_key}, Environment: #{Dbt::Config.environment}, Catalog: #{catalog_name}) ****")
   end
 end

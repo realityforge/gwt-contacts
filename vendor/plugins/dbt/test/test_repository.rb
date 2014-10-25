@@ -103,7 +103,7 @@ development:
     DATABASE_YML
 
     Dbt::Config.config_filename = database_yml
-    repository.load_configuration_data
+    assert repository.load_configuration_data
 
     assert_equal repository.configuration_for_key?(:development), true
     Dbt::Config.driver = 'postgres'

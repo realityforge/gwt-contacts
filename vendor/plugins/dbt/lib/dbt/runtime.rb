@@ -93,7 +93,7 @@ TXT
       database = module_group.database
       init_database(database.key) do
         database.repository.modules.each do |module_name|
-          next unless module_group.modules.include?(module_name)
+          next unless module_group.module_by_name?(module_name)
           create_module(database, module_name, :up)
           create_module(database, module_name, :finalize)
         end
@@ -104,7 +104,7 @@ TXT
       database = module_group.database
       init_database(database.key) do
         database.repository.modules.reverse.each do |module_name|
-          next unless module_group.modules.include?(module_name)
+          next unless module_group.module_by_name?(module_name)
           process_module(database, module_name, :down)
           tables = database.repository.table_ordering(module_name).reverse
           schema_name = database.repository.schema_name_for_module(module_name)
@@ -169,6 +169,10 @@ TXT
 
     def reset
       @db = nil
+    end
+
+    def config_key_for_database(database, env = Dbt::Config.environment)
+      config_key(database.key, env)
     end
 
     def configuration_for_database(database, env = Dbt::Config.environment)
@@ -425,11 +429,11 @@ TXT
       directories.each do |dir|
         index_file = File.join(dir, Dbt::Config.index_file_name)
         index_entries =
-          File.exists?(index_file) ? File.new(index_file).readlines.collect { |filename| filename.strip } : []
+          File.exist?(index_file) ? File.new(index_file).readlines.collect { |filename| filename.strip } : []
         index_entries.each do |e|
           exists = false
           directories.each do |d|
-            if File.exists?(File.join(d, e))
+            if File.exist?(File.join(d, e))
               exists = true
               break
             end
@@ -439,7 +443,7 @@ TXT
 
         index += index_entries
 
-        if File.exists?(dir)
+        if File.exist?(dir)
           files += Dir["#{dir}/*.#{extension}"]
         end
       end
@@ -646,17 +650,26 @@ TXT
       fixture_file = try_find_file_in_module(database, module_name, import_dir, table, 'yml')
       sql_file = try_find_file_in_module(database, module_name, import_dir, table, 'sql')
 
-      if fixture_file && sql_file
-        raise "Unexpectantly found both import fixture (#{fixture_file}) and import sql (#{sql_file}) files."
-      end
-
       info("#{'%-15s' % module_name}: Importing #{clean_table_name(table)} (By #{fixture_file ? 'F' : sql_file ? 'S' : "D"})")
-      if fixture_file
-        load_fixture(table, load_data(database, fixture_file))
-      elsif sql_file
-        run_import_sql(database, table, load_data(database, sql_file), sql_file, true)
-      else
-        perform_standard_import(database, table)
+      begin
+        if fixture_file && sql_file
+          raise "Unexpectedly found both import fixture (#{fixture_file}) and import sql (#{sql_file}) files."
+        end
+
+        if fixture_file
+          load_fixture(table, load_data(database, fixture_file))
+        elsif sql_file
+          run_import_sql(database, table, load_data(database, sql_file), sql_file, true)
+        else
+          perform_standard_import(database, table)
+        end
+      rescue Exception => e
+
+        heading = "Problem importing #{clean_table_name(table)}."
+        puts "\n#{'#' * heading.length}\n#{heading}\n#{'#' * heading.length}\n\n" +
+               "Fix the problem and retry import specifying IMPORT_RESUME_AT=#{clean_table_name(table)} " +
+               "on the commandline to re-attempt import from current position.\n\n"
+        raise e
       end
     end
 
@@ -726,7 +739,7 @@ TXT
           dirs.each do |dir|
             filename = table_name_to_fixture_filename(dir, table_name)
             filesystem_files.delete(filename)
-            if File.exists?(filename)
+            if File.exist?(filename)
               raise "Duplicate fixture for #{table_name} found in database search paths" if fixtures[table_name]
               fixtures[table_name] = filename
             end

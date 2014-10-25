@@ -11,6 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+require 'yaml'
+require 'erb'
 
 class Dbt #nodoc
 
@@ -58,7 +60,19 @@ class Dbt #nodoc
       existing = @configurations[config_key.to_s]
       return existing if existing
       c = @configuration_data[config_key.to_s]
-      raise "Missing config for #{config_key}" unless c
+      if c.nil?
+        Dbt.runtime.info("Dbt unable to locate configuration for key '#{config_key}'.")
+        if 0 == @configuration_data.size
+          Dbt.runtime.info(<<MSG)
+Dbt has not loaded configuration. The configuration is expected to be loaded from the file '#{Dbt::Config.config_filename}'. Ensure that either the '#{Dbt::Config.task_prefix}:global:load_config' rake task is executed or that the method `Dbt.repository.load_configuration_data` is invoked prior to this point.
+MSG
+        else
+          Dbt.runtime.info(<<MSG)
+Configuration has been loaded from the file '#{Dbt::Config.config_filename}' but no entry for '#{config_key}' is present in the file.
+MSG
+        end
+      end
+      raise "Missing database configuration for key '#{config_key}'" unless c
       configuration = Dbt::Config.driver_config_class.new(config_key, c)
       @configurations[config_key.to_s] = configuration
     end
@@ -68,9 +82,19 @@ class Dbt #nodoc
     end
 
     def load_configuration_data(filename = Dbt::Config.config_filename)
-      require 'yaml'
-      require 'erb'
-      self.configuration_data = YAML::load(ERB.new(IO.read(filename)).result)
+      return true if is_configuration_data_loaded?
+
+      if File.exist?(filename)
+        begin
+          self.configuration_data = YAML::load(ERB.new(IO.read(filename)).result)
+        rescue Exception => e
+          Dbt.runtime.info("Dbt unable to load database configuration from #{filename}. Cause: #{e}")
+          return false
+        end
+      else
+        Dbt.runtime.info("Dbt unable to load database configuration from #{filename} as file does not exist.")
+        return false
+      end
     end
 
     def configuration_data=(configuration_data)

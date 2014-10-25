@@ -50,7 +50,24 @@ class Dbt
     database
   end
 
+  # Define a database based on a db artifact
+  def self.add_artifact_based_database(database_key, artifact, options = {})
+    add_database(database_key) do |database|
+      database.rake_integration = false
+      define_tasks_for_artifact_database(database, artifact, options)
+    end
+  end
+
   def self.remove_database(database_key)
     self.repository.remove_database(database_key)
+  end
+
+  def self.jdbc_url_with_credentials(database_key, env, default_value = '')
+    if Dbt.repository.load_configuration_data
+      return Dbt.configuration_for_key(database_key, env).build_jdbc_url(:credentials_inline => true)
+    else
+      info("Unable to determine jdbc url as #{Dbt::Config.config_filename} is not present or valid.")
+      return default_value
+    end
   end
 end

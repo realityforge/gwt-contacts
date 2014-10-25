@@ -14,14 +14,19 @@
 
 class Dbt #nodoc
 
-  def self.define_database_package(database_key, buildr_project, options = {})
+  def self.define_database_package(database_key, options = {})
+    buildr_project = options[:buildr_project]
+    if buildr_project.nil? && ::Buildr.application.current_scope.size > 0
+      buildr_project = ::Buildr.project(::Buildr.application.current_scope.join(':')) rescue nil
+    end
+    raise "Unable to determine Buildr project when generating #{database_key} database package" unless buildr_project
     database = self.repository.database_for_key(database_key)
     package_dir = buildr_project._(:target, 'dbt')
     jruby_version = options[:jruby_version] || (defined?(JRUBY_VERSION) ? JRUBY_VERSION : '1.7.2')
     include_code = options[:include_code].nil? || options[:include_code]
 
     task "#{database.task_prefix}:package" => ["#{database.task_prefix}:prepare_fs"] do
-      banner("Packaging Database Scripts", database.key)
+      banner('Packaging Database Scripts', database.key)
       params = options.dup
       params[:jruby_version] = jruby_version
       params[:include_code] = include_code
@@ -29,7 +34,10 @@ class Dbt #nodoc
     end
     jar = buildr_project.package(:jar) do |j|
     end
+    sources = buildr_project.package(:jar, :classifier => 'sources') do |j|
+    end
     jar.include buildr_project.file("#{package_dir}/data" => "#{database.task_prefix}:package")
+    sources.include buildr_project.file("#{package_dir}/data" => "#{database.task_prefix}:package")
     if include_code
       buildr_project.file("#{package_dir}/code" => "#{database.task_prefix}:package")
       dependencies =
@@ -47,17 +55,17 @@ class Dbt #nodoc
   private
 
   def self.execute_command(database, command)
-    if "status" == command
+    if 'status' == command
       puts @@runtime.status(database)
-    elsif "create" == command
+    elsif 'create' == command
       @@runtime.create(database)
-    elsif "drop" == command
+    elsif 'drop' == command
       @@runtime.drop(database)
-    elsif "migrate" == command
+    elsif 'migrate' == command
       @@runtime.migrate(database)
-    elsif "restore" == command
+    elsif 'restore' == command
       @@runtime.restore(database)
-    elsif "backup" == command
+    elsif 'backup' == command
       @@runtime.backup(database)
     elsif /^datasets:/ =~ command
       dataset_name = command[9, command.length]
@@ -82,6 +90,14 @@ class Dbt #nodoc
         end
       end
       raise "Unknown import '#{import_key}'"
+    elsif /^up/ =~ command
+      module_group_key = command[3, command.length]
+      module_group = database.module_group_by_name(module_group_key)
+      @@runtime.up_module_group(module_group)
+    elsif /^down/ =~ command
+      module_group_key = command[5, command.length]
+      module_group = database.module_group_by_name(module_group_key)
+      @@runtime.down_module_group(module_group)
     else
       raise "Unknown command '#{command}'"
     end
@@ -95,19 +111,19 @@ class Dbt #nodoc
 
   def self.package_database_code(database, package_dir, options)
     FileUtils.mkdir_p package_dir
-    valid_commands = ["status", "create", "drop"]
-    valid_commands << "restore" if database.restore?
-    valid_commands << "backup" if database.backup?
+    valid_commands = ['status', 'create', 'drop']
+    valid_commands << 'restore' if database.restore?
+    valid_commands << 'backup' if database.backup?
     if database.enable_separate_import_task?
       database.imports.values.each do |imp|
-        command = "import"
+        command = 'import'
         command = "#{command}:#{imp.key}" unless Dbt::Config.default_import?(imp.key)
         valid_commands << command
       end
     end
     if database.enable_import_task_as_part_of_create?
       database.imports.values.each do |imp|
-        command = "create_by_import"
+        command = 'create_by_import'
         command = "#{command}:#{imp.key}" unless Dbt::Config.default_import?(imp.key)
         valid_commands << command
       end
@@ -116,10 +132,15 @@ class Dbt #nodoc
       valid_commands << "datasets:#{dataset}"
     end
 
-    valid_commands << "migrate" if database.enable_migrations?
+    database.module_groups.keys.each do |key|
+      valid_commands << "up:#{key}"
+      valid_commands << "down:#{key}"
+    end
+
+    valid_commands << 'migrate' if database.enable_migrations?
 
     FileUtils.mkdir_p "#{package_dir}/org/realityforge/dbt"
-    File.open("#{package_dir}/org/realityforge/dbt/dbtcli.rb", "w") do |f|
+    File.open("#{package_dir}/org/realityforge/dbt/dbtcli.rb", 'w') do |f|
       f << <<TXT
 require 'dbt'
 require 'optparse'
@@ -131,21 +152,21 @@ Dbt::Config.config_filename = 'config/database.yml'
 VALID_COMMANDS=#{valid_commands.inspect}
 
 opt_parser = OptionParser.new do |opt|
-  opt.banner = "Usage: dbtcli [OPTIONS] [COMMANDS]"
-  opt.separator  ""
+  opt.banner = 'Usage: dbtcli [OPTIONS] [COMMANDS]'
+  opt.separator  ''
   opt.separator  "Commands: #{valid_commands.join(', ')}"
-  opt.separator  ""
-  opt.separator  "Options"
+  opt.separator  ''
+  opt.separator  'Options'
 
-  opt.on("-e","--environment ENV","the database environment to use. Defaults to 'production'.") do |environment|
+  opt.on('-e','--environment ENV',"the database environment to use. Defaults to 'production'.") do |environment|
     Dbt::Config.environment = environment
   end
 
-  opt.on("-c","--config-file CONFIG","the configuration file to use. Defaults to 'config/database.yml'.") do |config_filename|
+  opt.on('-c','--config-file CONFIG',"the configuration file to use. Defaults to 'config/database.yml'.") do |config_filename|
     Dbt::Config.config_filename = config_filename
   end
 
-  opt.on("-h","--help","help") do
+  opt.on('-h','--help','help') do
     puts opt_parser
     java.lang.System.exit(53)
   end
@@ -166,15 +187,16 @@ ARGV.each do |command|
 end
 
 if ARGV.length == 0
-  puts "No command specified"
+  puts 'No command specified'
+  puts opt_parser
   java.lang.System.exit(31)
 end
 
 database = Dbt.add_database(:#{database.key}) do |database|
-  database.resource_prefix = "data"
-  database.fixture_dir_name = "#{database.fixture_dir_name}"
-  database.datasets_dir_name = "#{database.datasets_dir_name}"
-  database.migrations_dir_name = "#{database.migrations_dir_name}"
+  database.resource_prefix = 'data'
+  database.fixture_dir_name = '#{database.fixture_dir_name}'
+  database.datasets_dir_name = '#{database.datasets_dir_name}'
+  database.migrations_dir_name = '#{database.migrations_dir_name}'
   database.up_dirs = %w(#{database.up_dirs.join(' ')})
   database.down_dirs = %w(#{database.down_dirs.join(' ')})
   database.finalize_dirs = %w(#{database.finalize_dirs.join(' ')})
@@ -188,6 +210,9 @@ database = Dbt.add_database(:#{database.key}) do |database|
   database.version = #{database.version.inspect}
   database.version_hash = #{database.version_hash.inspect}
 TXT
+      database.module_groups.each_pair do |key, module_group|
+        f << "   database.add_module_group(:#{key.to_s}, :modules => #{module_group.modules.inspect}, :import_enabled => #{module_group.import_enabled?})\n"
+      end
 
       database.filters.each do |filter|
         if filter.is_a?(PropertyFilter)
@@ -216,11 +241,15 @@ puts "Environment: \#{Dbt::Config.environment}"
 puts "Config File: \#{Dbt::Config.config_filename}"
 puts "Commands: \#{ARGV.join(' ')}"
 
-Dbt.repository.load_configuration_data
-Dbt.runtime.load_database_config(database)
+if Dbt.repository.load_configuration_data
+  Dbt.runtime.load_database_config(database)
 
-ARGV.each do |command|
-  Dbt.execute_command(database, command)
+  ARGV.each do |command|
+    Dbt.execute_command(database, command)
+  end
+else
+  puts 'Unable to load database configuration'
+  java.lang.System.exit(37)
 end
 TXT
     end

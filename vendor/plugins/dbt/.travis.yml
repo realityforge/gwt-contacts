@@ -13,3 +13,5 @@ matrix:
     jdk: openjdk7
   - rvm: 1.9.2
     jdk: oraclejdk7
+git:
+  depth: 10

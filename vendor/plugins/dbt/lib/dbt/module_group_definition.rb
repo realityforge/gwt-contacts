@@ -28,6 +28,10 @@ class Dbt #nodoc
       @modules
     end
 
+    def module_by_name?(module_name)
+      self.modules.any?{|m| m.to_s == module_name.to_s}
+    end
+
     attr_writer :import_enabled
 
     def import_enabled?
