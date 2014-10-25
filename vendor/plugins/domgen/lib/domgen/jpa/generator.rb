@@ -65,15 +65,17 @@ end
 
 Domgen.template_set(:jpa_ejb_dao) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
-                        :entity,
+                        :dao,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb.java.erb",
-                        'main/java/#{entity.jpa.qualified_dao_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS)
+                        'main/java/#{dao.jpa.qualified_dao_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS,
+                        :guard => '!dao.repository? || dao.entity.jpa?')
   template_set.template(Domgen::Generator::JPA::FACETS,
-                        :entity,
+                        :dao,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_interface.java.erb",
-                        'main/java/#{entity.jpa.qualified_dao_service_name.gsub(".","/")}.java',
-                        Domgen::Generator::JPA::HELPERS)
+                        'main/java/#{dao.jpa.qualified_dao_service_name.gsub(".","/")}.java',
+                        Domgen::Generator::JPA::HELPERS,
+                        :guard => '!dao.repository? || dao.entity.jpa?')
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :data_module,
                         "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/ejb_package_info.java.erb",
@@ -89,6 +91,13 @@ Domgen.template_set(:jpa_persistence_xml) do |template_set|
                         'main/resources/META-INF/persistence.xml')
 end
 
+Domgen.template_set(:jpa_orm_xml) do |template_set|
+  template_set.template(Domgen::Generator::JPA::FACETS,
+                        :repository,
+                        "#{Domgen::Generator::JPA::TEMPLATE_DIRECTORY}/orm.xml.erb",
+                        'main/resources/META-INF/orm.xml')
+end
+
 Domgen.template_set(:jpa_test_persistence_xml) do |template_set|
   template_set.template(Domgen::Generator::JPA::FACETS,
                         :repository,
@@ -96,4 +105,4 @@ Domgen.template_set(:jpa_test_persistence_xml) do |template_set|
                         'test/resources/META-INF/persistence.xml')
 end
 
-Domgen.template_set(:jpa => [:jpa_persistence_xml, :jpa_model])
+Domgen.template_set(:jpa => [:jpa_orm_xml, :jpa_persistence_xml, :jpa_model])

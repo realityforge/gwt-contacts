@@ -2,13 +2,14 @@
 package <%= to_package(service.gwt_rpc.qualified_servlet_name) %>;
 
 @javax.annotation.Generated( "Domgen" )
-@SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SE_TRANSIENT_FIELD_NOT_RESTORED"})
 @javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_rpc_service_name %>.PATH } )
 public class <%= service.gwt_rpc.servlet_name %>
   extends com.google.gwt.user.server.rpc.<%= service.gwt_rpc.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
   implements <%= service.gwt_rpc.qualified_rpc_service_name %>
 {
-  public static final long serialVersionUID = 1;
+  private static final long serialVersionUID = 1;
 
   private transient final org.codehaus.jackson.map.ObjectMapper _jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
 

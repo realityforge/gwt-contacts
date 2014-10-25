@@ -18,7 +18,15 @@ module Domgen
       def j_jpa_field_attributes(attribute)
         s = ''
         s << "  @javax.persistence.Id\n" if attribute.primary_key?
-        s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n" if attribute.sql.identity?
+        if attribute.sql.identity?
+          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.IDENTITY )\n"
+        elsif attribute.sql.sequence?
+          s << "  @javax.persistence.GeneratedValue( strategy = javax.persistence.GenerationType.SEQUENCE, generator = \"#{attribute.jpa.generator_name}\" )\n"
+          # Due to a bug in eclipselink the schema and sequence name attributes need to be quoted
+          schema = Domgen::Sql.dialect.quote(attribute.entity.data_module.sql.schema).gsub("\"", '\\"')
+          sequence_name = Domgen::Sql.dialect.quote(attribute.sql.sequence_name).gsub("\"", '\\"')
+          s << "  @javax.persistence.SequenceGenerator( name = \"#{attribute.jpa.generator_name}\", schema = \"#{schema}\", sequenceName = \"#{sequence_name}\", allocationSize = 1, initialValue = 1 )\n"
+        end
         s << gen_relation_annotation(attribute, true) if attribute.reference?
         s << gen_column_annotation(attribute)
         s << "  @javax.persistence.Basic( optional = #{attribute.nullable?}, fetch = javax.persistence.FetchType.EAGER )\n" unless attribute.reference?
@@ -28,7 +36,11 @@ module Domgen
         converter = attribute.jpa.converter
         s << "  @javax.persistence.Convert( converter = #{converter}.class )\n" if converter
 
-        s << nullable_annotate(attribute, '', true)
+        unless jpa_nullable_annotation?(attribute)
+          is_nonnull = !jpa_nullable?(attribute) && attribute.immutable?
+          s << "  #{nullability_annotation(!is_nonnull)}\n"
+        end
+
         if attribute.text?
           unless attribute.length.nil? && attribute.min_length.nil?
             s << "  @javax.validation.constraints.Size( "
@@ -58,7 +70,7 @@ module Domgen
         parameters << "name = \"#{attribute.sql.column_name}\""
         parameters << "nullable = #{attribute.nullable?}"
         parameters << "updatable = #{attribute.updatable?}"
-        parameters << "unique = #{attribute.unique?}"
+        parameters << "unique = #{attribute.unique? || attribute.primary_key?}"
         parameters << "insertable = #{!attribute.generated_value? || attribute.primary_key?}"
 
         if attribute.reference?
@@ -121,13 +133,16 @@ module Domgen
         declared_attribute_names = entity.declared_attributes.collect{|a| a.name}
         declared_immutable_attributes = immutable_attributes.select{ |a| declared_attribute_names.include?(a.name) }
         undeclared_immutable_attributes = immutable_attributes.select{ |a| !declared_attribute_names.include?(a.name) }
-        return '' if immutable_attributes.empty?
         java = <<JAVA
-  protected #{entity.jpa.name}()
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"NP_NONNULL_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
+  #{immutable_attributes.empty? ? 'public' : 'protected'} #{entity.jpa.name}()
   {
   }
 
-  @SuppressWarnings( { "ConstantConditions", "deprecation" } )
+JAVA
+        return java if immutable_attributes.empty?
+        java = java + <<JAVA
+  @java.lang.SuppressWarnings( { "ConstantConditions", "deprecation" } )
   public #{entity.jpa.name}(#{immutable_attributes.collect{|a| "final #{nullable_annotate(a, a.jpa.java_type, false)} #{a.jpa.name}"}.join(", ")})
   {
 #{undeclared_immutable_attributes.empty? ? '' : "    super(#{undeclared_immutable_attributes.collect{|a| a.jpa.name}.join(", ")});\n"}
@@ -248,7 +263,11 @@ JAVA
       def j_simple_attribute(attribute)
         name = attribute.jpa.name
         field_name = attribute.jpa.field_name
-        type = nullable_annotate(attribute, attribute.jpa.java_type, false)
+        if attribute.generated_value? && !attribute.nullable?
+          type = "#{nullability_annotation(false)} #{attribute.jpa.java_type}"
+        else
+          type = nullable_annotate(attribute, attribute.jpa.java_type, false)
+        end
         java = description_javadoc_for attribute
         java << <<JAVA
   public #{type} #{getter_for(attribute)}
@@ -270,6 +289,16 @@ JAVA
 
   protected #{type} doGet#{name}()
   {
+JAVA
+        if jpa_nullable_annotation?(attribute) && !jpa_nullable?(attribute)
+          java << <<JAVA
+    if( null == #{field_name} )
+    {
+      throw new IllegalStateException("Attempting to access non-null field #{name} before it has been set.");
+    }
+JAVA
+        end
+        java << <<JAVA
     return #{field_name};
   }
 
@@ -328,7 +357,7 @@ JAVA
 JAVA
         if attribute.updatable?
           java << <<JAVA
-  @SuppressWarnings( { "deprecation" } )
+  @java.lang.SuppressWarnings( { "deprecation" } )
   public void set#{name}( final #{type} value )
   {
  #{j_return_if_value_same(field_name, attribute.referenced_entity.primary_key.jpa.primitive?, attribute.nullable?)}
@@ -354,7 +383,7 @@ JAVA
    * This method should not be called directly. It is called from the constructor of #{attribute.entity.jpa.qualified_name}.
    * @deprecated
    */
-  @Deprecated public
+  @java.lang.Deprecated public
 STR
         else
           ''
@@ -409,7 +438,8 @@ STR
         pk_type = nullable_annotate(pk, pk.jpa.java_type, false)
         equality_comparison = (!pk.jpa.primitive?) ? "null != key && key.equals( that.#{pk_getter} )" : "key == that.#{pk_getter}"
         s = <<JAVA
-  @Override
+  @java.lang.Override
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   public boolean equals( final Object o )
   {
     if ( this == o )
@@ -429,7 +459,8 @@ STR
   }
 JAVA
         s += <<JAVA
-  @Override
+  @java.lang.Override
+  @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"})
   public int hashCode()
   {
     final #{pk_type} key = #{pk_getter};
@@ -459,7 +490,7 @@ JAVA
       def j_to_string_methods(entity)
         return '' if entity.abstract?
         s = <<JAVA
-  @Override
+  @java.lang.Override
   public String toString()
   {
     return "#{entity.name}[" +
@@ -475,17 +506,23 @@ JAVA
         s
       end
 
-      def nullable_annotate(attribute, type, is_field_annotation, inverse_side = false)
+      def jpa_nullable_annotation?(attribute)
         # Not sure why PrimaryKeys can not have annotation other than the fact that EclipseLink fails
         # to find ID if it is
-        if attribute.jpa.primitive? || attribute.primary_key?
+        !(attribute.jpa.primitive? || attribute.primary_key?)
+      end
+
+      def jpa_nullable?(attribute, inverse_side = false)
+        attribute.nullable? ||
+          attribute.generated_value? ||
+          (attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
+      end
+
+      def nullable_annotate(attribute, type, is_field_annotation, inverse_side = false)
+        if !jpa_nullable_annotation?(attribute)
           return type
-        elsif !attribute.nullable? &&
-          !attribute.generated_value? &&
-          !(attribute.reference? && attribute.inverse.multiplicity == :zero_or_one && inverse_side)
-          annotation = "#{nullability_annotation(false)} #{type}"
         else
-          annotation = "#{nullability_annotation(true)} #{type}"
+          annotation = "#{nullability_annotation(jpa_nullable?(attribute, inverse_side))} #{type}"
         end
         if is_field_annotation
           "  #{annotation}\n"
@@ -494,9 +531,17 @@ JAVA
         end
       end
 
-      def query_return_type(query)
+      def query_component_result_type(query)
+        query.result_entity? ?
+          query.entity.jpa.qualified_name :
+          query.result_struct? ?
+            query.struct.ee.qualified_name :
+            (raise "Not yet able to handle scalar")
+      end
+
+      def query_result_type(query)
         return "int" if query.query_type != :select
-        name = query.entity.jpa.qualified_name
+        name = query_component_result_type(query)
         return "#{nullability_annotation(false)} java.util.List<#{name}>" if query.multiplicity == :many
         "#{nullability_annotation(query.multiplicity == :zero_or_one)} #{name}"
       end
@@ -582,15 +627,16 @@ JAVADOC
     Class<? extends javax.validation.Payload>[] payload() default { };
   }
 
+  @java.lang.SuppressWarnings( { "PMD.UselessParentheses" } )
   public static class #{constraint_name}Validator
     implements javax.validation.ConstraintValidator<#{validation_name(constraint_name)}, #{entity.jpa.name}>
   {
-    @Override
+    @java.lang.Override
     public void initialize( final #{validation_name(constraint_name)} constraintAnnotation )
     {
     }
 
-    @Override
+    @java.lang.Override
     public boolean isValid( final #{entity.jpa.name} object, final javax.validation.ConstraintValidatorContext constraintContext )
     {
       if ( null == object )

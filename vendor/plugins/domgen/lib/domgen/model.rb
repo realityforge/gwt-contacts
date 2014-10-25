@@ -341,14 +341,14 @@ module Domgen
     end
   end
 
-  class Query < self.FacetedElement(:entity)
+  class Query < self.FacetedElement(:dao)
     include GenerateFacet
     include Domgen::CharacteristicContainer
 
     attr_reader :name
 
-    def initialize(entity, base_name, options = {}, &block)
-      super(entity, options) do
+    def initialize(dao, base_name, options = {}, &block)
+      super(dao, options) do
         @name = local_name(base_name)
         yield self if block_given?
       end
@@ -371,7 +371,7 @@ module Domgen
     end
 
     def qualified_name
-      "#{entity.qualified_name}.#{name}"
+      "#{dao.qualified_name}.#{name}"
     end
 
     def query_type=(query_type)
@@ -401,7 +401,50 @@ module Domgen
     end
 
     def data_module
-      self.entity.data_module
+      self.dao.data_module
+    end
+
+    def result_type?
+      !!@result_type
+    end
+
+    def result_type
+      raise "result_type called on #{qualified_name} before it has been specified" unless @result_type
+      @result_type
+    end
+
+    def result_type=(result_type)
+      raise "Attempt to reassign result_type on #{qualified_name} from #{@result_type} to #{result_type}" if @result_type
+      raise "Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}" unless [:reference, :struct, :scalar].include?(result_type)
+      @result_type = result_type
+    end
+
+    def result_entity?
+      self.result_type == :reference
+    end
+
+    def result_entity=(entity)
+      self.result_type = :reference
+      @entity = (entity.is_a?(Symbol) || entity.is_a?(String)) ? data_module.entity_by_name(entity) : entity
+    end
+
+    def entity
+      raise "entity called on #{qualified_name} before being specified" unless @entity
+      @entity
+    end
+
+    def result_struct?
+      self.result_type == :struct
+    end
+
+    def result_struct=(struct)
+      self.result_type = :struct
+      @struct = (struct.is_a?(Symbol) || struct.is_a?(String)) ? data_module.struct_by_name(struct) : struct
+    end
+
+    def struct
+      raise "struct called on #{qualified_name} before being specified" unless @struct
+      @struct
     end
 
     protected
@@ -460,6 +503,63 @@ module Domgen
 
     def perform_verify
       verify_characteristics
+    end
+  end
+
+  class DataAccessObject <  self.FacetedElement(:data_module)
+    attr_reader :name
+
+    include GenerateFacet
+
+    def initialize(data_module, name, options, &block)
+      @name = name
+      @queries = Domgen::OrderedHash.new
+      data_module.send :register_dao, name, self
+      super(data_module, options, &block)
+    end
+
+    def qualified_name
+      "#{data_module.name}.#{self.name}"
+    end
+
+    def to_s
+      "DataAccessObject[#{self.qualified_name}]"
+    end
+
+    def entity=(entity)
+      Domgen.error("entity= on #{qualified_name} is invalid as entity already specified") if @entity
+      @entity = (entity.is_a?(Symbol) || entity.is_a?(String)) ? data_module.entity_by_name(entity) : entity
+      queries.each do |query|
+        query.result_entity = @entity unless query.result_type?
+      end
+      @entity
+    end
+
+    def entity
+      Domgen.error("entity on #{qualified_name} is invalid as entity not specified") unless @entity
+      @entity
+    end
+
+    def repository?
+      !@entity.nil?
+    end
+
+    def queries
+      @queries.values
+    end
+
+    def query(name, options = {}, &block)
+      Domgen.error("Attempting to override query #{name} on #{self.name}") if @queries[name.to_s]
+      params = repository? ? options.merge(:result_entity => entity) : options.dup
+      query = Query.new(self, name, params, &block)
+      @queries[name.to_s] = query
+      query
+    end
+
+    protected
+
+    def perform_verify
+      queries.each { |p| p.verify }
     end
   end
 
@@ -596,12 +696,15 @@ module Domgen
     end
 
     def queries
-      @queries.values
+      dao.queries
     end
 
     def query(name, options = {}, &block)
-      query = Query.new(self, name, options, &block)
-      add_unique_to_set("query", query, @queries)
+      dao.query(name, options, &block)
+    end
+
+    def dao
+      @dao ||= data_module.dao("#{name}Repository", :entity => name)
     end
 
     def unique_constraints
@@ -1189,6 +1292,7 @@ module Domgen
       @structs = Domgen::OrderedHash.new
       @enumerations = Domgen::OrderedHash.new
       @exceptions = Domgen::OrderedHash.new
+      @daos = Domgen::OrderedHash.new
       @elements = Domgen::OrderedHash.new
       Logger.info "DataModule '#{name}' definition started"
       super(repository, options, &block)
@@ -1245,6 +1349,28 @@ module Domgen
       exception = @exceptions[name.to_s]
       Domgen.error("Unable to locate local exception #{name} in #{self.name}") if !exception && !optional
       exception
+    end
+
+    def daos
+      @daos.values
+    end
+
+    def dao(name, options = {}, &block)
+      pre_dao_create(name)
+      dao = DataAccessObject.new(self, name, options, &block)
+      post_dao_create(name)
+      dao
+    end
+
+    def dao_by_name(name, optional = false)
+      name_parts = split_name(name)
+      repository.data_module_by_name(name_parts[0]).local_dao_by_name(name_parts[1], optional)
+    end
+
+    def local_dao_by_name(name, optional = false)
+      message = @daos[name.to_s]
+      Domgen.error("Unable to locate local dao #{name} in #{self.name}") if !message && !optional
+      message
     end
 
     def entities
@@ -1344,6 +1470,7 @@ module Domgen
       messages.each { |p| p.verify }
       enumerations.each { |p| p.verify }
       exceptions.each { |p| p.verify }
+      daos.each { |p| p.verify }
     end
 
     private
@@ -1358,6 +1485,19 @@ module Domgen
     def register_type_name(key, type_name, element)
       raise "Attempting to redefine #{key} of type #{@elements[key].class.name} as an #{type_name}" if @elements[key]
       @elements[key] = element
+    end
+
+    def pre_dao_create(name)
+      Logger.debug "DataAccessObject '#{name}' definition started"
+    end
+
+    def post_dao_create(name)
+      Logger.debug "DataAccessObject '#{name}' definition completed"
+    end
+
+    def register_dao(name, dao)
+      register_type_name(name.to_s, 'jpa.dao', dao)
+      @daos[name.to_s] = dao
     end
 
     def pre_enumeration_create(name)

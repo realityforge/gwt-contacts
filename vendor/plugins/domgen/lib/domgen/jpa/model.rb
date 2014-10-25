@@ -100,11 +100,19 @@ module Domgen
       attr_writer :properties
 
       def properties
-        @properties ||= {
-          "eclipselink.logging.logger" => "JavaLogger",
-          "eclipselink.session-name" => repository.name,
-          "eclipselink.temporal.mutable" => "false"
-        }
+        @properties ||= default_properties
+      end
+
+      def default_properties
+        if provider.nil? || provider == :eclipselink
+          {
+            "eclipselink.logging.logger" => "JavaLogger",
+            "eclipselink.session-name" => repository.name,
+            "eclipselink.temporal.mutable" => "false"
+          }
+        else
+          {}
+        end
       end
 
       java_artifact :unit_descriptor, :entity, :server, :jpa, '#{repository.name}PersistenceUnit'
@@ -133,6 +141,10 @@ module Domgen
       def persistence_file_fragments
         @persistence_file_fragments ||= []
       end
+
+      def orm_file_fragments
+        @orm_file_fragments ||= []
+      end
     end
 
     facet.enhance(DataModule) do
@@ -145,6 +157,21 @@ module Domgen
       def server_internal_dao_entity_package
         "#{server_entity_package}.dao.internal"
       end
+    end
+
+    facet.enhance(DataAccessObject) do
+      include Domgen::Java::BaseJavaGenerator
+
+      def server_dao_entity_package
+        "#{server_entity_package}.dao"
+      end
+
+      def server_internal_dao_entity_package
+        "#{server_entity_package}.dao.internal"
+      end
+
+      java_artifact :dao_service, :entity, :server, :jpa, '#{dao.name}', :sub_package => 'dao'
+      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao.internal'
     end
 
     facet.enhance(Entity) do
@@ -164,13 +191,11 @@ module Domgen
 
       java_artifact :name, :entity, :server, :jpa, '#{entity.name}'
       java_artifact :metamodel, :entity, :server, :jpa, '#{name}_'
-      java_artifact :dao_service, :entity, :server, :jpa, '#{name}Repository', :sub_package => 'dao'
-      java_artifact :dao, :entity, :server, :jpa, '#{dao_service_name}EJB', :sub_package => 'dao.internal'
 
       attr_writer :cacheable
 
       def cacheable?
-        @cacheable.nil? ? false : @cacheable
+        @cacheable.nil? ? entity.read_only? : @cacheable
       end
 
       attr_writer :detachable
@@ -193,27 +218,28 @@ module Domgen
           query_text = $1 if query.name =~ /^[fF]indAllBy(.+)$/
           query_text = $1 if query.name =~ /^[fF]indBy(.+)$/
           query_text = $1 if query.name =~ /^[gG]etBy(.+)$/
+          query_text = $1 if query.name =~ /^[dD]eleteBy(.+)$/
           next unless query_text
 
           entity_prefix = "O."
 
           while true
             if query_text =~ /(.+)(And|Or)(.+)/
-              parameter_name = $1
-              query_text = $3
+              parameter_name = $3
+              query_text = $1
               if !entity.attribute_exists?(parameter_name)
                 jpql = nil
                 break
               end
               operation = $2.upcase
-              jpql = "#{jpql}#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{operation} "
+              jpql = "#{operation} #{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
             else
               parameter_name = query_text
               if !entity.attribute_exists?(parameter_name)
                 jpql = nil
                 break
               end
-              jpql = "#{jpql}#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name}"
+              jpql = "#{entity_prefix}#{Domgen::Naming.camelize(parameter_name)} = :#{parameter_name} #{jpql}"
               break
             end
           end
@@ -229,6 +255,11 @@ module Domgen
 
       def persistent?
         @persistent.nil? ? !attribute.abstract? : @persistent
+      end
+
+      def generator_name
+        raise "generator_name invoked on non-sequence" unless attribute.sql.sequence?
+        "#{attribute.entity.name}#{attribute.name}Generator"
       end
 
       include Domgen::Java::EEJavaCharacteristic
@@ -313,6 +344,25 @@ module Domgen
         @query_spec || :criteria
       end
 
+      def default_hints
+        hints = {}
+        if [:insert, :update].include?(self.query.query_type)
+          provider = self.query.data_module.repository.jpa.provider
+          if provider.nil? || provider == :eclipselink
+            hints['eclipselink.query-type'] = 'org.eclipse.persistence.queries.DataModifyQuery'
+          end
+        end
+        hints
+      end
+
+      def hints
+        @hints ||= default_hints
+      end
+
+      def actual_hints
+        hints
+      end
+
       def self.valid_query_specs
         [:statement, :criteria]
       end
@@ -357,20 +407,11 @@ module Domgen
         @ql
       end
 
-      # An array of parameters ordered as they appear in query and with possible duplicates
-      def query_ordered_parameters
-        unless @query_ordered_parameters
-          query_parameters = self.ql.nil? ? [] : self.ql.scan(/:[^\W]+/).collect { |s| s[1..-1] }
-          @query_ordered_parameters = []
-          query_parameters.each do |query_parameter|
-            @query_ordered_parameters << query.parameter_by_name(query_parameter)
-          end
-        end
-        @query_ordered_parameters
+      def derive_table_name
+        self.native? ? query.entity.sql.table_name : query.entity.jpa.jpql_name
       end
 
       def query_string
-        table_name = self.native? ? query.entity.sql.table_name : query.entity.jpa.jpql_name
         order_by_clause = order_by ? " ORDER BY #{order_by}" : ""
         criteria_clause = "#{no_ql? ? '' : "WHERE "}#{ql}"
         q = nil
@@ -379,9 +420,9 @@ module Domgen
         elsif self.query_spec == :criteria
           if query.query_type == :select
             if self.native?
-              q = "SELECT O.* FROM #{table_name} O #{criteria_clause}#{order_by_clause}"
+              q = "SELECT O.* FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
             else
-              q = "SELECT O FROM #{table_name} O #{criteria_clause}#{order_by_clause}"
+              q = "SELECT O FROM #{derive_table_name} O #{criteria_clause}#{order_by_clause}"
             end
           elsif query.query_type == :update
             Domgen.error("The combination of query.query_type == :update and query_spec == :criteria is not supported")
@@ -389,9 +430,10 @@ module Domgen
             Domgen.error("The combination of query.query_type == :insert and query_spec == :criteria is not supported")
           elsif query.query_type == :delete
             if self.native?
+              table_name = derive_table_name
               q = "DELETE FROM #{table_name} FROM #{table_name} O #{criteria_clause}"
             else
-              q = "DELETE FROM #{table_name} O #{criteria_clause}"
+              q = "DELETE FROM #{derive_table_name} O #{criteria_clause}"
             end
           else
             Domgen.error("Unknown query type #{query.query_type}")
@@ -399,7 +441,16 @@ module Domgen
         else
           Domgen.error("Unknown query spec #{self.query_spec}")
         end
-        q = q.gsub(/:[^\W]+/, '?') if self.native?
+        if self.native?
+          q = q.gsub(/:([^\W]+)/) do |parameter_name|
+            index = nil
+            query.parameters.each_with_index do |parameter, i|
+              index = i + 1 if parameter_name[1,parameter_name.length].to_s == parameter.name.to_s
+            end
+            raise "Unable to locate parameter named #{parameter_name} in #{query.qualified_name}" unless index
+            "?#{index}"
+          end
+        end
         q.gsub(/[\s]+/, ' ').strip
       end
 
