@@ -28,6 +28,7 @@ require 'domgen/model'
 require 'domgen/template'
 require 'domgen/render_context'
 require 'domgen/generator'
+require 'domgen/filters'
 
 # Json
 require 'domgen/json/model'
@@ -48,6 +49,15 @@ require 'domgen/ruby/helper'
 require 'domgen/sql/model'
 require 'domgen/sql/helper'
 require 'domgen/sql/generator'
+
+# MsSQL
+require 'domgen/mssql/model'
+require 'domgen/mssql/helper'
+require 'domgen/mssql/generator'
+
+# PgSQL
+require 'domgen/pgsql/model'
+require 'domgen/pgsql/generator'
 
 # JAXB
 require 'domgen/jaxb/model'
@@ -122,3 +132,7 @@ require 'domgen/imit/generator'
 # AutoBean
 require 'domgen/auto_bean/model'
 require 'domgen/auto_bean/generator'
+
+# Database level auditing
+require 'domgen/audit/model'
+require 'domgen/audit/generator'

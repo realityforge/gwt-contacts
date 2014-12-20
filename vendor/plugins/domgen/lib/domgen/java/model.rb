@@ -413,8 +413,8 @@ module Domgen
       end
 
       def parent_facet(facet_key = nil)
-        return nil unless parent.respond_to?(:parent)
-        parent.parent.facet(facet_key || self.facet_key)
+        return nil unless parent.respond_to?(:parent, true)
+        parent.send(:parent).facet(facet_key || self.facet_key)
       end
 
       def package_key
@@ -497,6 +497,7 @@ module Domgen
               java_package :data_type, :scope => scope
               java_package :entity, :scope => scope
               java_package :service, :scope => scope, :sub_packages => ['internal']
+              java_package :test, :scope => scope, :sub_packages => ['util']
             end
           end
 

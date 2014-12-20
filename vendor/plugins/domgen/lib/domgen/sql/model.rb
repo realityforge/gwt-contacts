@@ -12,311 +12,8 @@
 # limitations under the License.
 #
 
-Domgen::TypeDB.config_element(:"sql.mssql") do
-  attr_accessor :sql_type
-end
-
-Domgen::TypeDB.config_element(:"sql.pgsql") do
-  attr_accessor :sql_type
-end
-
-Domgen::TypeDB.enhance(:integer, 'sql.mssql.sql_type' => 'INT', 'sql.pgsql.sql_type' => 'integer')
-Domgen::TypeDB.enhance(:long, 'sql.mssql.sql_type' => 'BIGINT', 'sql.pgsql.sql_type' => 'bigint')
-Domgen::TypeDB.enhance(:real, 'sql.mssql.sql_type' => 'FLOAT', 'sql.pgsql.sql_type' => 'double precision')
-Domgen::TypeDB.enhance(:date, 'sql.mssql.sql_type' => 'DATE', 'sql.pgsql.sql_type' => 'date')
-Domgen::TypeDB.enhance(:datetime, 'sql.mssql.sql_type' => 'DATETIME', 'sql.pgsql.sql_type' => 'timestamp')
-Domgen::TypeDB.enhance(:boolean, 'sql.mssql.sql_type' => 'BIT', 'sql.pgsql.sql_type' => 'boolean')
-
-Domgen::TypeDB.enhance(:point, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'POINT')
-Domgen::TypeDB.enhance(:multipoint, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTIPOINT')
-Domgen::TypeDB.enhance(:linestring, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'LINESTRING')
-Domgen::TypeDB.enhance(:multilinestring, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTILINESTRING')
-Domgen::TypeDB.enhance(:polygon, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'POLYGON')
-Domgen::TypeDB.enhance(:multipolygon, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTIPOLYGON')
-Domgen::TypeDB.enhance(:geometry, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'GEOMETRY')
-Domgen::TypeDB.enhance(:pointm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'POINTM')
-Domgen::TypeDB.enhance(:multipointm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTIPOINTM')
-Domgen::TypeDB.enhance(:linestringm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'LINESTRINGM')
-Domgen::TypeDB.enhance(:multilinestringm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTILINESTRINGM')
-Domgen::TypeDB.enhance(:polygonm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'POLYGONM')
-Domgen::TypeDB.enhance(:multipolygonm, 'sql.mssql.sql_type' => 'GEOMETRY', 'sql.pgsql.sql_type' => 'MULTIPOLYGONM')
-
 module Domgen
   module Sql
-    class PgDialect
-      # Quote identifier
-      def quote(column_name)
-        "\"#{column_name}\""
-      end
-
-      def quote_string(string)
-        string.gsub("\'", "''")
-      end
-
-      def disallow_blank_constraint(column_name)
-        "char_length(trim(both from #{quote(column_name)} )) > 0"
-      end
-
-      def column_type(column)
-        if column.calculation
-          Domgen.error("Unsupported column type - calculation")
-        elsif column.attribute.reference?
-          return column.attribute.referenced_entity.primary_key.sql.sql_type
-        elsif column.attribute.text?
-          if column.attribute.length.nil?
-            return "text"
-          else
-            return "varchar(#{column.attribute.length})"
-          end
-        elsif column.attribute.geometry?
-          spatial_reference_id = column.attribute.geometry.srid || -1
-          if column.attribute.geometry.geometry_type == :geometry
-            return "GEOMETRY"
-          else
-            return "GEOMETRY(#{column.attribute.geometry.geometry_type},#{spatial_reference_id})"
-          end
-        elsif column.attribute.enumeration?
-          column.attribute.enumeration.textual_values? ? "varchar(#{column.attribute.length})" : "integer"
-        else
-          return column.attribute.characteristic_type.sql.pgsql.sql_type
-        end
-      end
-
-      def post_verify_table_customization(table)
-        table.entity.attributes.select { |a| a.sql? && a.geometry? }.each do |a|
-          constraint_name = "#{a.name}_ValidGeometry"
-          table.constraint(constraint_name, :sql => "ST_IsValid(#{quote(a.sql.column_name)})") unless table.constraint_by_name(constraint_name)
-
-          if a.geometry.geometry_type == :geometry
-            if a.geometry.dimensions
-              constraint_name = "#{a.name}_ValidDimensions"
-              table.constraint(constraint_name, :sql => "ST_ndims(#{quote(a.sql.column_name)}) = #{a.geometry.dimensions}") unless table.constraint_by_name(constraint_name)
-            end
-            if a.geometry.srid
-              constraint_name = "#{a.name}_ValidSpatialReferenceID"
-              table.constraint(constraint_name, :sql => "ST_srid(#{quote(a.sql.column_name)}) = #{a.geometry.srid}") unless table.constraint_by_name(constraint_name)
-            end
-          end
-        end
-      end
-
-      def raise_error_sql(error_message)
-        "RAISE EXCEPTION '#{error_message}';"
-      end
-
-      def immuter_guard(entity, immutable_attributes)
-        nil
-      end
-
-      def immuter_sql(entity, immutable_attributes)
-        <<-SQL
-        SELECT 1
-        WHERE
-          (
-          #{immutable_attributes.collect do |a|
-                      if a.geometry?
-                        "            ST_Equals((NEW.#{a.sql.quoted_column_name}, OLD.#{a.sql.quoted_column_name}) = 0)"
-                      else
-                        "            (NEW.#{a.sql.quoted_column_name} != OLD.#{a.sql.quoted_column_name})"
-                      end
-                    end.join(" OR\n") }
-          )
-        SQL
-      end
-
-      def set_once_sql(attribute)
-        <<-SQL
-SELECT 1
-WHERE
-  OLD.#{attribute.sql.quoted_column_name} IS NOT NULL AND
-  (
-    NEW.#{attribute.sql.quoted_column_name} IS NULL OR
-    OLD.#{attribute.sql.quoted_column_name} != NEW.#{attribute.sql.quoted_column_name}
-  )
-SQL
-      end
-
-      def validations_trigger_sql(entity, validations, actions)
-        sql = ''
-        if !validations.empty?
-          validations.each do |validation|
-            sql += <<SQL
-#{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
-            #{validation.common_table_expression} IF EXISTS (#{validation.negative_sql}) THEN
-    ROLLBACK;
-    #{entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
-  END IF;
-#{validation.guard.nil? ? '' : "END" }
-SQL
-          end
-        end
-
-        unless actions.empty?
-          actions.each do |action|
-            sql += "\n#{action.sql};\n"
-          end
-        end
-        sql
-      end
-    end
-
-    class MssqlDialect
-      def quote(column_name)
-        "[#{column_name}]"
-      end
-
-      def quote_string(string)
-        string.gsub("\'", "''")
-      end
-
-      def disallow_blank_constraint(column_name)
-        "LEN( #{quote(column_name)} ) > 0"
-      end
-
-      def column_type(column)
-        if column.calculation
-          sql_type = "AS #{@calculation}"
-          if column.persistent_calculation?
-            sql_type += " PERSISTED"
-          end
-          return sql_type
-        elsif :reference == column.attribute.attribute_type
-          return column.attribute.referenced_entity.primary_key.sql.sql_type
-        elsif column.attribute.attribute_type.to_s == 'text'
-          if column.attribute.length.nil?
-            return "[VARCHAR](MAX)"
-          else
-            return "[VARCHAR](#{column.attribute.length})"
-          end
-        elsif column.attribute.enumeration?
-          column.attribute.enumeration.textual_values? ? "VARCHAR(#{column.attribute.length})" : "INT"
-        else
-          return quote(column.attribute.characteristic_type.sql.mssql.sql_type)
-        end
-      end
-
-      def post_verify_table_customization(table)
-        table.entity.attributes.select { |a| a.sql? && a.geometry? }.each do |a|
-          constraint_name = "#{a.name}_ValidGeometry"
-          table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STIsValid() = 1") unless table.constraint_by_name(constraint_name)
-
-          if a.geometry.geometry_type != :geometry
-            label = {
-              :point => 'Point',
-              :multipoint => 'MultiPoint',
-              :linestring => 'LineString',
-              :multilinestring => 'MultiLineString',
-              :polygon => 'Polygon',
-              :multipolygon => 'MultiPolygon',
-            }[a.geometry.geometry_type]
-
-            constraint_name = "#{a.name}_CorrectType"
-            table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STGeometryType() = '#{label}'") unless table.constraint_by_name(constraint_name)
-          end
-
-          if a.geometry.dimensions
-            constraint_name = "#{a.name}_ValidDimensions"
-            constraint =
-              if 2 == a.geometry.dimensions
-                "#{quote(a.sql.column_name)}.HasZ = 0 AND #{quote(a.sql.column_name)}.HasM = 0"
-              elsif 3 == a.geometry.dimensions
-                "#{quote(a.sql.column_name)}.HasZ = 1 AND #{quote(a.sql.column_name)}.HasM = 0"
-              else
-                "#{quote(a.sql.column_name)}.HasZ = 1 AND #{quote(a.sql.column_name)}.HasM = 1"
-              end
-            table.constraint(constraint_name, :sql => constraint) unless table.constraint_by_name(constraint_name)
-          end
-          if a.geometry.srid
-            constraint_name = "#{a.name}_ValidSpatialReferenceID"
-            table.constraint(constraint_name, :sql => "#{quote(a.sql.column_name)}.STSrid = #{a.geometry.srid}") unless table.constraint_by_name(constraint_name)
-          end
-        end
-      end
-
-      def raise_error_sql(error_message)
-        "RAISERROR ('#{error_message}', 16, 1) WITH SETERROR"
-      end
-
-      def immuter_guard(entity, immutable_attributes)
-        immutable_attributes.collect { |a| "UPDATE(#{a.sql.quoted_column_name})" }.join(" OR ")
-      end
-
-      def immuter_sql(entity, immutable_attributes)
-        pk = entity.primary_key
-        <<-SQL
-        SELECT I.#{pk.sql.quoted_column_name}
-        FROM inserted I, deleted D
-        WHERE
-          I.#{pk.sql.quoted_column_name} = D.#{pk.sql.quoted_column_name} AND
-          (
-          #{immutable_attributes.collect do |a|
-                      if a.geometry?
-                        "            (I.#{a.sql.quoted_column_name}.STEquals(D.#{a.sql.quoted_column_name}) = 0)"
-                      else
-                        "            (I.#{a.sql.quoted_column_name} != D.#{a.sql.quoted_column_name})"
-                      end
-                    end.join(" OR\n") }
-          )
-        SQL
-      end
-
-      def set_once_sql(attribute)
-        <<-SQL
-          SELECT 1
-          FROM
-          inserted I
-          JOIN deleted D ON D.#{attribute.entity.primary_key.sql.quoted_column_name} = I.#{attribute.entity.primary_key.sql.quoted_column_name}
-          WHERE
-            D.#{attribute.sql.quoted_column_name} IS NOT NULL AND
-            (
-              I.#{attribute.sql.quoted_column_name} IS NULL OR
-              D.#{attribute.sql.quoted_column_name} != I.#{attribute.sql.quoted_column_name}
-            )
-        SQL
-      end
-
-      def validations_trigger_sql(entity, validations, actions)
-        sql =''
-        if !validations.empty?
-          sql += "DECLARE @Ignored INT\n"
-          validations.each do |validation|
-            sql += <<SQL
-;
-#{validation.guard.nil? ? '' : "IF #{validation.guard}\nBEGIN\n" }
-            #{validation.common_table_expression} SELECT @Ignored = 1 WHERE EXISTS (#{validation.negative_sql})
-  IF (@@ERROR != 0 OR @@ROWCOUNT != 0)
-  BEGIN
-    ROLLBACK
-    #{entity.data_module.repository.sql.emit_error("Failed to pass validation check #{validation.name}")}
-    RETURN
-  END
-#{validation.guard.nil? ? '' : "END" }
-SQL
-          end
-        end
-
-        unless actions.empty?
-          actions.each do |action|
-            sql += "\n#{action.sql};\n"
-          end
-        end
-        sql
-      end
-    end
-
-    @@dialect = nil
-
-    def self.dialect
-      @@dialect ||= MssqlDialect.new
-    end
-
-    def self.dialect=(dialect)
-      @@dialect = dialect.new
-    end
-
-    class SqlSchema < Domgen.ParentedElement(:data_module)
-    end
-
     class Index < Domgen.ParentedElement(:table)
       attr_accessor :attribute_names
       attr_accessor :include_attribute_names
@@ -351,7 +48,7 @@ SQL
       end
 
       def quoted_index_name
-        Domgen::Sql.dialect.quote(self.index_name)
+        table.dialect.quote(self.index_name)
       end
 
       def qualified_index_name
@@ -451,7 +148,7 @@ SQL
       end
 
       def quoted_foreign_key_name
-        Domgen::Sql.dialect.quote(self.foreign_key_name)
+        table.dialect.quote(self.foreign_key_name)
       end
 
       def qualified_foreign_key_name
@@ -492,7 +189,7 @@ SQL
       end
 
       def quoted_constraint_name
-        Domgen::Sql.dialect.quote(self.constraint_name)
+        table.dialect.quote(self.constraint_name)
       end
 
       def qualified_constraint_name
@@ -535,7 +232,7 @@ SQL
       end
 
       def quoted_constraint_name
-        Domgen::Sql.dialect.quote(self.constraint_name)
+        table.dialect.quote(self.constraint_name)
       end
 
       def qualified_constraint_name
@@ -547,7 +244,7 @@ SQL
       end
 
       def quoted_function_name
-        Domgen::Sql.dialect.quote(self.function_name)
+        table.dialect.quote(self.function_name)
       end
 
       def qualified_function_name
@@ -641,7 +338,7 @@ SQL
       end
 
       def quoted_trigger_name
-        Domgen::Sql.dialect.quote(self.trigger_name)
+        table.dialect.quote(self.trigger_name)
       end
 
       def qualified_trigger_name
@@ -656,9 +353,14 @@ SQL
 
   FacetManager.facet(:sql) do |facet|
     facet.enhance(Repository) do
+
+      def dialect
+        @dialect ||= (repository.mssql? ? Domgen::Mssql::MssqlDialect.new : repository.pgsql? ? Domgen::Pgsql::PgsqlDialect.new  : (raise 'Unable to determine the dialect in use') )
+      end
+
       def error_handler
         @error_handler ||= Proc.new do |error_message|
-          Domgen::Sql.dialect.raise_error_sql(error_message)
+          self.dialect.raise_error_sql(error_message)
         end
       end
 
@@ -670,6 +372,10 @@ SQL
         error_handler.call(error_message)
       end
 
+      def pre_complete
+        self.repository.enable_facet(:mssql) if !self.repository.mssql? && !self.repository.pgsql?
+      end
+
       def pre_verify
         self.repository.data_modules.select { |data_module| data_module.sql? }.each do |dm|
           self.repository.data_modules.select { |data_module| data_module.sql? }.each do |other|
@@ -679,13 +385,14 @@ SQL
           end
         end
       end
-
-      def to_s
-        "Database[#{self.repository.name}]"
-      end
     end
 
     facet.enhance(DataModule) do
+
+      def dialect
+        data_module.repository.sql.dialect
+      end
+
       attr_writer :schema
 
       def schema
@@ -693,11 +400,23 @@ SQL
       end
 
       def quoted_schema
-        Domgen::Sql.dialect.quote(self.schema)
+        self.dialect.quote(self.schema)
       end
     end
 
     facet.enhance(Entity) do
+      def dialect
+        entity.data_module.sql.dialect
+      end
+
+      def load_from_fixture=(load_from_fixture)
+        @load_from_fixture = load_from_fixture
+      end
+
+      def load_from_fixture?
+        @load_from_fixture.nil? ? false : !!@load_from_fixture
+      end
+
       attr_writer :table_name
       attr_accessor :partition_scheme
 
@@ -713,7 +432,7 @@ SQL
       end
 
       def quoted_table_name
-        Domgen::Sql.dialect.quote(table_name)
+        self.dialect.quote(table_name)
       end
 
       def qualified_table_name
@@ -947,13 +666,13 @@ SQL
         end
         entity.attributes.select { |a| (a.allows_length?) && !a.allow_blank? }.each do |a|
           constraint_name = "#{a.name}_NotEmpty"
-          sql = Domgen::Sql.dialect.disallow_blank_constraint(a.sql.column_name)
+          sql = self.dialect.disallow_blank_constraint(a.sql.column_name)
           constraint(constraint_name, :sql => sql) unless constraint_by_name(constraint_name)
         end
 
         entity.attributes.select { |a| a.set_once? }.each do |a|
           validation_name = "#{a.name}_SetOnce"
-          validation(validation_name, :negative_sql => Domgen::Sql.dialect.set_once_sql(a), :after => :update) unless validation?(validation_name)
+          validation(validation_name, :negative_sql => self.dialect.set_once_sql(a), :after => :update) unless validation?(validation_name)
         end
 
         entity.cycle_constraints.each do |c|
@@ -1017,8 +736,8 @@ SQL
         if immutable_attributes.size > 0
           validation_name = "Immuter"
           unless validation?(validation_name)
-            guard = Domgen::Sql.dialect.immuter_guard(self.entity, immutable_attributes)
-            guard_sql = Domgen::Sql.dialect.immuter_sql(self.entity, immutable_attributes)
+            guard = self.dialect.immuter_guard(self.entity, immutable_attributes)
+            guard_sql = self.dialect.immuter_sql(self.entity, immutable_attributes)
             validation(validation_name, :negative_sql => guard_sql, :after => :update, :guard => guard)
           end
         end
@@ -1041,11 +760,11 @@ SQL
         inserted I
 SQL
               concrete_subtypes.each_pair do |name, subtype|
-                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{Domgen::Sql.dialect.quote("ID")} = I.#{attribute.sql.quoted_column_name}"
+                sql << "      LEFT JOIN #{subtype.sql.qualified_table_name} #{name} ON #{name}.#{self.dialect.quote("ID")} = I.#{attribute.sql.quoted_column_name}"
               end
-              sql << "      WHERE (#{names.collect { |name| "#{name}.#{Domgen::Sql.dialect.quote("ID")} IS NULL" }.join(' AND ') })"
+              sql << "      WHERE (#{names.collect { |name| "#{name}.#{self.dialect.quote("ID")} IS NULL" }.join(' AND ') })"
               (0..(names.size - 2)).each do |index|
-                sql << " OR\n (#{names[index] }.#{Domgen::Sql.dialect.quote("ID")} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{Domgen::Sql.dialect.quote("ID")} IS NOT NULL" }.join(' OR ') }))"
+                sql << " OR\n (#{names[index] }.#{self.dialect.quote("ID")} IS NOT NULL AND (#{((index + 1)..(names.size - 1)).collect { |index2| "#{names[index2]}.#{self.dialect.quote("ID")} IS NOT NULL" }.join(' OR ') }))"
               end
               validation(validation_name, :negative_sql => sql, :guard => guard) unless validation?(validation_name)
             end
@@ -1071,7 +790,7 @@ SQL
           if !validations.empty? || !actions.empty?
             trigger_name = "After#{after.to_s.capitalize}"
             trigger(trigger_name) do |trigger|
-              sql = Domgen::Sql.dialect.validations_trigger_sql(self.entity, validations, actions)
+              sql = self.dialect.validations_trigger_sql(self.entity, validations, actions)
 
               if !validations.empty?
                 desc += "Enforce following validations:\n"
@@ -1103,7 +822,7 @@ SQL
                       true)
         end
 
-        Domgen::Sql.dialect.post_verify_table_customization(self)
+        self.dialect.post_verify_table_customization(self)
       end
 
       def copy_tags(from, to)
@@ -1111,13 +830,13 @@ SQL
           to.tags[k] = v
         end
       end
-
-      def to_s
-        "Table[#{self.qualified_table_name}]"
-      end
     end
 
     facet.enhance(Attribute) do
+      def dialect
+        attribute.entity.sql.dialect
+      end
+
       attr_accessor :column_name
 
       def column_name
@@ -1132,13 +851,13 @@ SQL
       end
 
       def quoted_column_name
-        Domgen::Sql.dialect.quote(self.column_name)
+        self.dialect.quote(self.column_name)
       end
 
       attr_writer :sql_type
 
       def sql_type
-        @sql_type ||= Domgen::Sql.dialect.column_type(self)
+        @sql_type ||= self.dialect.column_type(self)
       end
 
       def generator_type
@@ -1147,7 +866,7 @@ SQL
       end
 
       def generator_type=(generator_type)
-        raise "generator_type supplied #{generator_type} not valid" unless [:none, :identity, :sequence].include?(generator_type)
+        Domgen.error("generator_type supplied #{generator_type} not valid") unless [:none, :identity, :sequence].include?(generator_type)
         @generator_type = generator_type
       end
 
@@ -1160,12 +879,12 @@ SQL
       end
 
       def sequence_name
-        raise "sequence_name called on #{attribute.qualified_name} when not a sequence" unless self.sequence?
+        Domgen.error("sequence_name called on #{attribute.qualified_name} when not a sequence") unless self.sequence?
         @sequence_name || "#{attribute.entity.sql.table_name}#{attribute.name}Seq"
       end
 
       def sequence_name=(sequence_name)
-        raise "sequence_name= called on #{attribute.qualified_name} when not a sequence" if !@generator_type.nil? && !self.sequence?
+        Domgen.error("sequence_name= called on #{attribute.qualified_name} when not a sequence") if !@generator_type.nil? && !self.sequence?
         @sequence_name = sequence_name
       end
 
@@ -1216,11 +935,6 @@ SQL
       end
 
       attr_accessor :default_value
-
-      def to_s
-        "Column[#{self.quoted_column_name}]"
-      end
     end
   end
-
 end

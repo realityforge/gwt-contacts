@@ -250,11 +250,13 @@ module Domgen
   end
 
   class EnumerationSet < self.FacetedElement(:data_module)
+    include GenerateFacet
+
     attr_reader :name
     attr_reader :enumeration_type
 
     def initialize(data_module, name, enumeration_type, options = {}, &block)
-      raise "Unknown enumeration type #{enumeration_type}" if !self.class.enumeration_types.include?(enumeration_type)
+      Domgen.error("Unknown enumeration type #{enumeration_type}") if !self.class.enumeration_types.include?(enumeration_type)
       @name = name
       @enumeration_type = enumeration_type
       data_module.send :register_enumeration, name, self
@@ -409,13 +411,13 @@ module Domgen
     end
 
     def result_type
-      raise "result_type called on #{qualified_name} before it has been specified" unless @result_type
+      Domgen.error("result_type called on #{qualified_name} before it has been specified") unless @result_type
       @result_type
     end
 
     def result_type=(result_type)
-      raise "Attempt to reassign result_type on #{qualified_name} from #{@result_type} to #{result_type}" if @result_type
-      raise "Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}" unless [:reference, :struct, :scalar].include?(result_type)
+      Domgen.error("Attempt to reassign result_type on #{qualified_name} from #{@result_type} to #{result_type}") if @result_type
+      Domgen.error("Attempt to assign result_type on #{qualified_name} to invalid type #{result_type}") unless [:reference, :struct, :scalar].include?(result_type)
       @result_type = result_type
     end
 
@@ -429,7 +431,7 @@ module Domgen
     end
 
     def entity
-      raise "entity called on #{qualified_name} before being specified" unless @entity
+      Domgen.error("entity called on #{qualified_name} before being specified") unless @entity
       @entity
     end
 
@@ -443,7 +445,7 @@ module Domgen
     end
 
     def struct
-      raise "struct called on #{qualified_name} before being specified" unless @struct
+      Domgen.error("struct called on #{qualified_name} before being specified") unless @struct
       @struct
     end
 
@@ -494,15 +496,11 @@ module Domgen
     end
 
     def characteristic_kind
-      raise "parameter"
+      "parameter"
     end
 
     def new_characteristic(name, type, options, &block)
       QueryParameter.new(self, name, type, options, &block)
-    end
-
-    def perform_verify
-      verify_characteristics
     end
   end
 
@@ -554,12 +552,6 @@ module Domgen
       query = Query.new(self, name, params, &block)
       @queries[name.to_s] = query
       query
-    end
-
-    protected
-
-    def perform_verify
-      queries.each { |p| p.verify }
     end
   end
 
@@ -693,6 +685,14 @@ module Domgen
 
     def attribute(name, type, options = {}, &block)
       characteristic(name, type, options, &block)
+    end
+
+    def attribute_by_name?(name)
+      characteristic_exists?(name)
+    end
+
+    def attribute_by_name(name)
+      characteristic_by_name(name)
     end
 
     def queries
@@ -832,8 +832,6 @@ module Domgen
     end
 
     def perform_verify
-      verify_characteristics
-
       # Add unique constraints on all unique attributes unless covered by existing constraint
       self.attributes.each do |a|
         if a.unique?
@@ -842,10 +840,6 @@ module Domgen
           end
           unique_constraint([a.name]) if existing_constraint.nil?
         end
-      end
-
-      self.queries.each do |q|
-        q.verify
       end
 
       Domgen.error("Entity #{name} must define exactly one primary key") if attributes.select { |a| a.primary_key? }.size != 1
@@ -939,10 +933,6 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       StructField.new(self, name, type, options, &block)
     end
-
-    def perform_verify
-      verify_characteristics
-    end
   end
 
   class MessageParameter < Domgen.FacetedElement(:message)
@@ -1010,10 +1000,6 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       MessageParameter.new(self, name, type, options, &block)
     end
-
-    def perform_verify
-      verify_characteristics
-    end
   end
 
   class ExceptionParameter < Domgen.FacetedElement(:exception)
@@ -1048,6 +1034,7 @@ module Domgen
 
   class Exception < Domgen.FacetedElement(:data_module)
     include InheritableCharacteristicContainer
+    include GenerateFacet
 
     attr_reader :name
 
@@ -1098,10 +1085,6 @@ module Domgen
       end
 
       ExceptionParameter.new(self, name, type, {:override => override}.merge(options), &block)
-    end
-
-    def perform_verify
-      verify_characteristics
     end
   end
 
@@ -1232,11 +1215,6 @@ module Domgen
     def new_characteristic(name, type, options, &block)
       Parameter.new(self, name, type, options, &block)
     end
-
-    def perform_verify
-      verify_characteristics
-      return_value.verify
-    end
   end
 
   class Service <  self.FacetedElement(:data_module)
@@ -1269,12 +1247,6 @@ module Domgen
       method = Method.new(self, name, options, &block)
       @methods[name.to_s] = method
       method
-    end
-
-    protected
-
-    def perform_verify
-      methods.each { |p| p.verify }
     end
   end
 
@@ -1323,10 +1295,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional)
     end
 
+    def enumeration_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_enumeration_by_name?(name_parts[1])
+    end
+
     def local_enumeration_by_name(name, optional = false)
       enumeration = @enumerations[name.to_s]
       Domgen.error("Unable to locate local enumeration #{name} in #{self.name}") if !enumeration && !optional
+      yield enumeration if block_given?
       enumeration
+    end
+
+    def local_enumeration_by_name?(name)
+      !@enumerations[name.to_s].nil?
     end
 
     def exceptions
@@ -1345,10 +1328,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional)
     end
 
+    def exception_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_exception_by_name?(name_parts[1])
+    end
+
     def local_exception_by_name(name, optional = false)
       exception = @exceptions[name.to_s]
       Domgen.error("Unable to locate local exception #{name} in #{self.name}") if !exception && !optional
+      yield exception if block_given?
       exception
+    end
+
+    def local_exception_by_name?(name)
+      !@exceptions[name.to_s].nil?
     end
 
     def daos
@@ -1367,10 +1361,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_dao_by_name(name_parts[1], optional)
     end
 
+    def dao_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_dao_by_name?(name_parts[1])
+    end
+
     def local_dao_by_name(name, optional = false)
-      message = @daos[name.to_s]
-      Domgen.error("Unable to locate local dao #{name} in #{self.name}") if !message && !optional
-      message
+      dao = @daos[name.to_s]
+      Domgen.error("Unable to locate local dao #{name} in #{self.name}") if !dao && !optional
+      yield dao if block_given?
+      dao
+    end
+
+    def local_dao_by_name?(name)
+      !@daos[name.to_s].nil?
     end
 
     def entities
@@ -1389,10 +1394,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional)
     end
 
+    def entity_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_entity_by_name?(name_parts[1])
+    end
+
     def local_entity_by_name(name, optional = false)
       entity = @entities[name.to_s]
       Domgen.error("Unable to locate local entity #{name} in #{self.name}") if !entity && !optional
+      yield entity if block_given?
       entity
+    end
+
+    def local_entity_by_name?(name)
+      !@entities[name.to_s].nil?
     end
 
     def services
@@ -1411,10 +1427,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional)
     end
 
+    def service_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_service_by_name?(name_parts[1])
+    end
+
     def local_service_by_name(name, optional = false)
       service = @services[name.to_s]
       Domgen.error("Unable to locate local service #{name} in #{self.name}") if !service && !optional
+      yield service if block_given?
       service
+    end
+
+    def local_service_by_name?(name)
+      !@services[name.to_s].nil?
     end
 
     def messages
@@ -1433,10 +1460,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional)
     end
 
+    def message_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_message_by_name?(name_parts[1])
+    end
+
     def local_message_by_name(name, optional = false)
       message = @messages[name.to_s]
       Domgen.error("Unable to locate local message #{name} in #{self.name}") if !message && !optional
+      yield message if block_given?
       message
+    end
+
+    def local_message_by_name?(name)
+      !@messages[name.to_s].nil?
     end
 
     def structs
@@ -1455,22 +1493,21 @@ module Domgen
       repository.data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional)
     end
 
+    def struct_by_name?(name)
+      name_parts = split_name(name)
+      repository.data_module_by_name?(name_parts[0]) &&
+        repository.data_module_by_name(name_parts[0]).local_struct_by_name?(name_parts[1])
+    end
+
     def local_struct_by_name(name, optional = false)
       struct = @structs[name.to_s]
       Domgen.error("Unable to locate local struct #{name} in #{self.name}") if !struct && !optional
+      yield struct if block_given?
       struct
     end
 
-    protected
-
-    def perform_verify
-      entities.each { |p| p.verify }
-      services.each { |p| p.verify }
-      structs.each { |p| p.verify }
-      messages.each { |p| p.verify }
-      enumerations.each { |p| p.verify }
-      exceptions.each { |p| p.verify }
-      daos.each { |p| p.verify }
+    def local_struct_by_name?(name)
+      !@structs[name.to_s].nil?
     end
 
     private
@@ -1483,7 +1520,7 @@ module Domgen
     end
 
     def register_type_name(key, type_name, element)
-      raise "Attempting to redefine #{key} of type #{@elements[key].class.name} as an #{type_name}" if @elements[key]
+      Domgen.error("Attempting to redefine #{key} of type #{@elements[key].class.name} as an #{type_name}") if @elements[key]
       @elements[key] = element
     end
 
@@ -1658,41 +1695,46 @@ module Domgen
     def data_module_by_name(name)
       data_module = @data_modules[name.to_s]
       Domgen.error("Unable to locate data_module #{name}") unless data_module
+      yield data_module if block_given?
       data_module
+    end
+
+    def data_module_by_name?(name)
+      !!@data_modules[name.to_s]
     end
 
     def model_check(name, options = {}, &block)
       Domgen::ModelCheck.new(self, name, options, &block)
     end
 
-    def enumeration_by_name(name, optional = false)
+    def enumeration_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_enumeration_by_name(name_parts[1], optional, &block)
     end
 
-    def exception_by_name(name, optional = false)
+    def exception_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_exception_by_name(name_parts[1], optional, &block)
     end
 
-    def entity_by_name(name, optional = false)
+    def entity_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_entity_by_name(name_parts[1], optional, &block)
     end
 
-    def service_by_name(name, optional = false)
+    def service_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_service_by_name(name_parts[1], optional, &block)
     end
 
-    def struct_by_name(name, optional = false)
+    def struct_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_struct_by_name(name_parts[1], optional, &block)
     end
 
-    def message_by_name(name, optional = false)
+    def message_by_name(name, optional = false, &block)
       name_parts = split_name(name)
-      data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional)
+      data_module_by_name(name_parts[0]).local_message_by_name(name_parts[1], optional, &block)
     end
 
     include GenerateFacet
@@ -1707,10 +1749,6 @@ module Domgen
 
     def post_data_module_create(name)
       Logger.debug "DataModule '#{name}' definition completed"
-    end
-
-    def perform_verify
-      data_modules.each { |p| p.verify }
     end
 
     private
@@ -1730,6 +1768,9 @@ module Domgen
     end
 
     def post_repository_definition
+      # Run hooks in all the modules that can generate other model elements
+      self.complete
+
       # Add back links for all references
       Logger.debug "Repository #{name}: Adding back links for all references"
       self.data_modules.each do |data_module|

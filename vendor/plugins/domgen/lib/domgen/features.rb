@@ -18,13 +18,13 @@ module Domgen
     attr_reader :name
 
     def allows_length?
-      text? || (enumeration? && enumeration.textual_values?)
+      text? || (enumeration? && enumeration.textual_values?) || (reference? && referenced_entity.primary_key.allows_length?)
     end
 
     attr_reader :length
 
     def length=(length)
-      Domgen.error("length on #{name} is invalid as #{characteristic_container.characteristic_kind} is not a string") unless allows_length?
+      Domgen.error("length on #{name} of type '#{characteristic_type_key}' is invalid as #{characteristic_container.characteristic_kind} is not string-ish") unless allows_length?
       @length = length
     end
 
@@ -171,11 +171,11 @@ module Domgen
     end
 
     def characteristic_type_key
-      raise "characteristic_type_key not implemented"
+      Domgen.error('characteristic_type_key not implemented')
     end
 
     def characteristic_container
-      raise "characteristic_container not implemented"
+      Domgen.error('characteristic_container not implemented')
     end
   end
 
@@ -219,8 +219,10 @@ module Domgen
     def string(name, length, options = {}, &block)
       if length.class == Range
         options = options.merge({:min_length => length.first, :length => length.last})
-      else
+      elsif length.is_a?(Numeric)
         options = options.merge({:length => length})
+      else
+        Domgen.error("Second parameter to string is neither a range nor an integer. Parameter = #{length.inspect}")
       end
       characteristic(name, :text, options, &block)
     end
@@ -307,22 +309,16 @@ module Domgen
       characteristic_map.values
     end
 
-    def verify_characteristics
-      self.characteristics.each do |c|
-        c.verify
-      end
-    end
-
     def characteristic_map
       @characteristics ||= Domgen::OrderedHash.new
     end
 
     def new_characteristic(name, type, options, &block)
-      raise "new_characteristic not implemented"
+      Domgen.error('new_characteristic not implemented')
     end
 
     def characteristic_kind
-      raise "characteristic_kind not implemented"
+      Domgen.error('characteristic_kind not implemented')
     end
 
     # Also need to define data_module

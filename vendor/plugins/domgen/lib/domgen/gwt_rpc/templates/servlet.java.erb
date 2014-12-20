@@ -4,7 +4,7 @@ package <%= to_package(service.gwt_rpc.qualified_servlet_name) %>;
 @javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 @edu.umd.cs.findbugs.annotations.SuppressFBWarnings({"SE_TRANSIENT_FIELD_NOT_RESTORED"})
-@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.data_module.repository.gwt_rpc.module_name %>/" + <%= service.gwt_rpc.qualified_rpc_service_name %>.PATH } )
+@javax.servlet.annotation.WebServlet( name = "<%= service.data_module.name %>.<%= service.gwt_rpc.servlet_name %>", urlPatterns = { "/<%= service.gwt_rpc.api_url %>" } )
 public class <%= service.gwt_rpc.servlet_name %>
   extends com.google.gwt.user.server.rpc.<%= service.gwt_rpc.xsrf_protected? ? "XsrfProtectedServiceServlet" : "RemoteServiceServlet" %>
   implements <%= service.gwt_rpc.qualified_rpc_service_name %>
@@ -13,7 +13,11 @@ public class <%= service.gwt_rpc.servlet_name %>
 
   private transient final org.codehaus.jackson.map.ObjectMapper _jsonMapper = new org.codehaus.jackson.map.ObjectMapper();
 
+<% if service.data_module.repository.ee.use_cdi? -%>
+  @javax.inject.Inject
+<% else %>
   @javax.ejb.EJB
+<% end %>
   private transient <%= service.ejb.generate_boundary? ? service.ejb.qualified_boundary_interface_name : service.ejb.qualified_service_name %> _service;
 
 <% service.methods.select{|method| method.gwt_rpc?}.each do |method|
@@ -22,8 +26,8 @@ public class <%= service.gwt_rpc.servlet_name %>
 %>
   {
 <% if method.imit? -%>
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put(org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_HEADER ));
-    org.realityforge.replicant.server.ee.ReplicantContextHolder.put(org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_HEADER ));
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.SESSION_ID_HEADER ) );
+    org.realityforge.replicant.server.ee.ReplicantContextHolder.put( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_KEY, getThreadLocalRequest().getHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_ID_HEADER ) );
 <% end -%>
 
 <% method.parameters.select{|p|!p.collection? && p.struct?}.each do |parameter| %>
@@ -149,7 +153,15 @@ end.join(', ') %>);
 <% method.exceptions.each do |exception| %>
     catch ( final <%= exception.ee.qualified_name %> e )
     {
-        throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
+      throw new <%= exception.gwt_rpc.qualified_name %>( e.getMessage() );
+    }
+<% end %>
+<% if method.imit? -%>
+    catch ( final javax.ejb.EJBException e )
+    {
+      // If the transaction has rolled back there will be no messages arriving
+      getThreadLocalResponse().setHeader( org.realityforge.replicant.shared.transport.ReplicantContext.REQUEST_COMPLETE_HEADER, "1" );
+      throw e;
     }
 <% end %>
     finally

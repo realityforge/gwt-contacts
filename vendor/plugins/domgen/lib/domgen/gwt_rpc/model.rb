@@ -24,6 +24,19 @@ module Domgen
         @module_name || Domgen::Naming.underscore(repository.name)
       end
 
+      attr_writer :base_api_url
+
+      def base_api_url
+        @base_api_url || 'api/rpc'
+      end
+
+      attr_writer :api_url
+
+      def api_url
+        @api_url || "#{self.base_api_url}/#{self.module_name}"
+      end
+
+      java_artifact :rpc_request_builder, :ioc, :client, :gwt_rpc, '#{repository.name}RpcRequestBuilder'
       java_artifact :rpc_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtRpcServicesModule'
       java_artifact :mock_services_module, :ioc, :client, :gwt_rpc, '#{repository.name}MockGwtServicesModule'
       java_artifact :services_module, :ioc, :client, :gwt_rpc, '#{repository.name}GwtServicesModule'
@@ -58,6 +71,12 @@ module Domgen
         @server_servlet_package || resolve_package(:server_servlet_package)
       end
 
+      attr_writer :api_url
+
+      def api_url
+        @api_url || (data_module.name == data_module.repository.name) ? data_module.repository.gwt_rpc.api_url : "#{data_module.repository.gwt_rpc.api_url}/#{Domgen::Naming.underscore(data_module.name)}"
+      end
+
       protected
 
       def facet_key
@@ -67,6 +86,18 @@ module Domgen
 
     facet.enhance(Service) do
       include Domgen::Java::BaseJavaGenerator
+
+      attr_writer :servlet_path
+
+      def servlet_path
+        @servlet_path || service.name
+      end
+
+      attr_writer :api_url
+
+      def api_url
+        @api_url || "#{service.data_module.gwt_rpc.api_url}/#{self.servlet_path}"
+      end
 
       attr_writer :rpc_prefix
 
@@ -134,7 +165,7 @@ module Domgen
       attr_reader :environment_key
 
       def environment_key=(environment_key)
-        raise "Unknown environment_key #{environment_key}" unless valid_environment_key?(environment_key)
+        Domgen.error("Unknown environment_key #{environment_key}") unless valid_environment_key?(environment_key)
         @environment_key = environment_key
       end
 
@@ -148,7 +179,7 @@ module Domgen
       end
 
       def environment_value
-        raise "environment_value invoked for non-environmental value" unless environmental?
+        Domgen.error("environment_value invoked for non-environmental value") unless environmental?
         return "findCookie(getThreadLocalRequest(),\"#{environment_key.to_s[15, 100]}\")" if environment_key_is_cookie?(environment_key)
         value = self.class.environment_key_set[environment_key]
         return value if value
@@ -157,13 +188,14 @@ module Domgen
 
       def self.environment_key_set
         {
-          "request:session:id" => 'getThreadLocalRequest().getSession(true).getId()',
-          "request:permutation-strong-name" => 'getPermutationStrongName()',
-          "request:locale" => 'getThreadLocalRequest().getLocale().toString()',
-          "request:remote-host" => 'getThreadLocalRequest().getRemoteHost()',
-          "request:remote-address" => 'getThreadLocalRequest().getRemoteAddr()',
-          "request:remote-port" => 'getThreadLocalRequest().getRemotePort()',
-          "request:remote-user" => 'getThreadLocalRequest().getRemoteUser()',
+          'request:session:id' => 'getThreadLocalRequest().getSession(true).getId()',
+          'request:permutation-strong-name' => 'getPermutationStrongName()',
+          'request:locale' => 'getThreadLocalRequest().getLocale().toString()',
+          'request:remote-host' => 'getThreadLocalRequest().getRemoteHost()',
+          'request:remote-address' => 'getThreadLocalRequest().getRemoteAddr()',
+          'request:remote-port' => 'getThreadLocalRequest().getRemotePort()',
+          'request:remote-user' => 'getThreadLocalRequest().getRemoteUser()',
+          'request' => 'getThreadLocalRequest()',
         }
       end
 

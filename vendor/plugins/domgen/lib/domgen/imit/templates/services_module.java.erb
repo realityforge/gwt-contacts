@@ -4,18 +4,20 @@ package <%= to_package(repository.imit.qualified_services_module_name) %>;
 <%= description_javadoc_for(repository, "") %>@javax.annotation.Generated( "Domgen" )
 @java.lang.SuppressWarnings( { "UnusedDeclaration", "JavaDoc" } )
 public class <%= repository.imit.services_module_name %>
-  extends org.realityforge.replicant.client.json.gwt.ReplicantGinModule
+  extends <%= repository.imit.multi_session? ? 'com.google.gwt.inject.client.AbstractGinModule' : 'org.realityforge.replicant.client.json.gwt.ReplicantGinModule' %>
 {
   @java.lang.Override
   protected void configure()
   {
+<% unless repository.imit.multi_session? -%>
     super.configure();
-    bind( org.realityforge.replicant.client.ChangeMapper.class ).to( <%= repository.imit.qualified_change_mapper_name %>.class );
-    bind( <%= repository.imit.qualified_client_router_interface_name %>.class ).to( <%= repository.imit.qualified_client_router_impl_name %>.class );
+<% end -%>
+    bind( <%= repository.imit.qualified_change_mapper_name %>.class ).asEagerSingleton();
+    bind( <%= repository.imit.qualified_client_router_interface_name %>.class ).to( <%= repository.imit.qualified_client_router_impl_name %>.class ).asEagerSingleton();
 <%
   repository.data_modules.select{|data_module| data_module.imit? && data_module.gwt_rpc?}.each do |data_module|
     data_module.services.select{|service| service.imit? && service.gwt_rpc?}.each do |service|
-%>    bind( <%= service.imit.qualified_name %>.class ).to( <%= service.imit.qualified_proxy_name %>.class );
+%>    bind( <%= service.imit.qualified_name %>.class ).to( <%= service.imit.qualified_proxy_name %>.class ).asEagerSingleton();
 <%
     end
   end

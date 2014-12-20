@@ -24,16 +24,22 @@ module Domgen
       self.send(facet_key)
     end
 
+    def complete
+      extension_point(:pre_complete)
+      extension_point(:post_complete)
+    end
+
     def verify
       extension_point(:pre_verify)
-      perform_verify
+      extension_point(:perform_verify)
       extension_point(:post_verify)
     end
 
-    protected
-
-    def perform_verify
+    def all_enabled_facets
+      (enabled_facets + (self.respond_to?(:parent, true) ? parent.all_enabled_facets : [])).uniq - disabled_facets
     end
+
+    protected
 
     def activate_facets
       FacetManager.activate_facets(self, all_enabled_facets)
@@ -60,10 +66,6 @@ module Domgen
     def disabled_facets
       @disabled_facets ||= []
     end
-
-    def all_enabled_facets
-      (enabled_facets + (self.respond_to?(:parent) ? self.parent.all_enabled_facets : [])).uniq - disabled_facets
-    end
   end
 
   module GenerateFacet
@@ -75,6 +77,12 @@ module Domgen
     def disable_facet(key)
       Domgen.error("Facet #{key} not enabled.") unless self.facet_enabled?(key)
       self.deactivate_facet(key)
+    end
+
+    def disable_facets_not_in(facets)
+      (self.all_enabled_facets - facets).each do |facet_key|
+        self.disable_facet(facet_key) if self.facet_enabled?(facet_key)
+      end
     end
   end
 
@@ -104,7 +112,7 @@ module Domgen
 
     def enhance(source_class, &block)
       extension = @extension_map[source_class]
-      raise "Unknown source class #{source_class.name}" unless extension
+      Domgen.error("Unknown source class #{source_class.name}") unless extension
       extension.class_eval &block
     end
 
@@ -157,7 +165,7 @@ module Domgen
       end
 
       def facet(definition, options = {}, &block)
-        raise "Unknown definition form '#{definition.inspect}'" unless (definition.is_a?(Symbol) || (definition.is_a?(Hash) && 1 == definition.size))
+        Domgen.error("Unknown definition form '#{definition.inspect}'") unless (definition.is_a?(Symbol) || (definition.is_a?(Hash) && 1 == definition.size))
         key = (definition.is_a?(Hash) ? definition.keys[0] : definition).to_sym
         Domgen.error("Attempting to redefine facet #{key}") if FacetManager.facet?(key)
         required_facets = definition.is_a?(Hash) ? definition.values[0] : []
@@ -194,14 +202,26 @@ module Domgen
       end
 
       def extension_point(object, action)
+        if object.respond_to?(action, true)
+          Logger.debug "Running '#{action}' hook on #{object.class} #{object.respond_to?(:name) ? object.name : object.to_s}"
+          object.send(action)
+        end
         facet_map.keys.each do |facet_key|
           if facet_enabled?(facet_key, object)
             # Need to check for the magic facet_X method rather than X method directly as
             # sometimes there is a global method of the same name.
             extension_object = (object.send "facet_#{facet_key}" rescue nil)
-            if extension_object && extension_object.respond_to?(action)
+            if extension_object && extension_object.respond_to?(action, true)
+              Logger.debug "Running '#{action}' hook on #{facet_key} facet of #{object.class} #{object.respond_to?(:qualified_name) ? object.qualified_name : object.name}"
               extension_object.send action
             end
+          end
+        end
+        dependent_features[object.class].each do |sub_feature_key|
+          next if !handle_sub_feature?(object, sub_feature_key)
+          children = child_features(object, sub_feature_key)
+          children.each do |child|
+            extension_point(child, action)
           end
         end
       end
