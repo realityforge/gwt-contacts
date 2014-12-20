@@ -14,5 +14,4 @@ Dbt::Config.config_filename = File.expand_path("#{workspace_dir}/config/database
 Dbt.add_database(:default) do |database|
   database.search_dirs = %W(#{workspace_dir}/database/generated #{workspace_dir}/database)
   database.enable_domgen(:Contacts, 'domgen:load', 'domgen:sql')
-  database.version = '1'
 end
