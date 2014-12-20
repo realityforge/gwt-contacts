@@ -70,13 +70,13 @@ define 'gwt-contacts' do
   define 'web' do
     iml.add_web_facet
 
-    gwt(['org.realityforge.gwt.sample.contacts.Contacts'],
+    gwt(%w('org.realityforge.gwt.sample.contacts.Contacts),
         :dependencies => [project('client').compile.dependencies,
                           # The following picks up both the jar and sources
                           # packages deliberately. It is needed for the
                           # generators to access classes in annotations.
                           project('client')],
-        :java_args => ['-Xms512M', '-Xmx512M', '-XX:PermSize=128M', '-XX:MaxPermSize=256M'],
+        :java_args => %w(-Xms512M -Xmx512M -XX:PermSize=128M -XX:MaxPermSize=256M),
         :draft_compile => (ENV['FAST_GWT'] == 'true'))
 
     package(:war).tap do |war|
