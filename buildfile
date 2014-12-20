@@ -11,7 +11,7 @@ GWT_JARS = JEE_GWT_JARS + GIN_JARS + [:gwt_user] + APPCACHE_GWT_JARS
 JEE_JARS = [:javaee_api, :javax_jsr305, :findbugs_annotations]
 JACKSON_DEPS = [:jackson_core, :jackson_mapper]
 PROVIDED_DEPS = JACKSON_DEPS + JEE_JARS
-INCLUDED_DEPENDENCIES = [:gwt_user, :gwt_appcache_server, :gwt_cache_filter]
+INCLUDED_DEPENDENCIES = [:gwt_servlet, :gwt_appcache_server, :gwt_cache_filter]
 
 desc 'GWT Contacts: Sample application showing off our best practices'
 define 'gwt-contacts' do
