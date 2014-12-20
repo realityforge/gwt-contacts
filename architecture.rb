@@ -1,5 +1,5 @@
 Domgen.repository(:Contacts) do |repository|
-  repository.enable_facet(:sql)
+  repository.enable_facet(:pgsql)
   repository.enable_facet(:jpa)
   repository.enable_facet(:ejb)
   repository.enable_facet(:gwt_rpc)

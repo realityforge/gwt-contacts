@@ -12,7 +12,7 @@ import org.realityforge.gwt.sample.contacts.server.entity.ContactType;
 import org.realityforge.gwt.sample.contacts.server.entity.dao.ContactRepository;
 import org.realityforge.gwt.sample.contacts.server.entity.dao.ContactTypeRepository;
 
-@Stateless( name = ContactsService.EJB_NAME )
+@Stateless( name = ContactsService.NAME )
 public class ContactsEJB
     implements ContactsService
 {

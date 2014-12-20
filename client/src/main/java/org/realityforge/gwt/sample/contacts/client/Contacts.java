@@ -1,11 +1,11 @@
 package org.realityforge.gwt.sample.contacts.client;
 
 import com.google.gwt.core.client.GWT;
-import org.realityforge.gwt.sample.contacts.client.gin.InjectorWrapper;
-import org.realityforge.gwt.sample.contacts.client.ioc.ContactsGwtRpcServicesModule;
 import com.google.gwt.user.client.Window;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.realityforge.gwt.sample.contacts.client.gin.InjectorWrapper;
+import org.realityforge.gwt.sample.contacts.client.ioc.ContactsGwtRpcServicesModule;
 
 public final class Contacts
     implements com.google.gwt.core.client.EntryPoint
@@ -16,7 +16,7 @@ public final class Contacts
   {
     try
     {
-      ContactsGwtRpcServicesModule.initialize( GWT.getModuleName() );
+      ContactsGwtRpcServicesModule.initialize();
       startupApplication();
     }
     catch ( final Exception e )
