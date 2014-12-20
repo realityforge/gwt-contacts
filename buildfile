@@ -68,16 +68,22 @@ define 'gwt-contacts' do
 
   desc 'GWT Contacts: Web component'
   define 'web' do
-    iml.add_web_facet
+    gwt_dir =
+      gwt(%w('org.realityforge.gwt.sample.contacts.Contacts),
+          :dependencies => [project('client').compile.dependencies,
+                            # The following picks up both the jar and sources
+                            # packages deliberately. It is needed for the
+                            # generators to access classes in annotations.
+                            project('client')],
+          :java_args => %w(-Xms512M -Xmx512M -XX:PermSize=128M -XX:MaxPermSize=256M),
+          :draft_compile => (ENV['FAST_GWT'] == 'true'))
 
-    gwt(%w('org.realityforge.gwt.sample.contacts.Contacts),
-        :dependencies => [project('client').compile.dependencies,
-                          # The following picks up both the jar and sources
-                          # packages deliberately. It is needed for the
-                          # generators to access classes in annotations.
-                          project('client')],
-        :java_args => %w(-Xms512M -Xmx512M -XX:PermSize=128M -XX:MaxPermSize=256M),
-        :draft_compile => (ENV['FAST_GWT'] == 'true'))
+    webroots = {}
+    webroots[_(:source, :main, :webapp)] = '/' if File.exist?(_(:source, :main, :webapp))
+    webroots[_(:source, :main, :webapp_local)] = '/'
+    assets.paths.each { |path| webroots[path.to_s] = '/' if path.to_s != gwt_dir.to_s }
+
+    iml.add_web_facet(:webroots => webroots)
 
     package(:war).tap do |war|
       war.with :libs => [INCLUDED_DEPENDENCIES, project('server')]
@@ -94,9 +100,8 @@ define 'gwt-contacts' do
                                 :war_module_names => [project('web').iml.id],
                                 :jpa_module_names => [project('server').iml.id],
                                 :ejb_module_names => [project('server').iml.id],
-                                :gwt_module_names => [project('client').iml.id],
                                 :dependencies => [INCLUDED_DEPENDENCIES, projects('server')])
-  ipr.add_gwt_configuration("#{project.name}/Contacts.html", project('client'), :shell_parameters => '-noserver -port 8080')
+  ipr.add_gwt_configuration(project, :gwt_module => 'org.realityforge.gwt.sample.contacts.Contacts', :vm_parameters => '-Xmx3G', :shell_parameters => '-port 8888', :launch_page => 'http://127.0.0.1:8080/gwt-contacts')
 
   iml.add_jruby_facet
 end

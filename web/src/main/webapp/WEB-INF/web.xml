@@ -7,6 +7,7 @@
 
   <!-- Default page to serve -->
   <welcome-file-list>
+    <welcome-file>ContactsDev.html</welcome-file>
     <welcome-file>Contacts.html</welcome-file>
   </welcome-file-list>
 
