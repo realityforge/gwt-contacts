@@ -37,6 +37,17 @@ class Dbt # nodoc
     @default_import_dir = nil
 
     class << self
+      attr_writer :base_directory
+
+      def base_directory
+        return @base_directory unless @base_directory.nil?
+        if defined?(::Buildr)
+          File.dirname(::Buildr.application.buildfile.to_s)
+        else
+          '.'
+        end
+      end
+
       attr_writer :environment
 
       def environment
@@ -122,7 +133,7 @@ class Dbt # nodoc
       end
 
       def config_filename
-        raise "config_filename not specified" unless @config_filename
+        raise 'config_filename not specified' unless @config_filename
         @config_filename
       end
 
@@ -130,7 +141,7 @@ class Dbt # nodoc
       attr_writer :default_search_dirs
 
       def default_search_dirs
-        raise "default_search_dirs not specified" unless @default_search_dirs
+        raise 'default_search_dirs not specified' unless @default_search_dirs
         @default_search_dirs
       end
 

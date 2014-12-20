@@ -84,6 +84,7 @@ MSG
     def load_configuration_data(filename = Dbt::Config.config_filename)
       return true if is_configuration_data_loaded?
 
+      filename = File.expand_path(filename, Dbt::Config.base_directory)
       if File.exist?(filename)
         begin
           self.configuration_data = YAML::load(ERB.new(IO.read(filename)).result)

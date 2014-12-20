@@ -169,7 +169,7 @@ class Dbt #nodoc
     end
 
     def dirs_for_database(subdir)
-      search_dirs.map { |d| "#{d}/#{subdir}" }
+      search_dirs.map { |d| File.expand_path("#{d}/#{subdir}", Dbt::Config.base_directory) }
     end
 
     attr_writer :up_dirs
