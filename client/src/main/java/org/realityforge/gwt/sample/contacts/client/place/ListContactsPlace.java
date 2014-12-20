@@ -20,6 +20,5 @@ public class ListContactsPlace
     {
       return new ListContactsPlace();
     }
-
   }
 }
