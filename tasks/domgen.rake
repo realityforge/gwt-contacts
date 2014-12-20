@@ -4,6 +4,6 @@ $LOAD_PATH.unshift(File.expand_path("#{workspace_dir}/vendor/plugins/domgen/lib"
 
 require 'domgen'
 
-Domgen::LoadSchema.new("#{workspace_dir}/architecture.rb")
+Domgen::Build.define_load_task
 
-Domgen::GenerateTask.new(nil, :sql, [:pgsql], "#{workspace_dir}/database/generated")
+Domgen::Build.define_generate_task([:pgsql], :key => :sql, :target_dir => "#{workspace_dir}/database/generated")

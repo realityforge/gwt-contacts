@@ -23,9 +23,7 @@ define 'gwt-contacts' do
 
   desc 'GWT Contacts: Client-side component'
   define 'client' do
-    Domgen::GenerateTask.new(nil,
-                             :client,
-                             [:gwt_client, :gwt_rpc_shared, :gwt_rpc_client, :gwt_client_jso])
+    Domgen::Build.define_generate_task([:gwt_client, :gwt_rpc_shared, :gwt_rpc_client, :gwt_client_jso])
 
     compile.with GWT_JARS
 
@@ -43,9 +41,7 @@ define 'gwt-contacts' do
 
   desc 'GWT Contacts: Server-side component'
   define 'server' do
-    Domgen::GenerateTask.new(nil,
-                             :server,
-                             [:ee_data_types, :ee, :gwt_rpc_shared, :gwt_rpc_server, :jpa_test_module])
+    Domgen::Build.define_generate_task([:ee_data_types, :ee, :gwt_rpc_shared, :gwt_rpc_server, :jpa_test_module])
 
     compile.with PROVIDED_DEPS + INCLUDED_DEPENDENCIES
 
