@@ -212,7 +212,7 @@ TXT
       end
     end
 
-    IMPORT_RESUME_AT_ENV_KEY = "IMPORT_RESUME_AT"
+    IMPORT_RESUME_AT_ENV_KEY = 'IMPORT_RESUME_AT'
 
     def partial_import_completed?
       !!ENV[IMPORT_RESUME_AT_ENV_KEY]
@@ -353,7 +353,7 @@ TXT
       ordered_tables = imp.database.repository.table_ordering(module_name)
 
       # check the import configuration is set
-      configuration_for_key(config_key(imp.database.key, "import"))
+      configuration_for_key(config_key(imp.database.key, 'import'))
 
       # Iterate over module in dependency order doing import as appropriate
       # Note: that tables with initial fixtures are skipped
@@ -627,7 +627,7 @@ TXT
     def run_import_sql(database, table, sql, script_file_name = nil, print_dot = false)
       sql = filter_sql(sql, database.expanded_filters)
       sql = sql.gsub(/@@TABLE@@/, table) if table
-      sql = filter_database_name(sql, /@@SOURCE@@/, database.key, "import")
+      sql = filter_database_name(sql, /@@SOURCE@@/, database.key, 'import')
       sql = filter_database_name(sql, /@@TARGET@@/, database.key, Dbt::Config.environment)
       run_sql_batch(sql, script_file_name, print_dot, true)
     end
@@ -846,7 +846,7 @@ TXT
       require 'java'
       stream = java.lang.ClassLoader.getSystemResourceAsStream("#{database.resource_prefix}/#{resource_path}")
       raise "Missing resource #{resource_path}" unless stream
-      content = ""
+      content = ''
       while stream.available() > 0
         content << stream.read()
       end

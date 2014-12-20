@@ -114,7 +114,12 @@ class Dbt # nodoc
       end
 
       # config_file is where the yaml config file is located
-      attr_writer :config_filename
+      def config_filename=(config_filename)
+        if @config_filename != config_filename || config_filename.nil?
+          Dbt.repository.configuration_data = {}
+        end
+        @config_filename = config_filename
+      end
 
       def config_filename
         raise "config_filename not specified" unless @config_filename

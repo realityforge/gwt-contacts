@@ -59,15 +59,19 @@ class Dbt #nodoc
   private
 
   def self.define_tasks_for_artifact_database(database, artifact, options)
-    %w(create drop).each do |action|
+    extra_actions = options[:extra_actions] || []
+    (%w(create drop) + extra_actions).each do |action|
       desc "#{action} the #{database.key} database"
       task "dbt:#{database.key}:#{action}" do
+        banner('Creating database from package', database.key)
         a = ::Buildr.artifact(artifact)
         a.invoke
         Java::Commands.java '-jar',
                             a.to_s,
+                            '--database',
+                            database.key,
                             '--environment',
-                            Dbt.runtime.config_key_for_database(database),
+                            Dbt::Config.environment,
                             '--config-file',
                             Dbt::Config.config_filename,
                             action

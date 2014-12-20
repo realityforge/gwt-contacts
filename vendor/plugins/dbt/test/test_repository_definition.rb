@@ -105,27 +105,27 @@ modules: !omap
       'Geo' => ['[Geo].[tblMobilePOI]', '[Geo].[tblPOITrack]', '[Geo].[tblSector]', '[Geo].[tblOtherGeom]'],
       'CodeMetrics' => ['[CodeMetrics].[tblCollection]', '[CodeMetrics].[tblMethodMetric]']
     }
-    assert_equal definition.to_yaml, YAML::load(<<YAML).to_yaml
+    assert_equal definition.to_yaml, <<YAML
 ---
 modules: !omap
-- CodeMetrics:
-    schema: CodeMetrics
-    tables:
-    - '[CodeMetrics].[tblCollection]'
-    - '[CodeMetrics].[tblMethodMetric]'
-- Geo:
-    schema: Geo
-    tables:
-    - '[Geo].[tblMobilePOI]'
-    - '[Geo].[tblPOITrack]'
-    - '[Geo].[tblSector]'
-    - '[Geo].[tblOtherGeom]'
-- TestModule:
-    schema: TM
-    tables:
-    - '[TM].[tblBaseX]'
-    - '[TM].[tblFoo]'
-    - '[TM].[tblBar]'
+   - CodeMetrics:
+      schema: CodeMetrics
+      tables:
+        - "[CodeMetrics].[tblCollection]"
+        - "[CodeMetrics].[tblMethodMetric]"
+   - Geo:
+      schema: Geo
+      tables:
+        - "[Geo].[tblMobilePOI]"
+        - "[Geo].[tblPOITrack]"
+        - "[Geo].[tblSector]"
+        - "[Geo].[tblOtherGeom]"
+   - TestModule:
+      schema: TM
+      tables:
+        - "[TM].[tblBaseX]"
+        - "[TM].[tblFoo]"
+        - "[TM].[tblBar]"
 YAML
   end
 

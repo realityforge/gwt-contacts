@@ -45,6 +45,10 @@ class Dbt #nodoc
       tables
     end
 
+    def table_ordering?(module_name)
+      !!table_map[module_name.to_s]
+    end
+
     def merge!(other)
       other.modules.each do |m|
         if self.modules.include?(m)
@@ -81,14 +85,20 @@ class Dbt #nodoc
     end
 
     def to_yaml
-      modules = YAML::Omap.new
+      yaml = "---\nmodules: !omap"
+      return yaml + " []\n" if self.modules.size == 0
+      yaml += "\n"
       self.modules.each do |module_name|
-        module_config = {}
-        module_config['schema'] = self.schema_name_for_module(module_name)
-        module_config['tables'] = self.table_ordering(module_name)
-        modules[module_name.to_s] = module_config
+        yaml += "   - #{module_name}:\n"
+        yaml += "      schema: #{self.schema_name_for_module(module_name)}\n"
+        tables = self.table_ordering?(module_name) ? self.table_ordering(module_name) : []
+        yaml += "      tables:#{tables.empty? ? ' []' : ''}\n"
+        tables.each do |table_name|
+          quoted_table = table_name =~ /"/ ? "'#{table_name}'" : "\"#{table_name}\""
+          yaml += "        - #{quoted_table}\n"
+        end
       end
-      {'modules' => modules}.to_yaml
+      yaml
     end
   end
 end

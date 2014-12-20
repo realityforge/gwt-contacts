@@ -111,7 +111,7 @@ class Dbt #nodoc
 
   def self.package_database_code(database, package_dir, options)
     FileUtils.mkdir_p package_dir
-    valid_commands = ['status', 'create', 'drop']
+    valid_commands = %w(status create drop)
     valid_commands << 'restore' if database.restore?
     valid_commands << 'backup' if database.backup?
     if database.enable_separate_import_task?
@@ -151,6 +151,8 @@ Dbt::Config.environment = 'production'
 Dbt::Config.config_filename = 'config/database.yml'
 VALID_COMMANDS=#{valid_commands.inspect}
 
+database_key = :default
+
 opt_parser = OptionParser.new do |opt|
   opt.banner = 'Usage: dbtcli [OPTIONS] [COMMANDS]'
   opt.separator  ''
@@ -158,11 +160,15 @@ opt_parser = OptionParser.new do |opt|
   opt.separator  ''
   opt.separator  'Options'
 
-  opt.on('-e','--environment ENV',"the database environment to use. Defaults to 'production'.") do |environment|
+  opt.on('-d','--database KEY', "the database key to use. Defaults to 'default'.") do |key|
+    database_key = key.to_sym
+  end
+
+  opt.on('-e','--environment ENV', "the database environment to use. Defaults to 'production'.") do |environment|
     Dbt::Config.environment = environment
   end
 
-  opt.on('-c','--config-file CONFIG',"the configuration file to use. Defaults to 'config/database.yml'.") do |config_filename|
+  opt.on('-c','--config-file CONFIG', "the configuration file to use. Defaults to 'config/database.yml'.") do |config_filename|
     Dbt::Config.config_filename = config_filename
   end
 
@@ -192,7 +198,7 @@ if ARGV.length == 0
   java.lang.System.exit(31)
 end
 
-database = Dbt.add_database(:#{database.key}) do |database|
+database = Dbt.add_database(database_key) do |database|
   database.resource_prefix = 'data'
   database.fixture_dir_name = '#{database.fixture_dir_name}'
   database.datasets_dir_name = '#{database.datasets_dir_name}'
