@@ -85,7 +85,7 @@ define 'gwt-contacts' do
   end
 
   # Remove the IDEA generated artifacts
-  project.clean { rm_rf project._(:artifacts) }
+  project.clean { rm_rf _(:artifacts) }
 
   doc.using :javadoc, { :tree => false, :since => false, :deprecated => false, :index => false, :help => false }
   doc.from projects('client', 'server')
