@@ -19,17 +19,35 @@ class Dbt #nodoc
   class DatabaseDefinition #nodoc
 
     # Enable domgen support. Assume the database is associated with a single repository
-    # definition, a single task to generate sql etc.
-    def enable_domgen(repository_key, load_task_name, generate_task_name)
-      task "#{task_prefix}:load_config" => load_task_name
-      task "#{task_prefix}:pre_build" => generate_task_name
+    # definition, a single task to generate sql etc. By convention the loading task name
+    # is 'domgen:load' and the generate task is 'domgen:sql' and these will be used if no
+    # other values are specified. The repository_key can be derived if there is only one
+    # repository in the system, otherwise it must be specified.
+    def enable_domgen(repository_key = nil, load_task_name = nil, generate_task_name = nil)
+      task "#{task_prefix}:load_config" => (load_task_name || 'domgen:load')
+      task "#{task_prefix}:pre_build" => (generate_task_name || 'domgen:sql')
 
-      desc "Verify constraints on database."
+      desc 'Verify constraints on database.'
       task "#{task_prefix}:verify_constraints" => ["#{task_prefix}:load_config"] do
-        Dbt.banner("Verifying database", key)
+        Dbt.banner('Verifying database', key)
         failed_constraints = []
 
-        Domgen.repository_by_name(repository_key).data_modules.select { |data_module| data_module.sql? }.each do |data_module|
+        repository = nil
+        if repository_key
+          repository = Domgen.repository_by_name(repository_key)
+          if Domgen.repositorys.size == 1
+            Domgen.warn("Dbt database #{key} specifies a repository_key parameter in the domgen integration but it can be be derived as there is only a single repository. The parameter should be removed.")
+          end
+        elsif repository_key.nil?
+          repositorys = Domgen.repositorys
+          if repositorys.size == 1
+            repository = repositorys[0]
+          else
+            Domgen.error("Dbt database #{key} does not specify a repository_key parameter and it can not be derived. Candidate repositories include #{repositorys.collect { |r| r.name }.inspect}")
+          end
+        end
+
+        repository.data_modules.select { |data_module| data_module.sql? }.each do |data_module|
           failed_constraints += Dbt.runtime.query(self, "EXEC #{data_module.sql.schema}.spCheckConstraints")
         end
         if failed_constraints.size > 0
@@ -38,7 +56,7 @@ class Dbt #nodoc
           end.join("\n")}"
           raise error_message
         end
-        Dbt.banner("Database verified", key)
+        Dbt.banner('Database verified', key)
       end
     end
 
