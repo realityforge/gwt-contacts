@@ -6,4 +6,4 @@ require 'domgen'
 
 Domgen::LoadSchema.new("#{workspace_dir}/architecture.rb")
 
-Domgen::GenerateTask.new(:Contacts, "sql", [:pgsql], "#{workspace_dir}/database/generated")
+Domgen::GenerateTask.new(:Contacts, :sql, [:pgsql], "#{workspace_dir}/database/generated")
