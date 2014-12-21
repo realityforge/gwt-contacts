@@ -63,7 +63,7 @@ define 'gwt-contacts' do
   desc 'GWT Contacts: Web component'
   define 'web' do
     gwt_dir =
-      gwt(%w('org.realityforge.gwt.sample.contacts.Contacts),
+      gwt(%w(org.realityforge.gwt.sample.contacts.Contacts),
           :dependencies => [project('client').compile.dependencies,
                             # The following picks up both the jar and sources
                             # packages deliberately. It is needed for the
