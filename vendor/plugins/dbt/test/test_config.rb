@@ -4,13 +4,13 @@ class TestConfig < Dbt::TestCase
   # variable, default value, value to change to
   [
     [:default_migrations_dir_name, 'migrations', 'custom_migrations'],
-    [:default_up_dirs, ['.', 'types', 'views', 'functions', 'stored-procedures', 'misc'], ['foo']],
-    [:default_down_dirs, ['down'], ['foo']],
-    [:default_finalize_dirs, ['triggers', 'finalize'], ['foo']],
-    [:default_pre_import_dirs, ['import-hooks/pre'], ['foo']],
-    [:default_post_import_dirs, ['import-hooks/post'], ['foo']],
-    [:default_pre_create_dirs, ['db-hooks/pre'], ['foo']],
-    [:default_post_create_dirs, ['db-hooks/post'], ['foo']],
+    [:default_up_dirs, %w(. types views functions stored-procedures misc), %w(foo)],
+    [:default_down_dirs, %w(down), %w(foo)],
+    [:default_finalize_dirs, %w(triggers finalize), %w(foo)],
+    [:default_pre_import_dirs, %w(import-hooks/pre), %w(foo)],
+    [:default_post_import_dirs, %w(import-hooks/post), %w(foo)],
+    [:default_pre_create_dirs, %w(db-hooks/pre), %w(foo)],
+    [:default_post_create_dirs, %w(db-hooks/post), %w(foo)],
     [:default_database, :default, 'iris'],
     [:default_import, :default, 'import-lite'],
     [:default_import_dir, 'import', 'import-lite'],
@@ -30,11 +30,9 @@ class TestConfig < Dbt::TestCase
   end
 
   def test_config_filename
-    assert_raises(RuntimeError) do
-      Dbt::Config.config_filename
-    end
-    Dbt::Config.config_filename = "myconfig.yml"
-    assert_equal Dbt::Config.config_filename, "myconfig.yml"
+    assert_equal Dbt::Config.config_filename, 'config/database.yml'
+    Dbt::Config.config_filename = 'myconfig.yml'
+    assert_equal Dbt::Config.config_filename, 'myconfig.yml'
   end
 
   def test_default_search_dirs

@@ -101,7 +101,7 @@ class TestDatabaseDefinition < Dbt::TestCase
     Dbt::Config.default_search_dirs = ['.']
     definition = Dbt::DatabaseDefinition.new(:default, :module_groups => {:foo => {}})
 
-    assert(Dbt.runtime.respond_to?(:calculate_fileset_hash), "Mocked calculate_fileset_hash, but it doesn't exist!")
+    assert(Dbt.runtime.respond_to?(:calculate_fileset_hash), 'Mocked calculate_fileset_hash, but it doesn\'t exist!')
 
     s = sequence('main')
     mock = Dbt.runtime

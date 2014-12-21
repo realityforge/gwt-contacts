@@ -132,9 +132,10 @@ class Dbt # nodoc
         @config_filename = config_filename
       end
 
+      # Return the filename to load configuration from
+      # This defaults to 'config/database.yml' relative to the base directory unless assigned
       def config_filename
-        raise 'config_filename not specified' unless @config_filename
-        @config_filename
+        @config_filename || 'config/database.yml'
       end
 
       # search_dirs is an array of paths that are searched in order for artifacts for each module

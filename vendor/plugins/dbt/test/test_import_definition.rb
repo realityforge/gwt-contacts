@@ -8,7 +8,7 @@ class TestImportDefinition < Dbt::TestCase
                                                {
                                                  :foo => {}
                                                }) do |d|
-      d.repository.modules = ['Bar', 'Baz']
+      d.repository.modules = %w(Bar Baz)
     end
     imports = definition.imports
     assert_equal imports.size, 1
@@ -16,22 +16,22 @@ class TestImportDefinition < Dbt::TestCase
     imp = imports.values[0]
     assert_equal imp.key, :foo
     assert_equal imp.database, definition
-    assert_equal imp.modules, ['Bar', 'Baz']
+    assert_equal imp.modules, %w(Bar Baz)
     Dbt::Config.default_import_dir = 'foo'
     assert_equal imp.dir, 'foo'
-    Dbt::Config.default_pre_import_dirs = ['zang']
-    assert_equal imp.pre_import_dirs, ['zang']
+    Dbt::Config.default_pre_import_dirs = %w(zang)
+    assert_equal imp.pre_import_dirs, %w(zang)
 
-    Dbt::Config.default_post_import_dirs = ['zing']
-    assert_equal imp.post_import_dirs, ['zing']
+    Dbt::Config.default_post_import_dirs = %w(zing)
+    assert_equal imp.post_import_dirs, %w(zing)
 
     # Should not raise an exception
     imp.validate
   end
 
   def test_invalid
-    definition = Dbt::DatabaseDefinition.new(:default, :imports => {:foo => {:modules => ['Foo']}}) do |d|
-      d.repository.modules = ['Bar', 'Baz']
+    definition = Dbt::DatabaseDefinition.new(:default, :imports => {:foo => {:modules => %w(Foo)}}) do |d|
+      d.repository.modules = %w(Bar Baz)
     end
 
     assert_raises RuntimeError do

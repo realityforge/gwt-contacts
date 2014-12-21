@@ -12,8 +12,8 @@ class TestRepositoryDefinition < Dbt::TestCase
 
   def test_table_ordering
     definition = Dbt::RepositoryDefinition.new
-    definition.table_map = {'mySchema' => ['tblOne', 'tblTwo']}
-    assert_equal definition.table_ordering('mySchema'), ['tblOne', 'tblTwo']
+    definition.table_map = {'mySchema' => %w(tblOne tblTwo)}
+    assert_equal definition.table_ordering('mySchema'), %w(tblOne tblTwo)
     assert_raises(RuntimeError) do
       definition.table_ordering('NoSchemaHere')
     end
@@ -21,12 +21,12 @@ class TestRepositoryDefinition < Dbt::TestCase
 
   def test_merge
     definition = Dbt::RepositoryDefinition.new
-    definition.schema_overrides = {"Core" => "C"}
+    definition.schema_overrides = {'Core' => 'C'}
     definition.table_map = {'Core' => '"C"."tblA"'}
     definition.modules = ['Core']
 
     definition2 = Dbt::RepositoryDefinition.new
-    definition2.schema_overrides = {"Other" => "O"}
+    definition2.schema_overrides = {'Other' => 'O'}
     definition2.table_map = {'Other' => '"O"."tblB"'}
     definition2.modules = ['Other']
 
@@ -37,11 +37,11 @@ class TestRepositoryDefinition < Dbt::TestCase
     rescue
       # Ignored
     end
-    raise "Succeeded in merging self - error!" if merged
+    raise 'Succeeded in merging self - error!' if merged
 
     definition.merge!(definition2)
 
-    assert_equal definition.schema_overrides, {"Core" => "C","Other" => "O"}
+    assert_equal definition.schema_overrides, {'Core' => 'C','Other' => 'O'}
     assert_equal definition.table_map, {'Core' => '"C"."tblA"', 'Other' => '"O"."tblB"'}
     assert_equal definition.modules, ['Core','Other']
   end

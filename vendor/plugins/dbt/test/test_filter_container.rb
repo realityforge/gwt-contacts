@@ -26,8 +26,8 @@ class TestFilterContainer < Dbt::TestCase
     assert_equal c.filters[0].database_key, database_key
     assert_equal c.filters[0].optional, optional
 
-    assert_equal expand_text("X", c), "X"
-    assert_equal expand_text("@@MYDB@@", c), "DBT_TEST"
+    assert_equal expand_text('X', c), 'X'
+    assert_equal expand_text('@@MYDB@@', c), 'DBT_TEST'
   end
 
   def test_add_property_filter
@@ -42,8 +42,8 @@ class TestFilterContainer < Dbt::TestCase
     assert_equal c.filters[0].pattern, pattern
     assert_equal c.filters[0].value, value
 
-    assert_equal expand_text("X", c), "X"
-    assert_equal expand_text("@@MYKEY@@", c), "foofoo"
+    assert_equal expand_text('X', c), 'X'
+    assert_equal expand_text('@@MYKEY@@', c), 'foofoo'
   end
 
   def test_database_environment_filter
@@ -53,8 +53,8 @@ class TestFilterContainer < Dbt::TestCase
 
     c.database_environment_filter = true
 
-    assert_equal expand_text("X", c), "X"
-    assert_equal expand_text("@@ENVIRONMENT@@", c), Dbt::Config.environment.to_s
+    assert_equal expand_text('X', c), 'X'
+    assert_equal expand_text('@@ENVIRONMENT@@', c), Dbt::Config.environment.to_s
   end
 
 
@@ -65,8 +65,8 @@ class TestFilterContainer < Dbt::TestCase
 
     c.import_assert_filters = true
 
-    assert_equal expand_text("X", c), "X"
-    assert_not_equal expand_text("ASSERT_ROW_COUNT(1)", c), "ASSERT_ROW_COUNT(1)"
+    assert_equal expand_text('X', c), 'X'
+    assert_not_equal expand_text('ASSERT_ROW_COUNT(1)', c), 'ASSERT_ROW_COUNT(1)'
   end
 
   def expand_text(text, filter_container)
