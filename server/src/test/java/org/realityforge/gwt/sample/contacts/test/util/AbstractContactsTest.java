@@ -19,7 +19,7 @@ public class AbstractContactsTest
   @Override
   protected Module[] getModules()
   {
-    final ArrayList<Module> modules = new ArrayList<Module>();
+    final ArrayList<Module> modules = new ArrayList<>();
     Collections.addAll( modules, super.getModules() );
     modules.add( new ContactsRepositoryModule() );
     return modules.toArray( new Module[ modules.size() ] );
