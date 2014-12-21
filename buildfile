@@ -41,7 +41,7 @@ define 'gwt-contacts' do
 
   desc 'GWT Contacts: Server-side component'
   define 'server' do
-    Domgen::Build.define_generate_task([:ee_data_types, :ee, :gwt_rpc_shared, :gwt_rpc_server, :jpa_test_module])
+    Domgen::Build.define_generate_task([:ee_data_types, :ee, :jpa_test_persistent_test_module, :gwt_rpc_shared, :gwt_rpc_server, :jpa_test_module])
 
     compile.with PROVIDED_DEPS + INCLUDED_DEPENDENCIES
 

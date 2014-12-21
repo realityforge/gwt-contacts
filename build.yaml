@@ -28,7 +28,7 @@ artifacts:
 
   json: org.json:json:jar:20090211
 
-  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.36
+  guiceyloops: org.realityforge.guiceyloops:guiceyloops:jar:0.47
 
   # Mocking library used
   mockito: org.mockito:mockito-all:jar:1.9.5

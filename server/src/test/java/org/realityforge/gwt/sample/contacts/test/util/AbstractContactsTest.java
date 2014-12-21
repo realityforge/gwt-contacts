@@ -13,7 +13,7 @@ public class AbstractContactsTest
   @Override
   protected Module getEntityModule()
   {
-    return new ContactsPersistenceTestModule();
+    return new ExtendedContactsPersistenceTestModule();
   }
 
   @Override
