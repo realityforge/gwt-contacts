@@ -39,9 +39,11 @@ class TestDatabaseDefinition < Dbt::TestCase
   end
 
   def test_dirs_for_database
-    Dbt::Config.default_search_dirs = ['a', 'b']
+    Dbt::Config.default_search_dirs = %w(a b)
     definition = Dbt::DatabaseDefinition.new(:default, {})
-    assert_equal definition.dirs_for_database('triggers'), ['a/triggers', 'b/triggers']
+    dirs_for_database = definition.dirs_for_database('triggers')
+    assert dirs_for_database[0] =~ /^.*a\/triggers$/
+    assert dirs_for_database[1] =~ /^.*b\/triggers$/
   end
 
   def test_task_prefix
