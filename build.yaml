@@ -3,8 +3,6 @@ junit: 4.8.2
 repositories:
   remote:
    - http://repo1.maven.org/maven2
-   - http://download.eclipse.org/rt/eclipselink/maven.repo
-   - http://github.com/realityforge/repository/raw/master
 
 artifacts:
   javaee_api: javax:javaee-api:jar:7.0
