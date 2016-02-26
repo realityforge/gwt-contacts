@@ -1,9 +1,9 @@
-*.iws
 *.iml
 *.ipr
-/config/database.yml
-/target
-/Gemfile.lock
-/reports
-/artifacts
+*.iws
 /*/generated
+/Gemfile.lock
+/artifacts
+/config/database.yml
+/reports
+/target
