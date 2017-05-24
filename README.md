@@ -3,6 +3,8 @@ gwt-contacts
 
 [![Build Status](https://secure.travis-ci.org/realityforge/gwt-contacts.png?branch=master)](http://travis-ci.org/realityforge/gwt-contacts)
 
+NOTE: The way we develop GWT apps has changed since this application was developed.
+
 This is the gwt "contacts" tutorial application from google. The following
 enhancements have been made;
 
